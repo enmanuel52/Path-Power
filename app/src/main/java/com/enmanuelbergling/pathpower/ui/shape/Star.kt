@@ -1,16 +1,13 @@
 package com.enmanuelbergling.pathpower.ui.shape
 
-import android.annotation.SuppressLint
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.asComposePath
+import androidx.compose.ui.graphics.vector.PathParser
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.core.graphics.PathParser
 
 data object Star : Shape {
-    @SuppressLint("RestrictedApi")
     override fun createOutline(
         size: Size,
         layoutDirection: LayoutDirection,
@@ -22,13 +19,13 @@ data object Star : Shape {
         val scaleY = size.height / 24f
 
         return Outline.Generic(
-            PathParser.createPathFromPathData(
+            PathParser().parsePathString(
                 resize(
                     pathData,
                     scaleX,
                     scaleY
                 )
-            ).asComposePath()
+            ).toPath()
         )
     }
 }

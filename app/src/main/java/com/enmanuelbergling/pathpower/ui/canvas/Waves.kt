@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.enmanuelbergling.pathpower.ui.shape.Heart
 import com.enmanuelbergling.pathpower.ui.shape.WaterDrop
 import com.enmanuelbergling.pathpower.ui.theme.DarkBlue40
 
@@ -82,9 +83,9 @@ internal fun DrawScope.waves(
 }
 
 enum class WaveForce(@FloatRange(.01, .6) val upPercent: Float, val durationMillis: Int) {
-    Quiet(.05f, 1200),
-    Normal(.1f, 900),
-    Angry(.2f, 600),
+    Quiet(.03f, 1600),
+    Normal(.08f, 900),
+    Angry(.15f, 600),
 }
 
 @Preview
@@ -147,15 +148,15 @@ fun AnimatedWaves(
 
 @Preview
 @Composable
-private fun AnimatedWavesPreview() {
+internal fun AnimatedWavesPreview() {
     AnimatedWaves(
         filledPercent = .3f,
         modifier = Modifier
             .size(300.dp, 350.dp)
-            .clip(WaterDrop)
-            .border(1.dp, DarkBlue40, WaterDrop),
+            .clip(Heart)
+            .border(1.dp, DarkBlue40, Heart),
         color = DarkBlue40,
         waveForce = WaveForce.Quiet,
-        goForward = false
+        goForward = true
     )
 }
