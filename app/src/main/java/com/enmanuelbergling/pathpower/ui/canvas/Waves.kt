@@ -10,8 +10,8 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -22,9 +22,9 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.enmanuelbergling.pathpower.ui.shape.Heart
-import com.enmanuelbergling.pathpower.ui.shape.WaterDrop
 import com.enmanuelbergling.pathpower.ui.theme.DarkBlue40
 
 internal const val WAVES = 2
@@ -83,9 +83,9 @@ internal fun DrawScope.waves(
 }
 
 enum class WaveForce(@FloatRange(.01, .6) val upPercent: Float, val durationMillis: Int) {
-    Quiet(.03f, 1600),
-    Normal(.08f, 900),
-    Angry(.15f, 600),
+    Quiet(.03f, 2000),
+    Normal(.06f, 1500),
+    Angry(.12f, 1000),
 }
 
 @Preview
@@ -107,12 +107,14 @@ private fun WavesPreview() {
 /**
  * Waves will be as width as the [Composable] itself
  * @param filledPercent of the waves
+ * @param widthDp for calculations
  * @param waveForce says how angry it is
  * @param goForward to move in one direction
  * */
 @Composable
 fun AnimatedWaves(
     filledPercent: Float,
+    widthDp: Dp,
     modifier: Modifier = Modifier,
     waveForce: WaveForce = WaveForce.Normal,
     color: Color = DarkBlue40,
@@ -122,19 +124,20 @@ fun AnimatedWaves(
 
     val infiniteTransition = rememberInfiniteTransition(label = "infinite waves transition")
 
-    BoxWithConstraints {
-        val offsetXAnimation by infiniteTransition.animateFloat(
-            initialValue = 0f,
-            targetValue = with(density) { -maxWidth.toPx() },
-            animationSpec = infiniteRepeatable(
-                tween(
-                    durationMillis = waveForce.durationMillis,
-                    easing = LinearEasing
-                ),
-                repeatMode = if (goForward) RepeatMode.Restart else RepeatMode.Reverse
+    val offsetXAnimation by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = with(density) { -widthDp.toPx() },
+        animationSpec = infiniteRepeatable(
+            tween(
+                durationMillis = waveForce.durationMillis,
+                easing = LinearEasing
             ),
-            label = "offset animation"
-        )
+            repeatMode = if (goForward) RepeatMode.Restart else RepeatMode.Reverse
+        ),
+        label = "offset animation"
+    )
+
+    Box {
         Canvas(modifier = modifier) {
             waves(
                 filledPercent = filledPercent,
@@ -150,13 +153,13 @@ fun AnimatedWaves(
 @Composable
 internal fun AnimatedWavesPreview() {
     AnimatedWaves(
-        filledPercent = .3f,
+        filledPercent = .51f,
+        widthDp = 300.dp,
         modifier = Modifier
             .size(300.dp, 350.dp)
             .clip(Heart)
-            .border(1.dp, DarkBlue40, Heart),
-        color = DarkBlue40,
-        waveForce = WaveForce.Quiet,
-        goForward = true
+            .border(1.dp, MaterialTheme.colorScheme.primary, Heart),
+        color = MaterialTheme.colorScheme.primary,
+        waveForce = WaveForce.Angry,
     )
 }
