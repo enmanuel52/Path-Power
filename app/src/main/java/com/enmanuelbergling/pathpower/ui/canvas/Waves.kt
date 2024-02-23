@@ -10,19 +10,24 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.enmanuelbergling.pathpower.ui.shape.Heart
 import com.enmanuelbergling.pathpower.ui.theme.DarkBlue40
@@ -114,7 +119,6 @@ private fun WavesPreview() {
 @Composable
 fun AnimatedWaves(
     filledPercent: Float,
-    widthDp: Dp,
     modifier: Modifier = Modifier,
     waveForce: WaveForce = WaveForce.Normal,
     color: Color = DarkBlue40,
@@ -124,9 +128,13 @@ fun AnimatedWaves(
 
     val infiniteTransition = rememberInfiniteTransition(label = "infinite waves transition")
 
+    var pxWidth by remember {
+        mutableIntStateOf(0)
+    }
+
     val offsetXAnimation by infiniteTransition.animateFloat(
         initialValue = 0f,
-        targetValue = with(density) { -widthDp.toPx() },
+        targetValue = with(density) { -pxWidth.toDp().toPx() },
         animationSpec = infiniteRepeatable(
             tween(
                 durationMillis = waveForce.durationMillis,
@@ -138,7 +146,11 @@ fun AnimatedWaves(
     )
 
     Box {
-        Canvas(modifier = modifier) {
+        Canvas(
+            modifier = modifier.onSizeChanged {
+                pxWidth = it.width
+            }
+        ) {
             waves(
                 filledPercent = filledPercent,
                 offsetX = offsetXAnimation,
@@ -154,12 +166,12 @@ fun AnimatedWaves(
 internal fun AnimatedWavesPreview() {
     AnimatedWaves(
         filledPercent = .51f,
-        widthDp = 300.dp,
         modifier = Modifier
-            .size(300.dp, 350.dp)
+            .fillMaxWidth(.56f)
+            .fillMaxHeight(.3f)
             .clip(Heart)
             .border(1.dp, MaterialTheme.colorScheme.primary, Heart),
         color = MaterialTheme.colorScheme.primary,
-        waveForce = WaveForce.Angry,
+        waveForce = WaveForce.Normal,
     )
 }
