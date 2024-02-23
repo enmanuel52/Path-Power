@@ -14,9 +14,9 @@ data object WaterDrop : Shape {
         density: Density,
     ): Outline {
         val pathData =
-            "M520.25,353.6c0,125 -100.5,219.2 -233.8,219.2S52.55,478.6 52.55,353.6c0,-115.3 164.7,-301.5 197.7,-337.7c9.3,-10.2 22.4,-15.9 36.2,-15.9s26.9,5.8 36.2,15.9C355.55,52.1 520.25,238.4 520.25,353.6z"
-        val scaleX = size.width / 572.8f
-        val scaleY = size.height / 572.8f
+            "m504.07,320.38c39.86,102.67 -83.64,191.63 -247.99,191.63s-288.34,-87.7 -247.99,-191.63c24.8,-63.88 148.8,-159.69 247.99,-319.38c99.2,159.69 223.2,255.5 247.99,319.38z"
+        val scaleX = size.width / 512f
+        val scaleY = size.height / 512f
 
         return Outline.Generic(
             PathParser().parsePathString(

@@ -1,7 +1,9 @@
 package com.enmanuelbergling.pathpower.ui.shape
 
+import android.graphics.Path
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.PathParser
 import androidx.compose.ui.unit.Density
@@ -14,7 +16,7 @@ data object LayDownHexagon : Shape {
         density: Density,
     ): Outline {
         val pathData =
-            "M477.04,219.21L378.58,48.68c-7.97,-13.8 -22.68,-22.29 -38.61,-22.29H143.04c-15.92,0 -30.63,8.49 -38.61,22.29L5.97,219.21c-7.96,13.8 -7.96,30.78 0,44.59l98.46,170.54c7.98,13.8 22.68,22.29 38.61,22.29h196.93c15.93,0 30.63,-8.49 38.61,-22.29l98.47,-170.54C485,249.99 485,233.01 477.04,219.21z"
+            "m477.04,216.06l-98.47,-190.74c-7.97,-15.44 -22.68,-24.93 -38.61,-24.93l-196.93,0c-15.92,0 -30.63,9.5 -38.61,24.93l-98.46,190.74c-7.96,15.44 -7.96,34.43 0,49.87l98.46,190.76c7.98,15.44 22.68,24.94 38.61,24.94l196.93,0c15.93,0 30.63,-9.5 38.61,-24.94l98.47,-190.76c7.96,-15.44 7.96,-34.44 0,-49.87z"
         val scaleX = size.width / 483.01f
         val scaleY = size.height / 483.01f
 

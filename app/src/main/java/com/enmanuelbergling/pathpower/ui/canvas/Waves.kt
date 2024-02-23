@@ -167,8 +167,7 @@ internal fun AnimatedWavesPreview() {
     AnimatedWaves(
         filledPercent = .51f,
         modifier = Modifier
-            .fillMaxWidth(.56f)
-            .fillMaxHeight(.3f)
+            .size(200.dp, 190.dp)
             .clip(Heart)
             .border(1.dp, MaterialTheme.colorScheme.primary, Heart),
         color = MaterialTheme.colorScheme.primary,
