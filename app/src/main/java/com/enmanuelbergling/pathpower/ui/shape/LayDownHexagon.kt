@@ -7,16 +7,16 @@ import androidx.compose.ui.graphics.vector.PathParser
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 
-data object Heart : Shape {
+data object LayDownHexagon : Shape {
     override fun createOutline(
         size: Size,
         layoutDirection: LayoutDirection,
         density: Density,
     ): Outline {
         val pathData =
-            "m29.785,18.838c2.199,-3.074 2.215,-4.667 2.215,-7.16 0,-3.84 -3.504,-8.679 -8.432,-8.679s-7.568,2.901 -7.568,2.901 -2.641,-2.901 -7.568,-2.901c-4.928,0 -8.432,4.839 -8.432,8.679 0,3.84 1.832,7.627 5.127,10.442 3.295,2.815 5.498,4.498 7.873,5.951 2.375,1.453 2.95,1.935 3,1.929 0,0 1.819,-1.112 3,-1.929 1.181,-0.817 2.539,-1.768 2.539,-1.768s6.047,-4.391 8.245,-7.465z"
-        val scaleX = size.width / 32f
-        val scaleY = size.height / 32f
+            "M477.04,219.21L378.58,48.68c-7.97,-13.8 -22.68,-22.29 -38.61,-22.29H143.04c-15.92,0 -30.63,8.49 -38.61,22.29L5.97,219.21c-7.96,13.8 -7.96,30.78 0,44.59l98.46,170.54c7.98,13.8 22.68,22.29 38.61,22.29h196.93c15.93,0 30.63,-8.49 38.61,-22.29l98.47,-170.54C485,249.99 485,233.01 477.04,219.21z"
+        val scaleX = size.width / 483.01f
+        val scaleY = size.height / 483.01f
 
         return Outline.Generic(
             PathParser().parsePathString(
