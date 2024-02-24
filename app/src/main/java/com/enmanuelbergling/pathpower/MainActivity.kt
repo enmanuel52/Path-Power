@@ -12,6 +12,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.enmanuelbergling.pathpower.ui.canvas.AnimatedWavesPreview
 import com.enmanuelbergling.pathpower.ui.list.LazyBeeList
+import com.enmanuelbergling.pathpower.ui.list.LazyBeeListAdaptive
+import com.enmanuelbergling.pathpower.ui.list.LazyBeeListFixed
 import com.enmanuelbergling.pathpower.ui.theme.PathPowerTheme
 
 class MainActivity : ComponentActivity() {
@@ -24,7 +26,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    LazyBeeList()
+                    LazyBeeListAdaptive()
                 }
             }
         }
