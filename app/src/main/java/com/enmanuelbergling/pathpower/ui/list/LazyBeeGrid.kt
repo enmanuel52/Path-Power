@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -23,7 +22,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
@@ -33,42 +31,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.enmanuelbergling.pathpower.ui.shape.LayDownHexagon
-import com.enmanuelbergling.pathpower.ui.theme.Honey
 import kotlin.math.roundToInt
 
-@Preview
-@Composable
-fun LazyBeeGrid() {
-
-    Layout(
-        content = {
-            repeat(10) {
-                Box(
-                    modifier = Modifier
-                        .size(200.dp)
-                        .clip(LayDownHexagon)
-                        .background(Honey)
-                )
-            }
-        },
-        measurePolicy = { measurables, constraints ->
-            val placeables = measurables.map { it.measure(constraints) }
-
-            layout(
-                constraints.maxWidth,
-                constraints.maxHeight
-            ) {
-                placeables.forEachIndexed { index, placeable ->
-                    placeable.place(
-                        y = index * placeable.height / 2,
-                        x = if (index % 2 == 0) 0
-                        else placeable.width.times(.8).roundToInt()
-                    )
-                }
-            }
-        }
-    )
-}
 
 @Preview
 @Composable
@@ -126,7 +90,7 @@ fun LazyBeeListAdaptive() {
 
     val spaceBetween = 12.dp
     val contentPadding = 4.dp
-    val itemWidth = 140.dp
+    val itemWidth = 100.dp
 
     val maxWidth = LocalConfiguration.current.screenWidthDp.dp
 
@@ -143,19 +107,20 @@ fun LazyBeeListAdaptive() {
         }
     }
 
-    if (evenRowCount==1){
+    if (evenRowCount == 1) {
         LazyBeeList()
-    }else{
-        LazyBeeListFixed(evenRowCount,spaceBetween, contentPadding)
+    } else {
+        LazyBeeListFixed(evenRowCount, spaceBetween, contentPadding)
     }
 }
 
 @Preview
 @Composable
 fun LazyBeeListFixed(
-    largerItemCount: Int = 3,
+    count: Int = 3,
     spaceBetween: Dp = 0.dp,
     contentPadding: Dp = 0.dp,
+    centerAlignment: Boolean = true,
 ) {
     val density = LocalDensity.current
 
@@ -163,7 +128,18 @@ fun LazyBeeListFixed(
         mutableIntStateOf(0)
     }
 
-    val fillWidth = 1f.div(largerItemCount + largerItemCount.times(.5f))
+    val fillWidth = 1f.div(count + count.times(.5f))
+
+    val itemCount = 21
+
+    val rowCount by remember {
+        derivedStateOf {
+            itemCount.toFloat().div(count - .5f).let {
+                if (it.toInt() < it) it.toInt().inc()
+                else it.toInt()
+            }
+        }
+    }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -171,13 +147,19 @@ fun LazyBeeListFixed(
             space = with(density) { -itemHeight.toDp() } + spaceBetween
         ), contentPadding = PaddingValues(contentPadding)
     ) {
-        items(20) { index ->
+        items(rowCount) { globalIndex ->
+            val startIndex = globalIndex.times(count.minus(.5)).let {
+                if (it.toInt() < it) it.toInt() //this is round towards by default
+                else it.toInt()
+            }
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(spaceBetween)
             ) {
-                if (index % 2 == 1) {
-                    repeat(largerItemCount) { index ->
+                val oddIndex = globalIndex % 2 == 1
+                if ((oddIndex && centerAlignment) || (!oddIndex && !centerAlignment)) {
+                    repeat(count) { index ->
                         if (index != 0) {
                             Spacer(modifier = Modifier.weight(fillWidth / 2))
                         }
@@ -193,16 +175,27 @@ fun LazyBeeListFixed(
                                 }
                                 .clip(LayDownHexagon)
                         ) {
-                            BeeItemList(
-                                index = index, modifier = Modifier
-                                    .align(Alignment.Center)
-                            )
+                            if (startIndex + index < itemCount) {
+                                BeeItemList(
+                                    index = startIndex + index, modifier = Modifier
+                                        .align(Alignment.Center)
+                                )
+                            }
                         }
                     }
                 } else {
-                    repeat(largerItemCount - 1) { index ->
+                    repeat(count - 1) { index ->
                         if (index == 0) {
                             Spacer(modifier = Modifier.weight(fillWidth * .75f))
+                        }
+
+                        val computedIndex by remember {
+                            derivedStateOf {
+                                (startIndex + index).let {
+                                    if (centerAlignment) it
+                                    else it.inc()
+                                }
+                            }
                         }
 
                         Box(
@@ -216,13 +209,15 @@ fun LazyBeeListFixed(
                                 }
                                 .clip(LayDownHexagon)
                         ) {
-                            BeeItemList(
-                                index = index, modifier = Modifier
-                                    .align(Alignment.Center)
-                            )
+                            if (computedIndex < itemCount) {
+                                BeeItemList(
+                                    index = computedIndex, modifier = Modifier
+                                        .align(Alignment.Center)
+                                )
+                            }
                         }
 
-                        if (index == largerItemCount - 2) {
+                        if (index == count - 2) {
                             Spacer(modifier = Modifier.weight(fillWidth * .75f))
                         } else {
                             Spacer(modifier = Modifier.weight(fillWidth * .5f))
@@ -255,4 +250,12 @@ private fun BeeItemList(index: Int, modifier: Modifier = Modifier) {
             )
         }
     }
+}
+
+/**
+ * Describes the count and sizes for columns
+ * */
+sealed interface BeeGridCells {
+    data class Fixed(val count: Int) : BeeGridCells
+    data class Adaptive(val minSize: Dp) : BeeGridCells
 }
