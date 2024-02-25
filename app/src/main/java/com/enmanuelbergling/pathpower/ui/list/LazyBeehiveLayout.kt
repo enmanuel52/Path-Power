@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.UiComposable
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Placeable
@@ -19,10 +20,10 @@ import kotlin.math.roundToInt
 
 @Preview
 @Composable
-internal fun SimpleLazyBeehiveLayout() {
-    val columns = 3
+internal fun LazyBeehiveLayout() {
+    val columns = 5
 
-    val spaceBetween = 12.dp
+    val spaceBetween = 1.dp
 
     val itemWidthWeight = 1f / (1f + (columns - 1).times(.75f))
 
@@ -35,53 +36,33 @@ internal fun SimpleLazyBeehiveLayout() {
 
         Layout(
             content = {
-                beeItems(18) {
+                repeat(18) {
                     Box(
                         modifier = Modifier
-                            .size(maxWidth.times(itemWidthWeight).minus(spaceBetween))
+                            .size(
+                                maxWidth
+                                    .times(itemWidthWeight)
+                                    .minus(spaceBetween)
+                            )
                             .clip(LayDownHexagon)
                             .background(Honey)
                     )
                 }
             },
-            measurePolicy = { measurables, constraints ->
-                val placeableList = measurables.map { it.measure(constraints) }
+            measurePolicy = { measurableList, constraints ->
+                val placeableList = measurableList.map { it.measure(constraints) }
 
-                val groupedPlaceableList = mutableListOf<List<Placeable>>()
+                val groupedPlaceableList = groupBeehiveItems(placeableList, columns)
 
-                val placeableQueue = placeableList.toMutableList()
-
-                fun takeFirst(n: Int) {
-                    val taken = placeableQueue.take(n)
-                    groupedPlaceableList.add(
-                        taken
-                    )
-                    placeableQueue.removeAll(taken)
-                }
-
-                val areColumnsEven = columns % 2 == 0
-
-                while (placeableQueue.isNotEmpty()) {
-                    if (areColumnsEven) {
-                        takeFirst(columns / 2)
-                    } else {
-                        val isEvenRow = groupedPlaceableList.count() % 2 == 0
-                        val takenCount = if (isEvenRow) columns.div(2).inc()
-                        else columns.div(2)
-
-                        takeFirst(takenCount)
-                    }
-                }
-
-                val spaceBetweenPx = with(density) { spaceBetween.toPx().roundToInt() }
+                val spaceBetweenPx = with(density) { spaceBetween.roundToPx() }
                 layout(
                     constraints.maxWidth,
                     constraints.maxHeight
                 ) {
-                    groupedPlaceableList.forEachIndexed { index, placeables ->
+                    groupedPlaceableList.forEachIndexed { index, placeableList1 ->
                         placeBeehiveRow(
-                            placeableList = placeables,
-                            offsetY = index * (placeables.first().height / 2.1f + spaceBetweenPx).roundToInt(),
+                            placeableList = placeableList1,
+                            offsetY = index * (placeableList1.first().height / 2.1f + spaceBetweenPx).roundToInt(),
                             isEvenRow = index % 2 == 0,
                             spaceBetweenPx = spaceBetweenPx
                         )
@@ -90,6 +71,34 @@ internal fun SimpleLazyBeehiveLayout() {
             }
         )
     }
+}
+
+@Composable
+internal fun LazyBeehiveRowLayout(
+    modifier: Modifier = Modifier,
+    isEvenRow: Boolean = true,
+    spaceBetween: Int = 0,
+    content: @Composable @UiComposable () -> Unit,
+) {
+    Layout(
+        modifier = modifier,
+        content = content,
+        measurePolicy = { measurableList, constraints ->
+            val placeableList = measurableList.map { it.measure(constraints) }
+
+            layout(
+                constraints.maxWidth,
+                constraints.maxHeight
+            ) {
+                placeBeehiveRow(
+                    placeableList = placeableList,
+                    offsetY = 0,
+                    isEvenRow = isEvenRow,
+                    spaceBetweenPx = spaceBetween
+                )
+            }
+        }
+    )
 }
 
 private fun Placeable.PlacementScope.placeBeehiveRow(
@@ -102,7 +111,7 @@ private fun Placeable.PlacementScope.placeBeehiveRow(
         //stick to left bound, larger row when there a odd amount of rows
         if (isEvenRow) {
             val placeableWidth = if (index == 0) placeable.width
-            else placeable.width.times(1.5).roundToInt() + (index * 2 * spaceBetweenPx)
+            else placeable.width.times(1.5).roundToInt() + ((index * 2) * spaceBetweenPx)
 
             placeable.place(
                 y = offsetY,
@@ -119,3 +128,36 @@ private fun Placeable.PlacementScope.placeBeehiveRow(
             )
         }
     }
+
+/**
+ * split a list of items into smaller lists for each row
+ * */
+fun <T : Any> groupBeehiveItems(originalItems: List<T>, columns: Int): List<List<T>> {
+    val groupedList = mutableListOf<List<T>>()
+
+    val listQueue = originalItems.toMutableList()
+
+    fun takeFirst(n: Int) {
+        val taken = listQueue.take(n)
+        groupedList.add(
+            taken
+        )
+        listQueue.removeAll(taken)
+    }
+
+    val areColumnsEven = columns % 2 == 0
+
+    while (listQueue.isNotEmpty()) {
+        if (areColumnsEven) {
+            takeFirst(columns / 2)
+        } else {
+            val isEvenRow = groupedList.count() % 2 == 0
+            val takenCount = if (isEvenRow) columns.div(2).inc()
+            else columns.div(2)
+
+            takeFirst(takenCount)
+        }
+    }
+
+    return groupedList.toList()
+}

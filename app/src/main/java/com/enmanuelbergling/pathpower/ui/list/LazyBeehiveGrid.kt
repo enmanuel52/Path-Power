@@ -1,71 +1,193 @@
 package com.enmanuelbergling.pathpower.ui.list
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.enmanuelbergling.pathpower.ui.shape.LayDownHexagon
 
 
 @Preview
 @Composable
-fun LazyBeeListAdaptive() {
-
-    val spaceBetween = 12.dp
-    val contentPadding = 4.dp
-    val itemWidth = 100.dp
-
-}
-
-@Composable
-fun <T: Any> beeItems(items: List<T>, content: @Composable (T) ->Unit){
-    items.forEach{
-        content(it)
-    }
-}
-
-@Composable
-fun  beeItems(count: Int, content: @Composable (index: Int) ->Unit){
-    repeat(count){
-        content(it)
-    }
-}
-
-@Composable
-private fun BeeItemList(index: Int, modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.secondary)
+internal fun LazyBeehiveGridPreview() {
+    LazyBeehiveVerticalGrid(
+        items = (1..40).toList(),
+        gridCells = BeehiveGridCells.Adaptive(90.dp),
+        spaceBetween = 8.dp,
+        modifier = Modifier.fillMaxSize()
+    ) { item ->
+        ElevatedCard(
+            modifier = Modifier.fillMaxSize(),
+            shape = LayDownHexagon,
+            colors = CardDefaults.elevatedCardColors(MaterialTheme.colorScheme.secondary)
         ) {
-            Text(
-                text = "Hi $index",
-                modifier = Modifier.align(Alignment.Center),
-                color = MaterialTheme.colorScheme.onSecondary,
-                style = MaterialTheme.typography.titleMedium,
-                fontStyle = FontStyle.Italic,
-                fontWeight = FontWeight.SemiBold
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(text = "Item: $item")
+            }
+        }
+    }
+}
+
+@Composable
+fun <T : Any> LazyBeehiveVerticalGrid(
+    items: List<T>,
+    gridCells: BeehiveGridCells,
+    modifier: Modifier = Modifier,
+    state: LazyListState = rememberLazyListState(),
+    key: ((rowIndex: Int, List<T>) -> Any)? = null,
+    spaceBetween: Dp = 4.dp,
+    contentPadding: PaddingValues = PaddingValues(0.dp),
+    verticalAlignment: Alignment.Vertical = Alignment.Top,
+    horizontalAlignment: Alignment.Horizontal = Alignment.Start,
+    userScrollEnabled: Boolean = true,
+    itemContent: @Composable ColumnScope.(T) -> Unit,
+) {
+    BoxWithConstraints {
+        val columns by remember(gridCells, maxWidth) {
+            mutableIntStateOf(
+                when (gridCells) {
+                    is BeehiveGridCells.Adaptive -> (maxWidth / gridCells.minSize).toInt()
+                    is BeehiveGridCells.Fixed -> gridCells.count
+                }
             )
+        }
+
+        LazyBeehive(
+            items = items,
+            columns = columns,
+            modifier = modifier,
+            state = state,
+            key = key,
+            spaceBetween = spaceBetween,
+            contentPadding = contentPadding,
+            verticalAlignment = verticalAlignment,
+            horizontalAlignment = horizontalAlignment,
+            userScrollEnabled = userScrollEnabled,
+            itemContent = itemContent
+        )
+    }
+}
+
+/**
+ * It is like [LazyColumn] where two row are placed as Beehive
+ * */
+@Composable
+internal fun <T : Any> LazyBeehive(
+    items: List<T>,
+    columns: Int,
+    modifier: Modifier = Modifier,
+    state: LazyListState = rememberLazyListState(),
+    key: ((rowIndex: Int, List<T>) -> Any)? = null,
+    spaceBetween: Dp = 4.dp,
+    contentPadding: PaddingValues = PaddingValues(0.dp),
+    verticalAlignment: Alignment.Vertical = Alignment.Top,
+    horizontalAlignment: Alignment.Horizontal = Alignment.Start,
+    userScrollEnabled: Boolean = true,
+    itemContent: @Composable ColumnScope.(T) -> Unit,
+) {
+    val density = LocalDensity.current
+
+    val itemWidthWeight: Float by remember(columns) {
+        mutableFloatStateOf(
+            1f / (1f + (columns - 1).times(.75f))
+        )
+    }
+
+    val groupedList by remember {
+        derivedStateOf {
+            groupBeehiveItems(items, columns)
+        }
+    }
+
+    BoxWithConstraints {
+        val itemSize by remember {
+            derivedStateOf {
+                maxWidth * itemWidthWeight - spaceBetween
+            }
+        }
+
+        LazyColumn(
+            modifier = modifier,
+            state = state,
+            contentPadding = contentPadding,
+            verticalArrangement = Arrangement.spacedBy(
+                -itemSize.div(1.9f).minus(spaceBetween), verticalAlignment
+            ),
+            horizontalAlignment = horizontalAlignment,
+            userScrollEnabled = userScrollEnabled,
+        ) {
+            itemsIndexed(groupedList, key = key) { index, rowItems ->
+                LazyBeehiveRowLayout(
+                    isEvenRow = index % 2 == 0,
+                    spaceBetween = with(density) { spaceBetween.roundToPx() },
+                    modifier = Modifier.height(itemSize)
+                ) {
+                    rowItems.forEach { item ->
+                        Column(
+                            modifier = Modifier
+                                .size(itemSize)
+                                .clip(LayDownHexagon),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            itemContent(item)
+                        }
+                    }
+                }
+            }
         }
     }
 }
 
 /**
- * Describes the count and sizes for columns
+ * It is like [GridCells]
  * */
-sealed interface BeeGridCells {
-    data class Fixed(val count: Int) : BeeGridCells
-    data class Adaptive(val minSize: Dp) : BeeGridCells
+sealed interface BeehiveGridCells {
+    /**
+     * It is like [GridCells.Fixed]
+     * */
+    data class Fixed(val count: Int) : BeehiveGridCells {
+        init {
+            require(count > 0) { "Provided count $count should be larger than zero" }
+        }
+    }
+
+    /**
+     * It is like [GridCells.Adaptive]
+     * */
+    data class Adaptive(val minSize: Dp) : BeehiveGridCells {
+        init {
+            require(minSize > 0.dp) { "Provided min size $minSize should be larger than zero." }
+        }
+    }
 }
