@@ -10,7 +10,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Placeable
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.enmanuelbergling.pathpower.ui.shape.LayDownHexagon
 import com.enmanuelbergling.pathpower.ui.theme.Honey
 import kotlin.math.roundToInt
@@ -20,7 +22,11 @@ import kotlin.math.roundToInt
 internal fun SimpleLazyBeehiveLayout() {
     val columns = 3
 
+    val spaceBetween = 12.dp
+
     val itemWidthWeight = 1f / (1f + (columns - 1).times(.75f))
+
+    val density = LocalDensity.current
 
     BoxWithConstraints(
         modifier = Modifier
@@ -29,10 +35,10 @@ internal fun SimpleLazyBeehiveLayout() {
 
         Layout(
             content = {
-                repeat(18) {
+                beeItems(18) {
                     Box(
                         modifier = Modifier
-                            .size(maxWidth.times(itemWidthWeight))
+                            .size(maxWidth.times(itemWidthWeight).minus(spaceBetween))
                             .clip(LayDownHexagon)
                             .background(Honey)
                     )
@@ -67,38 +73,49 @@ internal fun SimpleLazyBeehiveLayout() {
                     }
                 }
 
+                val spaceBetweenPx = with(density) { spaceBetween.toPx().roundToInt() }
                 layout(
                     constraints.maxWidth,
                     constraints.maxHeight
                 ) {
-                    placeBeehive(groupedPlaceableList)
+                    groupedPlaceableList.forEachIndexed { index, placeables ->
+                        placeBeehiveRow(
+                            placeableList = placeables,
+                            offsetY = index * (placeables.first().height / 2.1f + spaceBetweenPx).roundToInt(),
+                            isEvenRow = index % 2 == 0,
+                            spaceBetweenPx = spaceBetweenPx
+                        )
+                    }
                 }
             }
         )
     }
 }
 
-private fun Placeable.PlacementScope.placeBeehive(items: List<List<Placeable>>) =
-    items.forEachIndexed { groupIndex, placeableList ->
-        placeableList.forEachIndexed { index, placeable ->
-            //stick to left bound
-            if (groupIndex % 2 == 0) {
+private fun Placeable.PlacementScope.placeBeehiveRow(
+    placeableList: List<Placeable>,
+    offsetY: Int,
+    isEvenRow: Boolean,
+    spaceBetweenPx: Int = 0,
+) =
+    placeableList.forEachIndexed { index, placeable ->
+        //stick to left bound, larger row when there a odd amount of rows
+        if (isEvenRow) {
+            val placeableWidth = if (index == 0) placeable.width
+            else placeable.width.times(1.5).roundToInt() + (index * 2 * spaceBetweenPx)
 
-                val placeableWidth = if (index == 0) placeable.width
-                else placeable.width.times(1.5).roundToInt()
+            placeable.place(
+                y = offsetY,
+                x = placeableWidth * index
+            )
+        } else {
+            val placeableWidth =
+                placeable.width.times(1.5).roundToInt() + ((index * 2 + 1) * spaceBetweenPx)
 
-                placeable.place(
-                    y = groupIndex * placeable.height / 2,
-                    x = placeableWidth * index
-                )
-            } else {
-                val placeableWidth = placeable.width.times(1.5).roundToInt()
-
-                placeable.place(
-                    y = groupIndex * placeable.height / 2,
-                    x = placeableWidth * index + placeable.width.times(.75)
-                        .roundToInt()
-                )
-            }
+            placeable.place(
+                y = offsetY,
+                x = if (index == 0) spaceBetweenPx + placeable.width.times(.75).roundToInt()
+                else placeableWidth * index + placeable.width.times(.75).roundToInt()
+            )
         }
     }
