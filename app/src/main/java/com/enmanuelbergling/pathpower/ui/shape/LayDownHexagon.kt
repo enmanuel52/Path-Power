@@ -9,7 +9,7 @@ import androidx.compose.ui.graphics.vector.PathParser
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 
-data object LayDownHexagon : Shape {
+internal data object LayDownHexagon : Shape {
     override fun createOutline(
         size: Size,
         layoutDirection: LayoutDirection,

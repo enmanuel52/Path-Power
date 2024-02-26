@@ -7,7 +7,7 @@ import androidx.compose.ui.graphics.vector.PathParser
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 
-data object WaterDrop : Shape {
+internal data object WaterDrop : Shape {
     override fun createOutline(
         size: Size,
         layoutDirection: LayoutDirection,

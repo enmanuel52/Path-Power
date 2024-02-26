@@ -12,7 +12,7 @@ import com.enmanuelbergling.pathpower.ui.theme.Honey
 
 @Preview
 @Composable
-fun LayDownHexagonPrev() {
+internal fun LayDownHexagonPrev() {
     Box(modifier = Modifier
         .size(200.dp)
         .clip(LayDownHexagon)

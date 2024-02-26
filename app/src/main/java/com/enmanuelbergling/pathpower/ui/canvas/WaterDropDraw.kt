@@ -13,7 +13,7 @@ import androidx.compose.ui.unit.dp
 
 @Preview
 @Composable
-fun WaterDrop(modifier: Modifier = Modifier) {
+internal fun WaterDrop(modifier: Modifier = Modifier) {
     Canvas(modifier = modifier.size(400.dp, 600.dp)) {
         val path = waterDropPath(size)
         drawPath(
@@ -24,7 +24,7 @@ fun WaterDrop(modifier: Modifier = Modifier) {
     }
 }
 
-fun waterDropPath(size: Size) =
+internal fun waterDropPath(size: Size) =
     Path().apply {
         moveTo(size.width / 2, 0f)
         cubicTo(

@@ -59,7 +59,7 @@ internal fun LazyBeehiveGridPreview() {
 }
 
 @Composable
-fun <T : Any> LazyBeehiveVerticalGrid(
+internal fun <T : Any> LazyBeehiveVerticalGrid(
     items: List<T>,
     gridCells: BeehiveGridCells,
     modifier: Modifier = Modifier,

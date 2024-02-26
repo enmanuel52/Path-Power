@@ -7,7 +7,7 @@ import androidx.compose.ui.graphics.vector.PathParser
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 
-data object Star : Shape {
+internal data object Star : Shape {
     override fun createOutline(
         size: Size,
         layoutDirection: LayoutDirection,

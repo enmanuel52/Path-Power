@@ -210,9 +210,8 @@ fun AnimatedWavesIndicator(
 }
 
 
-val WaveLittleAngry = WaveForce.Custom(.09f, 1250)
+internal val WaveLittleAngry = WaveForce.Custom(.09f, 1250)
 
-@Preview
 @Composable
 internal fun AnimatedWavesPreview() {
     var progress by remember {

@@ -13,7 +13,7 @@ import androidx.compose.ui.unit.dp
 
 @Preview
 @Composable
-fun Heart(
+internal fun Heart(
     modifier: Modifier = Modifier,
 ) {
     Canvas(modifier = modifier.size(500.dp, 380.dp)) {
