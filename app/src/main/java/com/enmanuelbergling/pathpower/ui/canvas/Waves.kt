@@ -1,7 +1,6 @@
 package com.enmanuelbergling.pathpower.ui.canvas
 
 import androidx.annotation.FloatRange
-import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.Spring
@@ -12,7 +11,6 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -21,21 +19,20 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.KeyboardArrowDown
-import androidx.compose.material.icons.rounded.KeyboardArrowUp
+import androidx.compose.material.icons.rounded.Settings
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SmallFloatingActionButton
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -51,8 +48,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.enmanuelbergling.pathpower.ui.shape.Heart
 import com.enmanuelbergling.pathpower.ui.theme.DarkBlue40
-import com.enmanuelbergling.pathpower.util.roundTo
-import kotlin.math.roundToInt
 
 internal const val WAVES = 2
 
@@ -209,58 +204,24 @@ fun AnimatedWavesIndicator(
     }
 }
 
-
-internal val WaveLittleAngry = WaveForce.Custom(.09f, 1250)
-
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun AnimatedWavesPreview() {
     var progress by remember {
         mutableFloatStateOf(0f)
     }
-
-    val transition = updateTransition(targetState = progress, "progress transition")
-
-    val animatedProgressColor by transition.animateColor(
-        transitionSpec = { tween(2000) },
-        label = "color animation"
-    ) {
-        if (it == 1f) MaterialTheme.colorScheme.tertiary
-        else MaterialTheme.colorScheme.primary
-
+    var waveHeightPercent by remember {
+        mutableFloatStateOf(0f)
     }
 
-    val animatedTextColor by transition.animateColor(
-        transitionSpec = { tween(2000) },
-        label = "color animation"
-    ) {
-        if (it == 1f) MaterialTheme.colorScheme.onTertiary
-        else if (it >= .6f) MaterialTheme.colorScheme.onPrimary
-        else MaterialTheme.colorScheme.onBackground
-
-    }
-
-    val waveForce by remember(progress) {
-        mutableStateOf(
-            when (progress) {
-                in 0f..0.05f -> WaveForce.Custom(0f, 2000)
-                in 0.06f..0.25f -> WaveForce.Quiet
-                in 0.26f..0.4f -> WaveForce.Normal
-                in 0.41f..0.50f -> WaveLittleAngry
-                in 0.51f..0.6f -> WaveForce.Angry
-                in 0.61f..0.65f -> WaveLittleAngry
-                in 0.65f..0.75f -> WaveForce.Normal
-                else -> WaveForce.Quiet
-            }
-        )
-    }
-
-    val animatedProgress by transition.animateFloat(
+    val animatedProgress by animateFloatAsState(
+        targetValue = progress,
         label = "progress animation",
-        transitionSpec = { spring(stiffness = Spring.StiffnessLow) }
-    ) { it }
+        animationSpec = spring(stiffness = Spring.StiffnessLow)
+    )
 
     Column(
-        verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
+        verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.fillMaxSize()
     ) {
@@ -268,47 +229,45 @@ internal fun AnimatedWavesPreview() {
         AnimatedWavesIndicator(
             progress = animatedProgress,
             modifier = Modifier
-                .size(200.dp, 190.dp)
+                .size(300.dp, 270.dp)
                 .clip(Heart)
-                .border(1.dp, MaterialTheme.colorScheme.surfaceVariant, Heart),
-            color = animatedProgressColor,
-            waveForce = waveForce
-        ) {
-            Text(
-                text = "${progress.times(100).roundToInt()}%",
-                style = MaterialTheme.typography.titleLarge,
-                color = animatedTextColor
+                .border(4.dp, MaterialTheme.colorScheme.surfaceVariant, Heart),
+            color = MaterialTheme.colorScheme.primary,
+            waveForce = WaveForce.Custom(waveHeightPercent, 1100)
+        )
+
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(text = "Progress")
+            Spacer(modifier = Modifier.width(8.dp))
+            Slider(
+                value = progress,
+                onValueChange = { progress = it },
+                valueRange = 0f..1f,
+                modifier = Modifier.fillMaxWidth(.6f),
+                thumb = {
+                    Icon(
+                        imageVector = Icons.Rounded.Settings,
+                        contentDescription = "progress thumb icon"
+                    )
+                }
             )
         }
 
-        Row {
-            SmallFloatingActionButton(
-                onClick = {
-                    if (progress >= .05f) {
-                        progress = (progress - .05f) roundTo 2
-                    }
-                }, shape = CircleShape
-            ) {
-                Icon(
-                    imageVector = Icons.Rounded.KeyboardArrowDown,
-                    contentDescription = "decrease percent"
-                )
-            }
-
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(text = "Height")
             Spacer(modifier = Modifier.width(8.dp))
-
-            SmallFloatingActionButton(
-                onClick = {
-                    if (progress <= .95f) {
-                        progress = (progress + .05f) roundTo 2
-                    }
-                }, shape = CircleShape
-            ) {
-                Icon(
-                    imageVector = Icons.Rounded.KeyboardArrowUp,
-                    contentDescription = "increment percent"
-                )
-            }
+            Slider(
+                value = waveHeightPercent,
+                onValueChange = { waveHeightPercent = it },
+                valueRange = 0f..0.15f,
+                modifier = Modifier.fillMaxWidth(.6f),
+                thumb = {
+                    Icon(
+                        imageVector = Icons.Rounded.Settings,
+                        contentDescription = "progress thumb icon"
+                    )
+                }
+            )
         }
     }
 }
