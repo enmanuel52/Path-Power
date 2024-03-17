@@ -2,6 +2,5 @@
 
 
 
-https://github.com/enmanuel52/Path-Power/assets/102194318/ffb02dbc-15ab-4274-bcbc-05b6525d66f7
-
+https://github.com/enmanuel52/Path-Power/assets/102194318/1511ad6a-9234-4339-8bab-b8399b1d08b1
 
