@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -26,7 +27,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -38,8 +38,8 @@ import com.enmanuelbergling.pathpower.ui.shape.LayDownHexagon
 internal fun LazyBeehiveGridPreview() {
     LazyBeehiveVerticalGrid(
         items = (1..40).toList(),
-        gridCells = BeehiveGridCells.Adaptive(90.dp),
-        spaceBetween = 8.dp,
+        gridCells = BeehiveGridCells.Adaptive(70.dp),
+        spaceEvenly = 6.dp,
         modifier = Modifier.fillMaxSize()
     ) { item ->
         ElevatedCard(
@@ -65,7 +65,7 @@ internal fun <T : Any> LazyBeehiveVerticalGrid(
     modifier: Modifier = Modifier,
     state: LazyListState = rememberLazyListState(),
     key: ((rowIndex: Int, List<T>) -> Any)? = null,
-    spaceBetween: Dp = 4.dp,
+    spaceEvenly: Dp = 4.dp,
     contentPadding: PaddingValues = PaddingValues(0.dp),
     verticalAlignment: Alignment.Vertical = Alignment.Top,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
@@ -88,7 +88,7 @@ internal fun <T : Any> LazyBeehiveVerticalGrid(
             modifier = modifier,
             state = state,
             key = key,
-            spaceBetween = spaceBetween,
+            spaceEvenly = spaceEvenly,
             contentPadding = contentPadding,
             verticalAlignment = verticalAlignment,
             horizontalAlignment = horizontalAlignment,
@@ -108,15 +108,13 @@ internal fun <T : Any> LazyBeehive(
     modifier: Modifier = Modifier,
     state: LazyListState = rememberLazyListState(),
     key: ((rowIndex: Int, List<T>) -> Any)? = null,
-    spaceBetween: Dp = 4.dp,
+    spaceEvenly: Dp = 4.dp,
     contentPadding: PaddingValues = PaddingValues(0.dp),
     verticalAlignment: Alignment.Vertical = Alignment.Top,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
     userScrollEnabled: Boolean = true,
     itemContent: @Composable ColumnScope.(T) -> Unit,
 ) {
-    val density = LocalDensity.current
-
     val itemWidthWeight: Float by remember(columns) {
         mutableFloatStateOf(
             1f / (1f + (columns - 1).times(.75f))
@@ -130,18 +128,14 @@ internal fun <T : Any> LazyBeehive(
     }
 
     BoxWithConstraints {
-        val itemSize by remember {
-            derivedStateOf {
-                maxWidth * itemWidthWeight - spaceBetween
-            }
-        }
+        val itemSize=maxWidth * itemWidthWeight
 
         LazyColumn(
             modifier = modifier,
             state = state,
             contentPadding = contentPadding,
             verticalArrangement = Arrangement.spacedBy(
-                -itemSize.div(1.9f).minus(spaceBetween), verticalAlignment
+                -itemSize.div(2.07f), verticalAlignment
             ),
             horizontalAlignment = horizontalAlignment,
             userScrollEnabled = userScrollEnabled,
@@ -149,13 +143,13 @@ internal fun <T : Any> LazyBeehive(
             itemsIndexed(groupedList, key = key) { index, rowItems ->
                 LazyBeehiveRowLayout(
                     isEvenRow = index % 2 == 0,
-                    spaceBetween = with(density) { spaceBetween.roundToPx() },
                     modifier = Modifier.height(itemSize)
                 ) {
                     rowItems.forEach { item ->
                         Column(
                             modifier = Modifier
                                 .size(itemSize)
+                                .padding(spaceEvenly)
                                 .clip(LayDownHexagon),
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center

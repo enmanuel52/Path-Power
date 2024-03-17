@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -11,7 +12,6 @@ import androidx.compose.ui.UiComposable
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Placeable
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.enmanuelbergling.pathpower.ui.shape.LayDownHexagon
@@ -21,13 +21,11 @@ import kotlin.math.roundToInt
 @Preview
 @Composable
 internal fun LazyBeehiveLayout() {
-    val columns = 5
+    val columns = 7
 
-    val spaceBetween = 1.dp
+    val spaceEvenly = 3.dp
 
     val itemWidthWeight = 1f / (1f + (columns - 1).times(.75f))
-
-    val density = LocalDensity.current
 
     BoxWithConstraints(
         modifier = Modifier
@@ -36,14 +34,14 @@ internal fun LazyBeehiveLayout() {
 
         Layout(
             content = {
-                repeat(18) {
+                repeat(8) {
                     Box(
                         modifier = Modifier
                             .size(
                                 maxWidth
                                     .times(itemWidthWeight)
-                                    .minus(spaceBetween)
                             )
+                            .padding(spaceEvenly)
                             .clip(LayDownHexagon)
                             .background(Honey)
                     )
@@ -54,7 +52,6 @@ internal fun LazyBeehiveLayout() {
 
                 val groupedPlaceableList = groupBeehiveItems(placeableList, columns)
 
-                val spaceBetweenPx = with(density) { spaceBetween.roundToPx() }
                 layout(
                     constraints.maxWidth,
                     constraints.maxHeight
@@ -62,9 +59,8 @@ internal fun LazyBeehiveLayout() {
                     groupedPlaceableList.forEachIndexed { index, placeableList1 ->
                         placeBeehiveRow(
                             placeableList = placeableList1,
-                            offsetY = index * (placeableList1.first().height / 2.1f + spaceBetweenPx).roundToInt(),
+                            offsetY = index * (placeableList1.first().height / 2.07f).roundToInt(),
                             isEvenRow = index % 2 == 0,
-                            spaceBetweenPx = spaceBetweenPx
                         )
                     }
                 }
@@ -77,7 +73,6 @@ internal fun LazyBeehiveLayout() {
 internal fun LazyBeehiveRowLayout(
     modifier: Modifier = Modifier,
     isEvenRow: Boolean = true,
-    spaceBetween: Int = 0,
     content: @Composable @UiComposable () -> Unit,
 ) {
     Layout(
@@ -94,7 +89,6 @@ internal fun LazyBeehiveRowLayout(
                     placeableList = placeableList,
                     offsetY = 0,
                     isEvenRow = isEvenRow,
-                    spaceBetweenPx = spaceBetween
                 )
             }
         }
@@ -105,26 +99,20 @@ private fun Placeable.PlacementScope.placeBeehiveRow(
     placeableList: List<Placeable>,
     offsetY: Int,
     isEvenRow: Boolean,
-    spaceBetweenPx: Int = 0,
 ) =
     placeableList.forEachIndexed { index, placeable ->
+        val placeableWidth = placeable.width.times(1.5).roundToInt()
         //stick to left bound, larger row when there a odd amount of rows
+        val placeableXPosition = placeableWidth * index
         if (isEvenRow) {
-            val placeableWidth = if (index == 0) placeable.width
-            else placeable.width.times(1.5).roundToInt() + ((index * 2) * spaceBetweenPx)
-
             placeable.place(
                 y = offsetY,
-                x = placeableWidth * index
+                x = placeableXPosition
             )
         } else {
-            val placeableWidth =
-                placeable.width.times(1.5).roundToInt() + ((index * 2 + 1) * spaceBetweenPx)
-
             placeable.place(
                 y = offsetY,
-                x = if (index == 0) spaceBetweenPx + placeable.width.times(.75).roundToInt()
-                else placeableWidth * index + placeable.width.times(.75).roundToInt()
+                x = placeableXPosition + placeableWidth.times(.5).roundToInt()
             )
         }
     }
