@@ -89,6 +89,7 @@ internal fun LazyBeehiveGridExample() {
         LazyBeehiveVerticalGrid(
             items = (1..40).toList(),
             gridCells = beehiveCells,
+            key = {rowIndex, _ -> rowIndex },
             spaceEvenly = 6.dp,
             modifier = Modifier
                 .fillMaxSize()
@@ -97,7 +98,7 @@ internal fun LazyBeehiveGridExample() {
             ElevatedCard(
                 onClick = {
                     scope.launch {
-                        snackbarHostState.showSnackbar("Bee number $item clicked")
+                        snackbarHostState.showSnackbar("Bee number $item clicked", withDismissAction = true)
                     }
                 },
                 modifier = Modifier.fillMaxSize(),
