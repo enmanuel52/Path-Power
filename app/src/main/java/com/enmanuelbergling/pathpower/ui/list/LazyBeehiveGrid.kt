@@ -112,13 +112,13 @@ internal fun LazyBeehiveGridExample() {
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.bee),
-                        contentDescription = "bee image",
-                        Modifier.size(50.dp)
-                    )
-
-                    Spacer(modifier = Modifier.height(8.dp))
+//                    Image(
+//                        painter = painterResource(id = R.drawable.bee),
+//                        contentDescription = "bee image",
+//                        Modifier.size(50.dp)
+//                    )
+//
+//                    Spacer(modifier = Modifier.height(8.dp))
 
                     Text(text = "Item $item")
                 }
@@ -271,24 +271,46 @@ internal fun <T : Any> LazyBeehive(
     }
 
     BoxWithConstraints {
-        val itemSize = maxWidth * itemWidthWeight
-        val evenRowMaxCount = columns.div(2.0).roundToInt()
+        val itemSize by remember(maxWidth, itemWidthWeight) {
+            mutableStateOf(
+                maxWidth * itemWidthWeight
+            )
+        }
+        val evenRowMaxCount by remember(columns) {
+            mutableIntStateOf(
+                columns.div(2.0).roundToInt()
+            )
+        }
 
         LazyColumn(
             modifier = modifier,
             state = state,
             contentPadding = contentPadding,
             verticalArrangement = Arrangement.spacedBy(
-                -itemSize.div(2) + spaceBetween, verticalAlignment
+                -itemSize / 2 + spaceBetween, verticalAlignment
             ),
             horizontalAlignment = horizontalAlignment,
             userScrollEnabled = userScrollEnabled,
         ) {
             itemsIndexed(groupedList, key = key) { index, rowItems ->
-                val isEvenRow = index % 2 == 0 || columns == 1
+                val isEvenRow by remember(columns) {
+                    derivedStateOf {
+                        index % 2 == 0 || columns == 1
+                    }
+                }
 
-                val rowMaxCount = if (isEvenRow) evenRowMaxCount
-                else columns / 2
+                val rowMaxCount by remember(isEvenRow,columns) {
+                    mutableIntStateOf(
+                        if (isEvenRow) evenRowMaxCount
+                        else columns / 2
+                    )
+                }
+
+                val goThrough by remember(columns) {
+                    derivedStateOf {
+                        (isEvenRow && columns % 2 == 1) || (!isEvenRow && columns % 2 == 0)
+                    }
+                }
 
                 BeehiveRow(
                     rowItems,
@@ -297,7 +319,7 @@ internal fun <T : Any> LazyBeehive(
                     evenRowMaxCount = evenRowMaxCount,
                     itemsMaxCount = rowMaxCount,
                     spaceBetween = spaceBetween,
-                    goThrough = (isEvenRow && columns % 2 == 1) || (!isEvenRow && columns % 2 == 0),
+                    goThrough = goThrough,
                     itemContent = itemContent
                 )
             }

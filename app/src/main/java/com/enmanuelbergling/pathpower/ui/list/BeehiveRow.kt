@@ -12,6 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -70,7 +71,11 @@ fun <T> BeehiveRow(
                     modifier = Modifier.weight(itemWidthWeight.times(.5f))
                 )
 
-                val item = items.getOrNull(index)
+                val item by remember(items) {
+                    mutableStateOf(
+                        items.getOrNull(index)
+                    )
+                }
 
                 item?.let {
                     Column(
@@ -78,7 +83,7 @@ fun <T> BeehiveRow(
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        itemContent(item)
+                        itemContent(it)
                     }
                 } ?: run {
                     Spacer(
