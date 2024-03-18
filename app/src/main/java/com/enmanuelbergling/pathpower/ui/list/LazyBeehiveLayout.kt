@@ -7,6 +7,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.UiComposable
 import androidx.compose.ui.draw.clip
@@ -25,7 +28,11 @@ internal fun LazyBeehiveLayout() {
 
     val spaceEvenly = 3.dp
 
-    val itemWidthWeight = 1f / (1f + (columns - 1).times(.75f))
+    val itemWidthWeight by remember(columns) {
+        mutableFloatStateOf(
+            1f / (1f + (columns - 1).times(.75f))
+        )
+    }
 
     BoxWithConstraints(
         modifier = Modifier
