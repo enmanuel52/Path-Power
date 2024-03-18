@@ -44,15 +44,14 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.enmanuelbergling.pathpower.R
-import com.enmanuelbergling.pathpower.ui.shape.LayDownHexagon
 import com.enmanuelbergling.pathpower.ui.theme.LighterHoney
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview
@@ -67,7 +66,7 @@ internal fun LazyBeehiveGridExample() {
 
     var beehiveCells: BeehiveGridCells by remember {
         mutableStateOf(
-            BeehiveGridCells.Fixed(2)
+            BeehiveGridCells.Fixed(3)
         )
     }
 
@@ -89,20 +88,23 @@ internal fun LazyBeehiveGridExample() {
         LazyBeehiveVerticalGrid(
             items = (1..40).toList(),
             gridCells = beehiveCells,
-            key = {rowIndex, _ -> rowIndex },
-            spaceEvenly = 6.dp,
+            key = { rowIndex, _ -> rowIndex },
+            spaceBetween = 6.dp,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(it)
+                .padding(it),
+            contentPadding = PaddingValues(4.dp)
         ) { item ->
             ElevatedCard(
                 onClick = {
                     scope.launch {
-                        snackbarHostState.showSnackbar("Bee number $item clicked", withDismissAction = true)
+                        snackbarHostState.showSnackbar(
+                            "Bee number $item clicked",
+                            withDismissAction = true
+                        )
                     }
                 },
                 modifier = Modifier.fillMaxSize(),
-                shape = LayDownHexagon,
                 colors = CardDefaults.elevatedCardColors(LighterHoney)
             ) {
                 Column(
@@ -142,7 +144,11 @@ internal fun CellSheetSettings(
     onCellsChange: (BeehiveGridCells) -> Unit,
 ) {
     ModalBottomSheet(onDismissRequest = onDismiss) {
-        Column(modifier = Modifier.navigationBarsPadding().padding(horizontal = 12.dp)) {
+        Column(
+            modifier = Modifier
+                .navigationBarsPadding()
+                .padding(horizontal = 12.dp)
+        ) {
 
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -202,7 +208,7 @@ fun <T : Any> LazyBeehiveVerticalGrid(
     modifier: Modifier = Modifier,
     state: LazyListState = rememberLazyListState(),
     key: ((rowIndex: Int, List<T>) -> Any)? = null,
-    spaceEvenly: Dp = 4.dp,
+    spaceBetween: Dp = 4.dp,
     contentPadding: PaddingValues = PaddingValues(0.dp),
     verticalAlignment: Alignment.Vertical = Alignment.Top,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
@@ -225,7 +231,7 @@ fun <T : Any> LazyBeehiveVerticalGrid(
             modifier = modifier,
             state = state,
             key = key,
-            spaceEvenly = spaceEvenly,
+            spaceBetween = spaceBetween,
             contentPadding = contentPadding,
             verticalAlignment = verticalAlignment,
             horizontalAlignment = horizontalAlignment,
@@ -245,7 +251,7 @@ internal fun <T : Any> LazyBeehive(
     modifier: Modifier = Modifier,
     state: LazyListState = rememberLazyListState(),
     key: ((rowIndex: Int, List<T>) -> Any)? = null,
-    spaceEvenly: Dp = 4.dp,
+    spaceBetween: Dp = 4.dp,
     contentPadding: PaddingValues = PaddingValues(0.dp),
     verticalAlignment: Alignment.Vertical = Alignment.Top,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
@@ -258,7 +264,7 @@ internal fun <T : Any> LazyBeehive(
         )
     }
 
-    val groupedList by remember(items, columns) {
+    val groupedList by remember(columns, items) {
         derivedStateOf {
             groupBeehiveItems(items, columns)
         }
@@ -266,36 +272,34 @@ internal fun <T : Any> LazyBeehive(
 
     BoxWithConstraints {
         val itemSize = maxWidth * itemWidthWeight
+        val evenRowMaxCount = columns.div(2.0).roundToInt()
 
         LazyColumn(
             modifier = modifier,
             state = state,
             contentPadding = contentPadding,
             verticalArrangement = Arrangement.spacedBy(
-                -itemSize.div(1.95f), verticalAlignment
+                -itemSize.div(2) + spaceBetween, verticalAlignment
             ),
             horizontalAlignment = horizontalAlignment,
             userScrollEnabled = userScrollEnabled,
         ) {
             itemsIndexed(groupedList, key = key) { index, rowItems ->
-                LazyBeehiveRowLayout(
-                    isEvenRow = index % 2 == 0 || columns == 1,
-                    modifier = Modifier
-                        .height(itemSize)
-                ) {
-                    rowItems.forEach { item ->
-                        Column(
-                            modifier = Modifier
-                                .size(itemSize)
-                                .padding(spaceEvenly)
-                                .clip(LayDownHexagon),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            itemContent(item)
-                        }
-                    }
-                }
+                val isEvenRow = index % 2 == 0 || columns == 1
+
+                val rowMaxCount = if (isEvenRow) evenRowMaxCount
+                else columns / 2
+
+                BeehiveRow(
+                    rowItems,
+                    modifier = Modifier.fillMaxWidth(),
+                    startsOnZero = isEvenRow,
+                    evenRowMaxCount = evenRowMaxCount,
+                    itemsMaxCount = rowMaxCount,
+                    spaceBetween = spaceBetween,
+                    goThrough = (isEvenRow && columns % 2 == 1) || (!isEvenRow && columns % 2 == 0),
+                    itemContent = itemContent
+                )
             }
         }
     }
