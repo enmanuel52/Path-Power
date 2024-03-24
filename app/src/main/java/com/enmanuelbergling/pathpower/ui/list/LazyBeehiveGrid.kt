@@ -1,15 +1,27 @@
 package com.enmanuelbergling.pathpower.ui.list
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -17,11 +29,61 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
+import kotlin.random.Random
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview
+@Composable
+internal fun SimpleExample() {
+    var columns by remember {
+        mutableIntStateOf(2)
+    }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(text = "$columns columns") },
+                actions = {
+                    TextButton(onClick = { columns-- }, enabled = columns > 1) {
+                        Text(text = "Decrease")
+                    }
+                    IconButton(onClick = { columns++ }, enabled = columns < 6) {
+                        Icon(imageVector = Icons.Rounded.Add, contentDescription = "add icon")
+                    }
+                }
+            )
+        }
+    ) { paddingValues ->
+
+        LazyBeehiveVerticalGrid(
+            items = (1..120).toList(),
+            gridCells = BeehiveGridCells.Fixed(columns),
+            spaceBetween = 4.dp,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .drawBehind {
+                        drawRect(Color(Random.nextLong(0xFFFFFFFF)))
+                    }
+            ) {
+                Text(text = "Item $it", modifier = Modifier.align(Alignment.Center))
+            }
+        }
+    }
+}
 
 /**
  * Extending LazyColumn where two row are placed as Beehive
