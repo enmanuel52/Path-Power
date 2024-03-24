@@ -15,4 +15,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "Path Power"
 include(":app")
- 
+include(":benchmark")
