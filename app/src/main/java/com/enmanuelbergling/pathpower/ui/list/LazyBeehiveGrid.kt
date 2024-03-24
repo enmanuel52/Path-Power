@@ -3,12 +3,14 @@ package com.enmanuelbergling.pathpower.ui.list
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -40,6 +42,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.enmanuelbergling.pathpower.ui.shape.LayDownHexagon
 import kotlin.math.roundToInt
 import kotlin.random.Random
 
@@ -48,7 +51,7 @@ import kotlin.random.Random
 @Composable
 internal fun SimpleExample() {
     var columns by remember {
-        mutableIntStateOf(2)
+        mutableIntStateOf(4)
     }
 
     Scaffold(
@@ -67,10 +70,10 @@ internal fun SimpleExample() {
         }
     ) { paddingValues ->
 
-        LazyBeehive(
+        LazyBeehiveLayout(
             items = (1..120).toList(),
             columns = columns,
-            spaceBetween = 4.dp,
+            spaceBetween = 8.dp,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
@@ -88,7 +91,7 @@ internal fun SimpleExample() {
     }
 }
 
-@Preview
+//@Preview
 @Composable
 fun SimpleLazyListExample() {
     LazyColumn(
@@ -231,6 +234,80 @@ internal fun <T : Any> LazyBeehive(
                     goThrough = goThrough,
                     itemContent = itemContent
                 )
+            }
+        }
+    }
+}
+
+/**
+ * It is like [LazyColumn] where two row are placed as Beehive
+ * */
+@Composable
+internal fun <T : Any> LazyBeehiveLayout(
+    items: List<T>,
+    columns: Int,
+    modifier: Modifier = Modifier,
+    state: LazyListState = rememberLazyListState(),
+    key: ((rowIndex: Int, List<T>) -> Any)? = null,
+    spaceBetween: Dp = 4.dp,
+    contentPadding: PaddingValues = PaddingValues(0.dp),
+    verticalAlignment: Alignment.Vertical = Alignment.Top,
+    horizontalAlignment: Alignment.Horizontal = Alignment.Start,
+    userScrollEnabled: Boolean = true,
+    itemContent: @Composable ColumnScope.(T) -> Unit,
+) {
+    val itemWidthWeight: Float by remember(columns) {
+        mutableFloatStateOf(
+            1f / (1f + (columns - 1).times(.75f))
+        )
+    }
+
+    val groupedList by remember(columns, items) {
+        derivedStateOf {
+            groupBeehiveItems(items, columns)
+        }
+    }
+
+    BoxWithConstraints {
+        val itemSize by remember(maxWidth, itemWidthWeight) {
+            mutableStateOf(
+                maxWidth * itemWidthWeight
+            )
+        }
+
+        LazyColumn(
+            modifier = modifier,
+            state = state,
+            contentPadding = contentPadding,
+            verticalArrangement = Arrangement.spacedBy(
+                -itemSize / 2 + spaceBetween / 2, verticalAlignment
+            ),
+            horizontalAlignment = horizontalAlignment,
+            userScrollEnabled = userScrollEnabled,
+        ) {
+            itemsIndexed(groupedList, key = key) { index, rowItems ->
+                val isEvenRow by remember(columns) {
+                    derivedStateOf {
+                        index % 2 == 0 || columns == 1
+                    }
+                }
+
+                LazyBeehiveRowLayout(
+                    modifier = Modifier
+                        .height(itemSize),
+                    isEvenRow = isEvenRow,
+                ) {
+                    rowItems.forEach {
+                        Column(
+                            modifier = Modifier
+                                .width(itemSize)
+                                .padding(horizontal = spaceBetween / 2)
+                                .clip(LayDownHexagon)
+                        ) {
+                            itemContent(it)
+                        }
+                    }
+                }
             }
         }
     }
