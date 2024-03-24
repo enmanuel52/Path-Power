@@ -1,194 +1,87 @@
 package com.enmanuelbergling.pathpower.ui.list
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Settings
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedCard
+import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.InputChip
-import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SmallFloatingActionButton
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.enmanuelbergling.pathpower.R
-import com.enmanuelbergling.pathpower.ui.shape.LayDownHexagon
-import com.enmanuelbergling.pathpower.ui.theme.LighterHoney
-import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
+import kotlin.random.Random
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
-internal fun LazyBeehiveGridExample() {
-
-    val scope = rememberCoroutineScope()
-
-    val snackbarHostState = remember {
-        SnackbarHostState()
-    }
-
-    var beehiveCells: BeehiveGridCells by remember {
-        mutableStateOf(
-            BeehiveGridCells.Fixed(2)
-        )
-    }
-
-    var isCellSettingsSheetOpen by remember {
-        mutableStateOf(false)
+internal fun SimpleExample() {
+    var columns by remember {
+        mutableIntStateOf(2)
     }
 
     Scaffold(
-        snackbarHost = {
-            SnackbarHost(snackbarHostState)
-        },
-        floatingActionButton = {
-            SmallFloatingActionButton(onClick = { isCellSettingsSheetOpen = true }) {
-                Icon(imageVector = Icons.Rounded.Settings, contentDescription = "settings icon")
-            }
+        topBar = {
+            TopAppBar(
+                title = { Text(text = "$columns columns") },
+                actions = {
+                    TextButton(onClick = { columns-- }, enabled = columns > 1) {
+                        Text(text = "Decrease")
+                    }
+                    IconButton(onClick = { columns++ }, enabled = columns < 6) {
+                        Icon(imageVector = Icons.Rounded.Add, contentDescription = "add icon")
+                    }
+                }
+            )
         }
-    ) {
+    ) { paddingValues ->
 
         LazyBeehiveVerticalGrid(
-            items = (1..40).toList(),
-            gridCells = beehiveCells,
-            key = {rowIndex, _ -> rowIndex },
-            spaceEvenly = 6.dp,
+            items = (1..120).toList(),
+            gridCells = BeehiveGridCells.Fixed(columns),
+            spaceBetween = 4.dp,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(it)
-        ) { item ->
-            ElevatedCard(
-                onClick = {
-                    scope.launch {
-                        snackbarHostState.showSnackbar("Bee number $item clicked", withDismissAction = true)
+                .padding(paddingValues)
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .drawBehind {
+                        drawRect(Color(Random.nextLong(0xFFFFFFFF)))
                     }
-                },
-                modifier = Modifier.fillMaxSize(),
-                shape = LayDownHexagon,
-                colors = CardDefaults.elevatedCardColors(LighterHoney)
             ) {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.bee),
-                        contentDescription = "bee image",
-                        Modifier.size(50.dp)
-                    )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Text(text = "Item $item")
-                }
+                Text(text = "Item $it", modifier = Modifier.align(Alignment.Center))
             }
         }
-    }
-
-    if (isCellSettingsSheetOpen) {
-        CellSheetSettings(
-            onDismiss = { isCellSettingsSheetOpen = false },
-            cells = beehiveCells,
-            onCellsChange = { cells: BeehiveGridCells -> beehiveCells = cells }
-        )
-    }
-
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-internal fun CellSheetSettings(
-    onDismiss: () -> Unit,
-    cells: BeehiveGridCells,
-    onCellsChange: (BeehiveGridCells) -> Unit,
-) {
-    ModalBottomSheet(onDismissRequest = onDismiss) {
-        Column(modifier = Modifier.navigationBarsPadding().padding(horizontal = 12.dp)) {
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                InputChip(
-                    selected = cells is BeehiveGridCells.Fixed,
-                    onClick = { onCellsChange(BeehiveGridCells.Fixed(2)) },
-                    label = { Text(text = "Fixed") }
-                )
-
-                if (cells is BeehiveGridCells.Fixed) {
-                    (2..4).forEach { count ->
-                        InputChip(
-                            selected = cells == BeehiveGridCells.Fixed(count),
-                            onClick = { onCellsChange(BeehiveGridCells.Fixed(count)) },
-                            label = { Text(text = "$count columns") }
-                        )
-                    }
-                }
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                InputChip(
-                    selected = cells is BeehiveGridCells.Adaptive,
-                    onClick = { onCellsChange(BeehiveGridCells.Adaptive(90.dp)) },
-                    label = { Text(text = "Adaptive") }
-                )
-                if (cells is BeehiveGridCells.Adaptive) {
-                    listOf(90.dp, 120.dp, 160.dp).forEach { minSize ->
-                        InputChip(
-                            selected = cells == BeehiveGridCells.Adaptive(minSize),
-                            onClick = { onCellsChange(BeehiveGridCells.Adaptive(minSize)) },
-                            label = { Text(text = "${minSize.value}.dp") }
-                        )
-                    }
-                }
-            }
-        }
-
     }
 }
 
@@ -202,7 +95,7 @@ fun <T : Any> LazyBeehiveVerticalGrid(
     modifier: Modifier = Modifier,
     state: LazyListState = rememberLazyListState(),
     key: ((rowIndex: Int, List<T>) -> Any)? = null,
-    spaceEvenly: Dp = 4.dp,
+    spaceBetween: Dp = 4.dp,
     contentPadding: PaddingValues = PaddingValues(0.dp),
     verticalAlignment: Alignment.Vertical = Alignment.Top,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
@@ -225,7 +118,7 @@ fun <T : Any> LazyBeehiveVerticalGrid(
             modifier = modifier,
             state = state,
             key = key,
-            spaceEvenly = spaceEvenly,
+            spaceBetween = spaceBetween,
             contentPadding = contentPadding,
             verticalAlignment = verticalAlignment,
             horizontalAlignment = horizontalAlignment,
@@ -245,7 +138,7 @@ internal fun <T : Any> LazyBeehive(
     modifier: Modifier = Modifier,
     state: LazyListState = rememberLazyListState(),
     key: ((rowIndex: Int, List<T>) -> Any)? = null,
-    spaceEvenly: Dp = 4.dp,
+    spaceBetween: Dp = 4.dp,
     contentPadding: PaddingValues = PaddingValues(0.dp),
     verticalAlignment: Alignment.Vertical = Alignment.Top,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
@@ -258,44 +151,64 @@ internal fun <T : Any> LazyBeehive(
         )
     }
 
-    val groupedList by remember(items, columns) {
+    val groupedList by remember(columns, items) {
         derivedStateOf {
             groupBeehiveItems(items, columns)
         }
     }
 
     BoxWithConstraints {
-        val itemSize = maxWidth * itemWidthWeight
+        val itemSize by remember(maxWidth, itemWidthWeight) {
+            mutableStateOf(
+                maxWidth * itemWidthWeight
+            )
+        }
+        val evenRowMaxCount by remember(columns) {
+            mutableIntStateOf(
+                columns.div(2.0).roundToInt()
+            )
+        }
 
         LazyColumn(
             modifier = modifier,
             state = state,
             contentPadding = contentPadding,
             verticalArrangement = Arrangement.spacedBy(
-                -itemSize.div(1.95f), verticalAlignment
+                -itemSize / 2 + spaceBetween, verticalAlignment
             ),
             horizontalAlignment = horizontalAlignment,
             userScrollEnabled = userScrollEnabled,
         ) {
             itemsIndexed(groupedList, key = key) { index, rowItems ->
-                LazyBeehiveRowLayout(
-                    isEvenRow = index % 2 == 0 || columns == 1,
-                    modifier = Modifier
-                        .height(itemSize)
-                ) {
-                    rowItems.forEach { item ->
-                        Column(
-                            modifier = Modifier
-                                .size(itemSize)
-                                .padding(spaceEvenly)
-                                .clip(LayDownHexagon),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            itemContent(item)
-                        }
+                val isEvenRow by remember(columns) {
+                    derivedStateOf {
+                        index % 2 == 0 || columns == 1
                     }
                 }
+
+                val rowMaxCount by remember(isEvenRow, columns) {
+                    mutableIntStateOf(
+                        if (isEvenRow) evenRowMaxCount
+                        else columns / 2
+                    )
+                }
+
+                val goThrough by remember(columns) {
+                    derivedStateOf {
+                        (isEvenRow && columns % 2 == 1) || (!isEvenRow && columns % 2 == 0)
+                    }
+                }
+
+                BeehiveRow(
+                    rowItems,
+                    modifier = Modifier.fillMaxWidth(),
+                    startsOnZero = isEvenRow,
+                    evenRowMaxCount = evenRowMaxCount,
+                    itemsMaxCount = rowMaxCount,
+                    spaceBetween = spaceBetween,
+                    goThrough = goThrough,
+                    itemContent = itemContent
+                )
             }
         }
     }
@@ -317,7 +230,6 @@ sealed interface BeehiveGridCells {
     /**
      * It is like [GridCells.Adaptive]
      * */
-    @Stable
     data class Adaptive(val minSize: Dp) : BeehiveGridCells {
         init {
             require(minSize > 0.dp) { "Provided min size $minSize should be larger than zero." }

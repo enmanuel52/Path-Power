@@ -26,7 +26,7 @@ import kotlin.math.roundToInt
 internal fun LazyBeehiveLayout() {
     val columns = 7
 
-    val spaceEvenly = 3.dp
+    val spaceEvenly = 2.dp
 
     val itemWidthWeight by remember(columns) {
         mutableFloatStateOf(
@@ -41,7 +41,7 @@ internal fun LazyBeehiveLayout() {
 
         Layout(
             content = {
-                repeat(8) {
+                repeat(12) {
                     Box(
                         modifier = Modifier
                             .size(
