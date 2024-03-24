@@ -7,12 +7,14 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -32,6 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
@@ -64,9 +67,9 @@ internal fun SimpleExample() {
         }
     ) { paddingValues ->
 
-        LazyBeehiveVerticalGrid(
+        LazyBeehive(
             items = (1..120).toList(),
-            gridCells = BeehiveGridCells.Fixed(columns),
+            columns = columns,
             spaceBetween = 4.dp,
             modifier = Modifier
                 .fillMaxSize()
@@ -81,6 +84,25 @@ internal fun SimpleExample() {
             ) {
                 Text(text = "Item $it", modifier = Modifier.align(Alignment.Center))
             }
+        }
+    }
+}
+
+@Preview
+@Composable
+fun SimpleLazyListExample() {
+    LazyColumn(
+        verticalArrangement = Arrangement.spacedBy((-50).dp)
+    ) {
+        items(120) {
+            Box(modifier = Modifier
+                .fillMaxWidth()
+                .height(80.dp)
+                .clip(RoundedCornerShape(8.dp))
+                .drawBehind {
+                    drawRect(Color(Random.nextLong(0xFFFFFFFF)))
+                }
+            )
         }
     }
 }
