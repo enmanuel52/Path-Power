@@ -35,10 +35,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -51,7 +55,7 @@ import kotlin.random.Random
 @Composable
 internal fun SimpleExample() {
     var columns by remember {
-        mutableIntStateOf(4)
+        mutableIntStateOf(6)
     }
 
     Scaffold(
@@ -242,6 +246,7 @@ internal fun <T : Any> LazyBeehive(
 /**
  * It is like [LazyColumn] where two row are placed as Beehive
  * */
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 internal fun <T : Any> LazyBeehiveLayout(
     items: List<T>,
@@ -268,7 +273,11 @@ internal fun <T : Any> LazyBeehiveLayout(
         }
     }
 
-    BoxWithConstraints {
+    BoxWithConstraints(
+        modifier = Modifier.semantics {
+            testTagsAsResourceId = true
+        }
+    ) {
         val itemSize by remember(maxWidth, itemWidthWeight) {
             mutableStateOf(
                 maxWidth * itemWidthWeight
@@ -276,7 +285,7 @@ internal fun <T : Any> LazyBeehiveLayout(
         }
 
         LazyColumn(
-            modifier = modifier,
+            modifier = modifier.testTag("beehive"),
             state = state,
             contentPadding = contentPadding,
             verticalArrangement = Arrangement.spacedBy(

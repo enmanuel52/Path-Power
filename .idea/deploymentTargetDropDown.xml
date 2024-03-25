@@ -5,6 +5,12 @@
       <entry key="app">
         <State />
       </entry>
+      <entry key="generateBaselineProfile()">
+        <State />
+      </entry>
+      <entry key="scrollDownAndUp()">
+        <State />
+      </entry>
     </value>
   </component>
 </project>

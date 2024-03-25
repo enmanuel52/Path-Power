@@ -4,11 +4,11 @@ import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.FrameTimingMetric
 import androidx.benchmark.macro.MacrobenchmarkScope
 import androidx.benchmark.macro.StartupMode
-import androidx.benchmark.macro.StartupTimingMetric
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.Direction
+import androidx.test.uiautomator.Until
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -31,21 +31,15 @@ class ExampleStartupBenchmark {
     val benchmarkRule = MacrobenchmarkRule()
 
     @Test
-    fun startup() = benchmarkRule.measureRepeated(
-        packageName = "com.enmanuelbergling.pathpower",
-        metrics = listOf(StartupTimingMetric()),
-        iterations = 5,
-        startupMode = StartupMode.COLD
-    ) {
-        pressHome()
-        startActivityAndWait()
-    }
+    fun scrollCompilationModeNone() = scrolling(CompilationMode.None())
 
     @Test
-    fun scrollDownAndUp() = benchmarkRule.measureRepeated(
+    fun scrollCompilationModePartial() = scrolling(CompilationMode.Partial())
+
+    fun scrolling(compilationMode: CompilationMode) = benchmarkRule.measureRepeated(
         packageName = "com.enmanuelbergling.pathpower",
         metrics = listOf(FrameTimingMetric()),
-        iterations = 5,
+        iterations = 10,
         startupMode = StartupMode.COLD
     ) {
         pressHome()
@@ -55,15 +49,17 @@ class ExampleStartupBenchmark {
     }
 }
 
-fun MacrobenchmarkScope.scrollDownAndUp(){
+fun MacrobenchmarkScope.scrollDownAndUp() {
+
+    device.wait(Until.findObject(By.text("Item 1")), 5000)
 
     val beehive = device.findObject(By.res("beehive"))
 
-    beehive.setGestureMargin(device.displayWidth/5)
+    beehive.setGestureMargin(device.displayWidth / 5)
 
-    beehive.fling(Direction.DOWN)
-    device.findObject(By.text("Item 39"))
+    beehive.fling(Direction.DOWN, ONE_MILLION)
 
-    beehive.fling(Direction.UP)
-    device.findObject(By.text("Item 1"))
+    beehive.fling(Direction.UP, ONE_MILLION)
 }
+
+const val ONE_MILLION = 1000000

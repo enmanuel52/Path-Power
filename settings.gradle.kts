@@ -15,4 +15,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "Path Power"
 include(":app")
-include(":benchmark")
+include(":app:baselineprofile")
+include(":app:benchmark")
