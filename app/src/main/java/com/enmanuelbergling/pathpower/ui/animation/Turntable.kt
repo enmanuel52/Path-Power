@@ -1,5 +1,8 @@
 package com.enmanuelbergling.pathpower.ui.animation
 
+import android.content.ContentResolver
+import android.content.Context
+import android.net.Uri
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
@@ -14,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -26,15 +30,24 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.media3.common.MediaItem
+import androidx.media3.exoplayer.ExoPlayer
 import com.enmanuelbergling.pathpower.R
+
 private const val PlayingStickAngle = -5f
 
 @Preview
 @Composable
 fun Turntable() {
+    val context = LocalContext.current
+
+    val player = remember {
+        buildPlayer(context)
+    }
 
     var isPlaying by remember {
         mutableStateOf(false)
@@ -45,17 +58,16 @@ fun Turntable() {
     }
 
     val stickDegreesAnimation by animateFloatAsState(
-        targetValue = if (isPlaying) PlayingStickAngle
-        else -20f,
+        targetValue = if (isPlaying) PlayingStickAngle else -20f,
         label = "stick animation",
         animationSpec = tween(easing = LinearEasing)
     )
 
-    val isStickOverTransition =
-        updateTransition(targetState = stickDegreesAnimation == PlayingStickAngle, "is stick over disc")
+    val isStickOverTransition = updateTransition(
+        targetState = stickDegreesAnimation == PlayingStickAngle, "is stick over disc"
+    )
 
-    val discDegreesAnimation by isStickOverTransition.animateFloat(
-        label = "stick animation",
+    val discDegreesAnimation by isStickOverTransition.animateFloat(label = "stick animation",
         transitionSpec = {
             repeatable(
                 iterations = Int.MAX_VALUE,
@@ -65,9 +77,14 @@ fun Turntable() {
     ) { playing ->
         if (playing) {
             if (isPlaying) cachedDiscDegrees + 360f
-            else cachedDiscDegrees
-        }
-        else cachedDiscDegrees
+            else cachedDiscDegrees //to make it stop
+        } else cachedDiscDegrees
+    }
+
+    LaunchedEffect(key1 = stickDegreesAnimation == PlayingStickAngle) {
+        if (isPlaying) {
+            player.play()
+        } else player.pause()
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -77,17 +94,15 @@ fun Turntable() {
                 .size(300.dp)
                 .align(Alignment.Center)
         ) {
-            Disc(
-                onClick = {
-                    cachedDiscDegrees = discDegreesAnimation
-                    isPlaying = !isPlaying
-                },
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(40.dp)
-                    .graphicsLayer {
-                        rotationZ = discDegreesAnimation
-                    }
+            Disc(onClick = {
+                cachedDiscDegrees = discDegreesAnimation
+                isPlaying = !isPlaying
+            }, modifier = Modifier
+                .fillMaxSize()
+                .padding(40.dp)
+                .graphicsLayer {
+                    rotationZ = discDegreesAnimation
+                }
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.avicii_cover),
@@ -109,6 +124,18 @@ fun Turntable() {
         }
     }
 }
+
+private fun buildPlayer(context: Context) =
+    ExoPlayer.Builder(context).build().apply {
+        val songUri = Uri.Builder().scheme(ContentResolver.SCHEME_ANDROID_RESOURCE)
+            .path(R.raw.the_days_cut.toString()).build()
+        // Build the media item.
+        val mediaItem = MediaItem.fromUri(songUri)
+        // Set the media item to be played.
+        setMediaItem(mediaItem)
+        // Prepare the player.
+        prepare()
+    }
 
 @Composable
 fun Stick(
@@ -150,13 +177,11 @@ fun Disc(
     coverImage: @Composable () -> Unit,
 ) {
 
-    Box(
-        modifier = modifier
-            .clip(CircleShape)
-            .clickable {
-                onClick()
-            }
-    ) {
+    Box(modifier = modifier
+        .clip(CircleShape)
+        .clickable {
+            onClick()
+        }) {
         coverImage()
     }
 }
