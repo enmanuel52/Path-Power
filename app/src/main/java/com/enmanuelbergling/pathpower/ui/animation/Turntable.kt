@@ -2,6 +2,7 @@ package com.enmanuelbergling.pathpower.ui.animation
 
 import android.content.ContentResolver
 import android.content.Context
+import android.media.session.PlaybackState
 import android.net.Uri
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloat
@@ -35,6 +36,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import com.enmanuelbergling.pathpower.R
 
@@ -128,7 +130,7 @@ fun Turntable() {
 private fun buildPlayer(context: Context) =
     ExoPlayer.Builder(context).build().apply {
         val songUri = Uri.Builder().scheme(ContentResolver.SCHEME_ANDROID_RESOURCE)
-            .path(R.raw.the_days_cut.toString()).build()
+            .path(R.raw.heaven_avicii.toString()).build()
         // Build the media item.
         val mediaItem = MediaItem.fromUri(songUri)
         // Set the media item to be played.
@@ -196,7 +198,7 @@ private fun DiscPrev() {
             .rotate(50f)
     ) {
         Image(
-            painter = painterResource(id = R.drawable.avicii_cover),
+            painter = painterResource(id = R.drawable.coolest_avicii_cover),
             contentDescription = "avicii cover"
         )
     }
