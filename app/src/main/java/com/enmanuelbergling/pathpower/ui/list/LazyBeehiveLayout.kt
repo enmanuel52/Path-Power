@@ -17,7 +17,7 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.enmanuelbergling.pathpower.ui.shape.LayDownHexagon
+import com.enmanuelbergling.pathpower.ui.shape.Hexagon
 import com.enmanuelbergling.pathpower.ui.theme.Honey
 import kotlin.math.roundToInt
 
@@ -49,7 +49,7 @@ internal fun LazyBeehiveLayout() {
                                     .times(itemWidthWeight)
                             )
                             .padding(spaceEvenly)
-                            .clip(LayDownHexagon)
+                            .clip(Hexagon)
                             .background(Honey)
                     )
                 }

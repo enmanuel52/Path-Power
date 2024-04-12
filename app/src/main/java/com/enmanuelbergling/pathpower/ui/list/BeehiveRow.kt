@@ -19,7 +19,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.enmanuelbergling.pathpower.ui.shape.LayDownHexagon
+import com.enmanuelbergling.pathpower.ui.shape.Hexagon
 
 @Composable
 fun <T> BeehiveRow(
@@ -30,6 +30,7 @@ fun <T> BeehiveRow(
     spaceBetween: Dp = 0.dp,
     startsOnZero: Boolean = true,
     goThrough: Boolean = false,
+    aspectRatio: Float = 1f,
     itemContent: @Composable ColumnScope.(T) -> Unit,
 ) {
 
@@ -40,12 +41,12 @@ fun <T> BeehiveRow(
     }
 
     val basicModifier = Modifier
-        .clip(LayDownHexagon)
+        .clip(Hexagon)
 
     Row(horizontalArrangement = Arrangement.spacedBy(spaceBetween), modifier = modifier) {
         val hiveModifier = basicModifier then Modifier
             .weight(itemWidthWeight)
-            .aspectRatio(1f)
+            .aspectRatio(aspectRatio)
 
         repeat(itemsMaxCount) { index ->
             if (index == 0) {

@@ -1,32 +1,110 @@
 package com.enmanuelbergling.pathpower.ui.shape
 
+import androidx.annotation.FloatRange
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.vector.PathParser
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
+import com.enmanuelbergling.pathpower.ui.theme.Honey
 
- data object Hexagon : Shape {
+data object Hexagon : Shape {
     override fun createOutline(
         size: Size,
         layoutDirection: LayoutDirection,
         density: Density,
-    ): Outline {
-        val pathData =
-            "m9.242,0.33a2.396,2.25 0,0 0,-2.483 0l-5.591,3.182a2.396,2.25 0,0 0,-1.154 1.924l0,5.128a2.396,2.25 0,0 0,1.154 1.924l5.591,3.182a2.396,2.25 0,0 0,2.483 0l5.591,-3.182a2.396,2.25 0,0 0,1.154 -1.924l0,-5.128a2.396,2.25 0,0 0,-1.154 -1.924l-5.591,-3.182z"
-        val scaleX = size.width / 16f
-        val scaleY = size.height / 16f
+    ): Outline = Outline.Generic(getHexagonPath(size))
+}
 
-        return Outline.Generic(
-            PathParser().parsePathString(
-                resize(
-                    pathData = pathData,
-                    scaleX = scaleX,
-                    scaleY = scaleY
-                )
-            ).toPath()
-        )
+@Preview
+@Composable
+private fun Hexagon() {
+    Canvas(modifier = Modifier.size(200.dp, 180.dp)) {
+        val hexagon = getHexagonPath(size)
+
+        drawPath(hexagon, Honey)
     }
 }
+
+/**
+ * @param round for corners
+ * */
+private fun getHexagonPath(
+    size: Size,
+    @FloatRange(
+        from = .009,
+        to = .031,
+    ) round: Float = .015f,
+) =
+    Path().apply {
+        moveTo(size.width * round, size.height * (.5f + round * 2))
+
+        quadraticBezierTo(
+            x1 = 0f,
+            y1 = size.height * .5f,
+            x2 = size.width * round,
+            y2 = size.height * (.5f - round * 2)
+        )
+
+        quadraticBezierTo(x1 = size.width * .25f, y1 = 0f, x2 = size.width * .3f, y2 = 0f)
+
+        lineTo(size.width * .7f, 0f)
+
+        quadraticBezierTo(
+            x1 = size.width * .75f,
+            y1 = 0f,
+            x2 = size.width * (1f - round),
+            y2 = size.height * (.5f - round * 2)
+        )
+
+        quadraticBezierTo(
+            x1 = size.width,
+            y1 = size.height * .5f,
+            x2 = size.width * (1f - round),
+            y2 = size.height * (.5f + round * 2)
+        )
+
+        quadraticBezierTo(
+            x1 = size.width * .75f,
+            y1 = size.height,
+            x2 = size.width * .7f,
+            y2 = size.height
+        )
+
+        lineTo(size.width * .3f, size.height)
+
+        quadraticBezierTo(
+            x1 = size.width * .25f,
+            y1 = size.height,
+            x2 = size.width * round,
+            y2 = size.height * (.5f + round * 2)
+        )
+
+    }
+
+private fun getRectHexagonPath(size: Size) =
+    Path().apply {
+
+        moveTo(size.width * .25f, 0f)
+
+        lineTo(size.width * .75f, 0f)
+
+        lineTo(size.width, size.height * .5f)
+
+
+        lineTo(size.width * .75f, size.height)
+
+        lineTo(size.width * .25f, size.height)
+
+
+        lineTo(0f, size.height * .5f)
+
+        close()
+    }
