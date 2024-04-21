@@ -1,5 +1,6 @@
 package com.enmanuelbergling.pathpower.ui.chart
 
-enum class ChartStyle {
-    Line, Bar
+sealed interface ChartStyle {
+    data object Line : ChartStyle
+    data class Bar(val widthPercent: Float = .5f) : ChartStyle
 }

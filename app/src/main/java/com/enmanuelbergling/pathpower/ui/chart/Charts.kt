@@ -1,6 +1,7 @@
 package com.enmanuelbergling.pathpower.ui.chart
 
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
@@ -23,6 +24,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -43,7 +46,7 @@ import kotlin.random.Random
 
 @Preview
 @Composable
-fun ChartLinePlaceholder(modifier: Modifier = Modifier) {
+internal fun ChartLinePlaceholder(modifier: Modifier = Modifier) {
     val color = LocalContentColor.current
 
     val percents by remember {
@@ -79,7 +82,7 @@ fun ChartLinePlaceholder(modifier: Modifier = Modifier) {
 
 @Preview
 @Composable
-fun ChartBarPlaceholder(modifier: Modifier = Modifier) {
+internal fun ChartBarPlaceholder(modifier: Modifier = Modifier) {
 
     val percents by remember {
         mutableStateOf(
@@ -100,13 +103,14 @@ fun ChartBarPlaceholder(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun ChartContainer(
+fun ChartGridContainer(
     chartData: ChartUiModel,
     modifier: Modifier = Modifier,
     style: ChartStyle = ChartStyle.Line,
     colors: ChartColors = ChartDefaults.colors(),
     horizontalSpacing: Dp = 6.dp,
     verticalSpacing: Dp = 8.dp,
+    animationSpec: AnimationSpec<Float> = tween(3_000),
 ) {
 
     val minValue = chartData.values.minOf { it.value }
@@ -127,7 +131,7 @@ fun ChartContainer(
                 height = Dimension.fillToConstraints
             })
 
-        Chart(
+        ChartContent(
             stepValues = steps,
             style = style,
             colors = colors,
@@ -165,7 +169,7 @@ private fun ChartValues(
         modifier = modifier,
         horizontalArrangement = when (chartStyle) {
             ChartStyle.Line -> Arrangement.SpaceBetween
-            ChartStyle.Bar -> Arrangement.SpaceBetween
+            is ChartStyle.Bar -> Arrangement.SpaceAround
         }
     ) {
 
@@ -178,19 +182,20 @@ private fun ChartValues(
 }
 
 @Composable
-private fun Chart(
+fun ChartContent(
     chartData: ChartUiModel,
     stepValues: List<Float>,
     style: ChartStyle,
     colors: ChartColors,
     modifier: Modifier = Modifier,
+    animationSpec: AnimationSpec<Float> = tween(3_000),
 ) {
     val animationProgress = remember(chartData) {
         Animatable(0f)
     }
 
     LaunchedEffect(key1 = chartData) {
-        animationProgress.animateTo(1f, tween(3_000))
+        animationProgress.animateTo(1f, animationSpec)
     }
 
     val contentColor = contentColorFor(colors.containerColor)
@@ -213,7 +218,10 @@ private fun Chart(
 
         drawChartGrid(
             stepsCount = stepValues.count(),
-            valuesCount = chartData.values.count(),
+            valuesCount = when (style) {
+                ChartStyle.Line -> chartData.values.count()
+                is ChartStyle.Bar -> chartData.values.count() + 1 // 8 lines make 7 columns
+            },
             gridColor = colors.gridColor,
         )
 
@@ -241,12 +249,12 @@ private fun Chart(
                 }
             }
 
-            ChartStyle.Bar -> {
+            is ChartStyle.Bar -> {
                 clipRect(top = size.height - (animationProgress.value * size.height)) {
                     drawChartBar(
                         percents = percents,
                         brush = colors.contentBrush,
-                        widthPercent = .7f
+                        widthPercent = style.widthPercent
                     )
                 }
             }
@@ -301,7 +309,7 @@ private fun ChartLinePrev() {
     val earnings = listOf(15f, 45f, 18f, 20f, 15f, 35f, 25f)
 
     PathPowerTheme {
-        ChartContainer(
+        ChartGridContainer(
             ChartUiModel(
                 steps = 4,
                 values = earnings.mapIndexed { index, value ->
@@ -371,25 +379,38 @@ private fun DrawScope.drawChartBar(
     percents.forEachIndexed { index, yPercent ->
         val yPoint = size.height * (1f - yPercent)
 
-        val maxBarWidth = size.width / percents.lastIndex
+        val maxBarWidth = size.width / percents.size
 
-        val xPoint = maxBarWidth * index
+        val xPoint = size.width / percents.size * index
 
         val barWidth = maxBarWidth.times(widthPercent)
 
         val topLeft = Offset(
-            x = xPoint - (barWidth / 2),
+            x = xPoint + maxBarWidth.times(1 - widthPercent).div(2),
             y = yPoint,
         )
 
-        drawRoundRect(
-            brush = brush,
-            topLeft = topLeft,
-            size = Size(width = barWidth, height = size.height - yPoint),
-            cornerRadius = CornerRadius(
-                x = barWidth,
-                y = barWidth
+        val roundRectPath = Path().apply {
+            addRoundRect(
+                RoundRect(
+                    Rect(
+                        offset = topLeft,
+                        size = Size(width = barWidth, height = size.height - yPoint)
+                    ),
+                    topLeft = CornerRadius(
+                        x = barWidth / 4,
+                        y = barWidth / 4,
+                    ),
+                    topRight = CornerRadius(
+                        x = barWidth / 4,
+                        y = barWidth / 4,
+                    ),
+                )
             )
-        )
+
+
+        }
+
+        drawPath(roundRectPath, brush)
     }
 }
