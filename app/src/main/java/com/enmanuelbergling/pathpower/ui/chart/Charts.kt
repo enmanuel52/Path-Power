@@ -17,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -108,15 +109,23 @@ fun ChartGridContainer(
     modifier: Modifier = Modifier,
     style: ChartStyle = ChartStyle.Line,
     colors: ChartColors = ChartDefaults.colors(),
-    horizontalSpacing: Dp = 6.dp,
+    horizontalSpacing: Dp = 8.dp,
     verticalSpacing: Dp = 8.dp,
     animationSpec: AnimationSpec<Float> = tween(3_000),
 ) {
 
-    val minValue = chartData.values.minOf { it.value }
+    val minValue by remember(chartData) {
+        derivedStateOf {
+            chartData.values.minOf { it.value }
+        }
+    }
 
-    val steps = (0..chartData.steps).reversed().map {
-        minValue + it * chartData.steps
+    val steps by remember(chartData) {
+        derivedStateOf {
+            (0..chartData.steps).reversed().map {
+                minValue + it * chartData.steps
+            }
+        }
     }
 
     ConstraintLayout(modifier) {
@@ -143,7 +152,9 @@ fun ChartGridContainer(
                 bottom.linkTo(valuesRef.top, margin = verticalSpacing)
                 width = Dimension.fillToConstraints
                 height = Dimension.fillToConstraints
-            })
+            },
+            animationSpec = animationSpec,
+        )
 
         ChartValues(
             chartValues = chartData.values,
@@ -254,7 +265,8 @@ fun ChartContent(
                     drawChartBar(
                         percents = percents,
                         brush = colors.contentBrush,
-                        widthPercent = style.widthPercent
+                        widthPercent = style.widthPercent,
+                        style.roundPercent,
                     )
                 }
             }
@@ -269,17 +281,17 @@ private fun DrawScope.drawChartGrid(
 ) {
     repeat(stepsCount) { index ->
         drawLine(
-            gridColor,
-            Offset(0f, index.toFloat() / (stepsCount - 1) * size.height),
-            Offset(size.width, index.toFloat() / (stepsCount - 1) * size.height)
+            color = gridColor,
+            start = Offset(0f, index.toFloat() / (stepsCount - 1) * size.height),
+            end = Offset(size.width, index.toFloat() / (stepsCount - 1) * size.height)
         )
     }
 
     repeat(valuesCount) { index ->
         drawLine(
-            gridColor,
-            Offset(index.toFloat() / (valuesCount - 1) * size.width, 0f),
-            Offset(
+            color = gridColor,
+            start = Offset(index.toFloat() / (valuesCount - 1) * size.width, 0f),
+            end = Offset(
                 index.toFloat() / (valuesCount - 1) * size.width,
                 size.height
             )
@@ -374,7 +386,8 @@ private fun DrawScope.drawChartBar(
             Color.Transparent
         )
     ),
-    widthPercent: Float = .5f,
+    widthPercent: Float = 1f,
+    roundPercent: Float = .5f,
 ) {
     percents.forEachIndexed { index, yPercent ->
         val yPoint = size.height * (1f - yPercent)
@@ -386,25 +399,24 @@ private fun DrawScope.drawChartBar(
         val barWidth = maxBarWidth.times(widthPercent)
 
         val topLeft = Offset(
-            x = xPoint + maxBarWidth.times(1 - widthPercent).div(2),
+            //to center on bars
+            x = xPoint + maxBarWidth.times(1f - widthPercent).div(2),
             y = yPoint,
         )
 
         val roundRectPath = Path().apply {
+            val radius = CornerRadius(
+                x = barWidth * roundPercent,
+                y = barWidth * roundPercent,
+            )
             addRoundRect(
                 RoundRect(
                     Rect(
                         offset = topLeft,
                         size = Size(width = barWidth, height = size.height - yPoint)
                     ),
-                    topLeft = CornerRadius(
-                        x = barWidth / 4,
-                        y = barWidth / 4,
-                    ),
-                    topRight = CornerRadius(
-                        x = barWidth / 4,
-                        y = barWidth / 4,
-                    ),
+                    topLeft = radius,
+                    topRight = radius,
                 )
             )
 

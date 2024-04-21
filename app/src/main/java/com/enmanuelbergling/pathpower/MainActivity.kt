@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
@@ -50,7 +51,10 @@ class MainActivity : ComponentActivity() {
                             8.dp,
                             Alignment.CenterVertically
                         ),
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 8.dp)
+                            .animateContentSize(),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         OutlinedButton(onClick = {
