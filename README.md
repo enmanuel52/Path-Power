@@ -1,3 +1,28 @@
+# Charts
+```
+// Line Chart on video down below
+ChartGridContainer(
+      chartData = ChartUiModel(
+          steps = 4,
+          values = earnings.mapIndexed { index, value ->
+              ChartValue(
+                  value = value,
+                  label = index.toString(),
+              )
+          }
+      ),
+      style = ChartStyle.Line,
+      modifier = Modifier
+          .aspectRatio(1.4f)
+          .fillMaxWidth()
+          .padding(6.dp)
+  )
+```
+
+
+
+https://github.com/enmanuel52/Path-Power/assets/102194318/60ec5604-4308-41f3-b844-e768a85856fb
+
 
 
 # Waves animation
@@ -16,7 +41,9 @@ AnimatedWavesIndicator(
 
 https://github.com/enmanuel52/Path-Power/assets/102194318/1511ad6a-9234-4339-8bab-b8399b1d08b1
 
-# Beehive Grid
+# Comming soon
+
+## Beehive Grid
 ```
 LazyBeehiveVerticalGrid(
   items = (1..40).toList(),
@@ -51,7 +78,7 @@ LazyBeehiveVerticalGrid(
 ```
 
 <div style="margin: 10px;">
-  <img src="https://github.com/enmanuel52/Path-Power/assets/102194318/97304bae-fa56-4ef1-90c6-f1cfdec55d49" style="display: flex; width: 30%; padding: 0% 3%;">
+  <img src="https://github.com/enmanuel52/Path-Power/assets/102194318/51297395-4f9f-48c2-a49f-75ae8ec6b195" style="display: flex; width: 40%; padding: 0% 3%;">
 </div>
 
 
