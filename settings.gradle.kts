@@ -17,3 +17,4 @@ rootProject.name = "Path Power"
 include(":app")
 include(":app:baselineprofile")
 include(":app:benchmark")
+include(":path_power")

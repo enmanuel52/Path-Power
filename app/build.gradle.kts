@@ -2,6 +2,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("androidx.baselineprofile")
+    `maven-publish`
 }
 
 android {
@@ -82,3 +83,23 @@ dependencies {
 
     implementation("androidx.profileinstaller:profileinstaller:1.3.1")
 }
+
+/*
+publishing {
+    publications {
+        register<MavenPublication>("maven") {
+            groupId = "com.github.enmanuel52"
+            artifactId = "path_power"
+            version = "0.0.2"
+
+            afterEvaluate {
+                from(components["release"])
+            }
+
+        }
+    }
+    repositories {
+        maven { url = uri("https://jitpack.io") }
+    }
+}
+*/
