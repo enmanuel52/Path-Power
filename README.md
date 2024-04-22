@@ -13,7 +13,7 @@ dependencyResolutionManagement {
 
 2- Second add the dependency in your build.gradle.kts
 ```
-implementation("io.github.enmanuel52:path_power:0.0.2")
+implementation("com.github.enmanuel52:Path-Power:0.0.1-alpha01")
 ```
 
 # Charts
@@ -66,15 +66,15 @@ https://github.com/enmanuel52/Path-Power/assets/102194318/1511ad6a-9234-4339-8ba
 
 ## Beehive Grid
 ```
-    LazyBeehive(
+    LazyBeehiveVerticalGrid(
         items = (1..120).toList(),
-        columns = 3,
+        gridCells = BeehiveGridCells.Fixed(3),
         spaceBetween = 8.dp,
         modifier = Modifier
             .fillMaxSize()
             .padding(paddingValues),
         aspectRatio = 1.05f,
-    ) {
+    ) { item: Int ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -82,7 +82,7 @@ https://github.com/enmanuel52/Path-Power/assets/102194318/1511ad6a-9234-4339-8ba
                     drawRect(Color(Random.nextLong(0xFFFFFFFF)))
                 }
         ) {
-            Text(text = "Item $it", modifier = Modifier.align(Alignment.Center))
+            Text(text = "Item $item", modifier = Modifier.align(Alignment.Center))
         }
     }
 ```
