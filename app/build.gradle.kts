@@ -2,7 +2,6 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("androidx.baselineprofile")
-    `maven-publish`
 }
 
 android {
@@ -77,29 +76,9 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     androidTestImplementation(platform("androidx.compose:compose-bom:2023.08.00"))
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
-    "baselineProfile"(project(":app:baselineprofile"))
+    "baselineProfile"(project(":baselineprofile"))
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 
     implementation("androidx.profileinstaller:profileinstaller:1.3.1")
 }
-
-/*
-publishing {
-    publications {
-        register<MavenPublication>("maven") {
-            groupId = "com.github.enmanuel52"
-            artifactId = "path_power"
-            version = "0.0.2"
-
-            afterEvaluate {
-                from(components["release"])
-            }
-
-        }
-    }
-    repositories {
-        maven { url = uri("https://jitpack.io") }
-    }
-}
-*/
