@@ -2,7 +2,7 @@ plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
     `maven-publish`
-    id("androidx.baselineprofile")
+//    id("androidx.baselineprofile")
 }
 
 android {
@@ -54,9 +54,9 @@ dependencies {
     implementation("androidx.compose.material3:material3")
     implementation("androidx.constraintlayout:constraintlayout-compose:1.0.1")
 
-    "baselineProfile"(project(":baselineprofile"))
+//    "baselineProfile"(project(":baselineprofile"))
 
-    implementation("androidx.profileinstaller:profileinstaller:1.3.1")
+//    implementation("androidx.profileinstaller:profileinstaller:1.3.1")
 }
 
 publishing {
@@ -64,7 +64,7 @@ publishing {
         register<MavenPublication>("maven") {
             groupId = "com.github.enmanuel52"
             artifactId = "path_power"
-            version = "0.0.1"
+            version = "0.0.5"
 
             afterEvaluate {
                 from(components["release"])
