@@ -13,7 +13,7 @@ dependencyResolutionManagement {
 
 2- Second add the dependency in your build.gradle.kts
 ```
-implementation("io.github.enmanuel52:path_power:0.0.2")
+implementation("com.github.enmanuel52:Path-Power:0.0.1-alpha01")
 ```
 
 # Charts
