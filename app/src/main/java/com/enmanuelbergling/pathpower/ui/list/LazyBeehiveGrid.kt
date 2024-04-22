@@ -82,8 +82,7 @@ internal fun SimpleExample() {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues),
-            aspectRatio = .9f,
-            isUp = true,
+            aspectRatio = 1.1f,
         ) {
             Box(
                 modifier = Modifier
