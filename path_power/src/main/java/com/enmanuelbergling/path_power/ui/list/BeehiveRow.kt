@@ -1,4 +1,4 @@
-package com.enmanuelbergling.pathpower.ui.list
+package com.enmanuelbergling.path_power.ui.list
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,7 +19,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.enmanuelbergling.pathpower.ui.shape.Hexagon
+import com.enmanuelbergling.path_power.ui.shape.Hexagon
 
 @Composable
 fun <T> BeehiveRow(

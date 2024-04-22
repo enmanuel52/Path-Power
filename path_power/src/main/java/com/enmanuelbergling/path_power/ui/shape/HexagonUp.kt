@@ -1,4 +1,4 @@
-package com.enmanuelbergling.pathpower.ui.shape
+package com.enmanuelbergling.path_power.ui.shape
 
 import androidx.annotation.FloatRange
 import androidx.compose.foundation.Canvas
@@ -13,7 +13,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import com.enmanuelbergling.pathpower.ui.theme.Honey
+import com.enmanuelbergling.path_power.util.Honey
 
 data object HexagonUp : Shape {
     override fun createOutline(

@@ -1,4 +1,4 @@
-package com.enmanuelbergling.pathpower.ui.chart
+package com.enmanuelbergling.path_power.ui.chart
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.contentColorFor

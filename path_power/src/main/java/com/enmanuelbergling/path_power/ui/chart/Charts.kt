@@ -1,4 +1,4 @@
-package com.enmanuelbergling.pathpower.ui.chart
+package com.enmanuelbergling.path_power.ui.chart
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationSpec
@@ -37,8 +37,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
-import com.enmanuelbergling.pathpower.ui.theme.PathPowerTheme
-import com.enmanuelbergling.pathpower.util.styled
+import com.enmanuelbergling.path_power.util.styled
 
 @Composable
 fun ChartGridContainer(
@@ -257,24 +256,22 @@ private fun ChartSteps(
 private fun ChartLinePrev() {
     val earnings = listOf(15f, 45f, 18f, 20f, 15f, 35f, 25f)
 
-    PathPowerTheme {
-        ChartGridContainer(
-            ChartUiModel(
-                steps = 4,
-                values = earnings.mapIndexed { index, value ->
-                    ChartValue(
-                        value = value,
-                        label = index.toString(),
-                    )
-                }
-            ),
-            colors = ChartDefaults.colors(),
-            modifier = Modifier
-                .width(300.dp)
-                .height(200.dp)
-                .padding(8.dp)
-        )
-    }
+    ChartGridContainer(
+        ChartUiModel(
+            steps = 4,
+            values = earnings.mapIndexed { index, value ->
+                ChartValue(
+                    value = value,
+                    label = index.toString(),
+                )
+            }
+        ),
+        colors = ChartDefaults.colors(),
+        modifier = Modifier
+            .width(300.dp)
+            .height(200.dp)
+            .padding(8.dp)
+    )
 }
 
 

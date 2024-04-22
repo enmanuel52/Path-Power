@@ -1,4 +1,4 @@
-package com.enmanuelbergling.pathpower.ui.canvas
+package com.enmanuelbergling.path_power.ui.canvas
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.size

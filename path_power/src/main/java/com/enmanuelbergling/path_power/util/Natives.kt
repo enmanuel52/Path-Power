@@ -1,4 +1,4 @@
-package com.enmanuelbergling.pathpower.util
+package com.enmanuelbergling.path_power.util
 
 import kotlin.math.absoluteValue
 import kotlin.math.pow
@@ -7,7 +7,7 @@ import kotlin.math.roundToInt
 /**
  * @param places after coma
  */
-internal infix fun Float.roundTo(places: Int) = (this * 10f.pow(places)).roundToInt() / (10f.pow(places))
+infix fun Float.roundTo(places: Int) = (this * 10f.pow(places)).roundToInt() / (10f.pow(places))
 
 val ONE_MILLION = 10f.pow(6)
 val ONE_THOUSAND = 10f.pow(3)

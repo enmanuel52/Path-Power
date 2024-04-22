@@ -1,4 +1,4 @@
-package com.enmanuelbergling.pathpower.ui.list
+package com.enmanuelbergling.path_power.ui.list
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -17,8 +17,8 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.enmanuelbergling.pathpower.ui.shape.Hexagon
-import com.enmanuelbergling.pathpower.ui.theme.Honey
+import com.enmanuelbergling.path_power.ui.shape.Hexagon
+import com.enmanuelbergling.path_power.util.Honey
 import kotlin.math.roundToInt
 
 @Preview

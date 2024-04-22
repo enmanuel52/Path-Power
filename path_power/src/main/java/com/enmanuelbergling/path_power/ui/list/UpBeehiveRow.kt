@@ -1,4 +1,4 @@
-package com.enmanuelbergling.pathpower.ui.list
+package com.enmanuelbergling.path_power.ui.list
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -21,8 +21,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.enmanuelbergling.pathpower.ui.shape.HexagonUp
-import com.enmanuelbergling.pathpower.ui.theme.Honey
+import com.enmanuelbergling.path_power.ui.shape.HexagonUp
+import com.enmanuelbergling.path_power.util.Honey
 
 @Composable
 fun <T> UpBeehiveRow(

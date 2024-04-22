@@ -1,4 +1,4 @@
-package com.enmanuelbergling.pathpower.ui.shape
+package com.enmanuelbergling.path_power.ui.shape
 
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Outline

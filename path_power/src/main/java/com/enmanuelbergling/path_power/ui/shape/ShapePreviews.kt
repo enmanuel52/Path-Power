@@ -1,4 +1,4 @@
-package com.enmanuelbergling.pathpower.ui.shape
+package com.enmanuelbergling.path_power.ui.shape
 
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
@@ -30,8 +30,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.enmanuelbergling.pathpower.ui.theme.Honey
-import com.enmanuelbergling.pathpower.util.roundTo
+import com.enmanuelbergling.path_power.util.Honey
+import com.enmanuelbergling.path_power.util.roundTo
 
 @Preview
 @Composable

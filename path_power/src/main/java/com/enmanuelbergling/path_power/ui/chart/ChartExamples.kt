@@ -1,4 +1,4 @@
-package com.enmanuelbergling.pathpower.ui.chart
+package com.enmanuelbergling.path_power.ui.chart
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize

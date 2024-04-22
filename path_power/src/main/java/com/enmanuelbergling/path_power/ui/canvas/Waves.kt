@@ -1,4 +1,4 @@
-package com.enmanuelbergling.pathpower.ui.canvas
+package com.enmanuelbergling.path_power.ui.canvas
 
 import androidx.annotation.FloatRange
 import androidx.compose.animation.core.LinearEasing
@@ -46,8 +46,8 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.enmanuelbergling.pathpower.ui.shape.Heart
-import com.enmanuelbergling.pathpower.ui.theme.DarkBlue40
+import com.enmanuelbergling.path_power.ui.shape.Heart
+import com.enmanuelbergling.path_power.util.DarkBlue40
 
 internal const val WAVES = 2
 

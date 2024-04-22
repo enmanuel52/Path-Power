@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import com.enmanuelbergling.pathpower.ui.list.SimpleBeehiveExample
+import com.enmanuelbergling.path_power.ui.list.SimpleBeehiveExample
 import com.enmanuelbergling.pathpower.ui.theme.PathPowerTheme
 
 class MainActivity : ComponentActivity() {

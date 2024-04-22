@@ -1,4 +1,4 @@
-package com.enmanuelbergling.pathpower.ui.list
+package com.enmanuelbergling.path_power.ui.list
 
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
@@ -47,14 +47,14 @@ import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.enmanuelbergling.pathpower.ui.shape.Hexagon
+import com.enmanuelbergling.path_power.ui.shape.Hexagon
 import kotlin.math.roundToInt
 import kotlin.random.Random
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-internal fun SimpleBeehiveExample() {
+fun SimpleBeehiveExample() {
     var columns by remember {
         mutableIntStateOf(2)
     }

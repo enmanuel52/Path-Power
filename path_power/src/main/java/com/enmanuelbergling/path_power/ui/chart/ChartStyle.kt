@@ -1,4 +1,4 @@
-package com.enmanuelbergling.pathpower.ui.chart
+package com.enmanuelbergling.path_power.ui.chart
 
 sealed interface ChartStyle {
     data object Line : ChartStyle

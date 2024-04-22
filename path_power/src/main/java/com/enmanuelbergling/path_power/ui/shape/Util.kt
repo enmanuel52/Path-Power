@@ -1,4 +1,4 @@
-package com.enmanuelbergling.pathpower.ui.shape
+package com.enmanuelbergling.path_power.ui.shape
 
 internal fun resize(pathData: String, scaleX: Float, scaleY: Float): String {
     val regex = "[0-9]+[.]?([0-9]+)?".toRegex()
