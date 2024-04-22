@@ -1,3 +1,49 @@
+# Path Power
+
+1- First that all add this in the settings.gradle.kts
+```
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        ...
+        maven { url = uri("https://jitpack.io") }
+    }
+}
+```
+
+2- Second add the dependency in your build.gradle.kts
+```
+implementation("com.github.enmanuel52:Path-Power:0.0.1-alpha01")
+```
+
+# Charts
+```
+// Line Chart on video down below
+
+val earnings = listOf(15f, 45f, 18f, 20f, 21f, 35f, 25f)
+
+ChartGridContainer(
+      chartData = ChartUiModel(
+          steps = 4,
+          values = earnings.mapIndexed { index, value ->
+              ChartValue(
+                  value = value,
+                  label = index.toString(),
+              )
+          }
+      ),
+      style = ChartStyle.Line,
+      modifier = Modifier
+          .aspectRatio(1.4f)
+          .fillMaxWidth()
+          .padding(6.dp)
+  )
+```
+
+
+
+https://github.com/enmanuel52/Path-Power/assets/102194318/60ec5604-4308-41f3-b844-e768a85856fb
+
 
 
 # Waves animation
@@ -16,43 +62,33 @@ AnimatedWavesIndicator(
 
 https://github.com/enmanuel52/Path-Power/assets/102194318/1511ad6a-9234-4339-8bab-b8399b1d08b1
 
-# Beehive Grid
+# Comming soon
+
+## Beehive Grid
 ```
-LazyBeehiveVerticalGrid(
-  items = (1..40).toList(),
-  gridCells = beehiveCells,
-  key = {rowIndex, _ -> rowIndex },
-  spaceEvenly = 6.dp,
-  modifier = Modifier
-    .fillMaxSize()
-  ) { item ->
-      ElevatedCard(
-        modifier = Modifier.fillMaxSize(),
-        shape = LayDownHexagon,
-        colors = CardDefaults.elevatedCardColors(LighterHoney)
-        ) {
-          Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Image(
-                  painter = painterResource(id = R.drawable.bee),
-                  contentDescription = "bee image",
-                  Modifier.size(50.dp)
-                )
-
-                  Spacer(modifier = Modifier.height(8.dp))
-
-                  Text(text = "Item $item")
+    LazyBeehiveVerticalGrid(
+        items = (1..120).toList(),
+        gridCells = BeehiveGridCells.Fixed(3),
+        spaceBetween = 8.dp,
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(paddingValues),
+        aspectRatio = 1.05f,
+    ) { item: Int ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .drawBehind {
+                    drawRect(Color(Random.nextLong(0xFFFFFFFF)))
                 }
-            }
+        ) {
+            Text(text = "Item $item", modifier = Modifier.align(Alignment.Center))
         }
+    }
 ```
 
 <div style="margin: 10px;">
-  <img src="https://github.com/enmanuel52/Path-Power/assets/102194318/97304bae-fa56-4ef1-90c6-f1cfdec55d49" style="display: flex; width: 30%; padding: 0% 3%;">
+  <img src="https://github.com/enmanuel52/Path-Power/assets/102194318/e71fe40b-feaa-4ce5-990f-82326cfd2254" style="display: flex; width: 40%; padding: 0% 3%;">
 </div>
-
 
 **🚧🚧 WORK IN PROGRESS 🚧🚧**
