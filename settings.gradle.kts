@@ -15,6 +15,6 @@ dependencyResolutionManagement {
 
 rootProject.name = "Path Power"
 include(":app")
-//include(":baselineprofile")
+include(":baselineprofile")
 include(":benchmark")
 include(":path_power")
