@@ -54,7 +54,7 @@ import kotlin.random.Random
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-internal fun SimpleExample() {
+internal fun SimpleBeehiveExample() {
     var columns by remember {
         mutableIntStateOf(2)
     }
@@ -78,11 +78,11 @@ internal fun SimpleExample() {
         LazyBeehive(
             items = (1..120).toList(),
             columns = columns,
-            spaceBetween = 4.dp,
+            spaceBetween = 8.dp,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues),
-            aspectRatio = 1.1f,
+            aspectRatio = 1.05f,
         ) {
             Box(
                 modifier = Modifier
@@ -129,7 +129,6 @@ fun <T : Any> LazyBeehiveVerticalGrid(
     key: ((rowIndex: Int, List<T>) -> Any)? = null,
     spaceBetween: Dp = 4.dp,
     aspectRatio: Float = 1f,
-    isUp: Boolean = false,
     contentPadding: PaddingValues = PaddingValues(0.dp),
     verticalAlignment: Alignment.Vertical = Alignment.Top,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
@@ -158,7 +157,7 @@ fun <T : Any> LazyBeehiveVerticalGrid(
             verticalAlignment = verticalAlignment,
             horizontalAlignment = horizontalAlignment,
             userScrollEnabled = userScrollEnabled,
-            isUp = isUp,
+            isUp = false,
             itemContent = itemContent
         )
     }

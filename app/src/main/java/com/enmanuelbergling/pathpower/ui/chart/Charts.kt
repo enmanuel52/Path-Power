@@ -9,9 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.contentColorFor
@@ -20,7 +18,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
@@ -42,66 +39,6 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.enmanuelbergling.pathpower.ui.theme.PathPowerTheme
 import com.enmanuelbergling.pathpower.util.styled
-import kotlin.random.Random
-
-
-@Preview
-@Composable
-internal fun ChartLinePlaceholder(modifier: Modifier = Modifier) {
-    val color = LocalContentColor.current
-
-    val percents by remember {
-        mutableStateOf(
-            (1..8).map { Random.nextFloat() }
-        )
-    }
-
-    Canvas(
-        modifier = modifier.sizeIn(
-            minHeight = 100.dp,
-            minWidth = 125.dp,
-            maxHeight = 160.dp,
-            maxWidth = 200.dp
-        )
-    ) {
-        val chartPath = getChartLinePath(percents)
-
-        drawPath(chartPath, color, style = Stroke(2.dp.toPx()))
-
-        val chartOnGround = chartPath.apply {
-            lineTo(size.width, size.height)
-            lineTo(0f, size.height)
-        }
-
-        drawPath(
-            chartOnGround,
-            Brush.verticalGradient(listOf(color, Color.Transparent)),
-            style = Fill
-        )
-    }
-}
-
-@Preview
-@Composable
-internal fun ChartBarPlaceholder(modifier: Modifier = Modifier) {
-
-    val percents by remember {
-        mutableStateOf(
-            (1..8).map { Random.nextFloat() }
-        )
-    }
-
-    Canvas(
-        modifier = modifier.sizeIn(
-            minHeight = 100.dp,
-            minWidth = 125.dp,
-            maxHeight = 160.dp,
-            maxWidth = 200.dp
-        )
-    ) {
-        drawChartBar(percents)
-    }
-}
 
 @Composable
 fun ChartGridContainer(
@@ -341,7 +278,7 @@ private fun ChartLinePrev() {
 }
 
 
-private fun DrawScope.getChartLinePath(percents: List<Float>) =
+internal fun DrawScope.getChartLinePath(percents: List<Float>) =
     Path().apply {
 
         percents.forEachIndexed { index, yPercent ->
@@ -378,7 +315,7 @@ private fun DrawScope.getChartLinePath(percents: List<Float>) =
 
     }
 
-private fun DrawScope.drawChartBar(
+internal fun DrawScope.drawChartBar(
     percents: List<Float>,
     brush: Brush = Brush.verticalGradient(
         listOf(
