@@ -13,7 +13,7 @@ dependencyResolutionManagement {
 
 2- Second add the dependency in your build.gradle.kts
 ```
-implementation("io.github.enmanuel52:path_power:0.0.1")
+implementation("io.github.enmanuel52:path_power:0.0.2")
 ```
 
 # Charts
@@ -99,8 +99,7 @@ LazyBeehiveVerticalGrid(
 ```
 
 <div style="margin: 10px;">
-  <img src="https://github.com/enmanuel52/Path-Power/assets/102194318/51297395-4f9f-48c2-a49f-75ae8ec6b195" style="display: flex; width: 40%; padding: 0% 3%;">
+  <img src="https://github.com/enmanuel52/Path-Power/assets/102194318/e71fe40b-feaa-4ce5-990f-82326cfd2254" style="display: flex; width: 40%; padding: 0% 3%;">
 </div>
-
 
 **🚧🚧 WORK IN PROGRESS 🚧🚧**
