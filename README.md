@@ -66,36 +66,25 @@ https://github.com/enmanuel52/Path-Power/assets/102194318/1511ad6a-9234-4339-8ba
 
 ## Beehive Grid
 ```
-LazyBeehiveVerticalGrid(
-  items = (1..40).toList(),
-  gridCells = beehiveCells,
-  key = {rowIndex, _ -> rowIndex },
-  spaceEvenly = 6.dp,
-  modifier = Modifier
-    .fillMaxSize()
-  ) { item ->
-      ElevatedCard(
-        modifier = Modifier.fillMaxSize(),
-        shape = LayDownHexagon,
-        colors = CardDefaults.elevatedCardColors(LighterHoney)
-        ) {
-          Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Image(
-                  painter = painterResource(id = R.drawable.bee),
-                  contentDescription = "bee image",
-                  Modifier.size(50.dp)
-                )
-
-                  Spacer(modifier = Modifier.height(8.dp))
-
-                  Text(text = "Item $item")
+    LazyBeehive(
+        items = (1..120).toList(),
+        columns = 3,
+        spaceBetween = 8.dp,
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(paddingValues),
+        aspectRatio = 1.05f,
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .drawBehind {
+                    drawRect(Color(Random.nextLong(0xFFFFFFFF)))
                 }
-            }
+        ) {
+            Text(text = "Item $it", modifier = Modifier.align(Alignment.Center))
         }
+    }
 ```
 
 <div style="margin: 10px;">
