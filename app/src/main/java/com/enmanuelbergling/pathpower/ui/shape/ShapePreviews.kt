@@ -15,8 +15,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ArrowBack
-import androidx.compose.material.icons.rounded.ArrowForward
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material3.Icon
@@ -41,7 +39,7 @@ internal fun LayDownHexagonPrev() {
     Box(
         modifier = Modifier
             .size(200.dp)
-            .clip(LayDownHexagon)
+            .clip(Hexagon)
             .background(Honey)
     )
 }
@@ -72,7 +70,10 @@ fun AnimatedRatingsPrev() {
                         else if (index.plus(1) - rating < 1f) 1f - (index.plus(1) - rating)
                         else 0f,
                         label = "star fill animation",
-                        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy,stiffness = Spring.StiffnessLow)
+                        animationSpec = spring(
+                            dampingRatio = Spring.DampingRatioMediumBouncy,
+                            stiffness = Spring.StiffnessLow
+                        )
                     )
 
                     Box(modifier = Modifier

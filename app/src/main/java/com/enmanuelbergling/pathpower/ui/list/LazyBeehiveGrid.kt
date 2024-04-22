@@ -1,5 +1,6 @@
 package com.enmanuelbergling.pathpower.ui.list
 
+import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -46,16 +47,16 @@ import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.enmanuelbergling.pathpower.ui.shape.LayDownHexagon
+import com.enmanuelbergling.pathpower.ui.shape.Hexagon
 import kotlin.math.roundToInt
 import kotlin.random.Random
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 internal fun SimpleExample() {
     var columns by remember {
-        mutableIntStateOf(6)
+        mutableIntStateOf(2)
     }
 
     Scaffold(
@@ -74,13 +75,14 @@ internal fun SimpleExample() {
         }
     ) { paddingValues ->
 
-        LazyBeehiveLayout(
+        LazyBeehive(
             items = (1..120).toList(),
             columns = columns,
-            spaceBetween = 8.dp,
+            spaceBetween = 4.dp,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
+                .padding(paddingValues),
+            aspectRatio = 1.1f,
         ) {
             Box(
                 modifier = Modifier
@@ -116,6 +118,7 @@ fun SimpleLazyListExample() {
 
 /**
  * Extending LazyColumn where two row are placed as Beehive
+ * @param aspectRatio the desired width/height positive ratio
  * */
 @Composable
 fun <T : Any> LazyBeehiveVerticalGrid(
@@ -125,6 +128,8 @@ fun <T : Any> LazyBeehiveVerticalGrid(
     state: LazyListState = rememberLazyListState(),
     key: ((rowIndex: Int, List<T>) -> Any)? = null,
     spaceBetween: Dp = 4.dp,
+    aspectRatio: Float = 1f,
+    isUp: Boolean = false,
     contentPadding: PaddingValues = PaddingValues(0.dp),
     verticalAlignment: Alignment.Vertical = Alignment.Top,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
@@ -148,10 +153,12 @@ fun <T : Any> LazyBeehiveVerticalGrid(
             state = state,
             key = key,
             spaceBetween = spaceBetween,
+            aspectRatio = aspectRatio,
             contentPadding = contentPadding,
             verticalAlignment = verticalAlignment,
             horizontalAlignment = horizontalAlignment,
             userScrollEnabled = userScrollEnabled,
+            isUp = isUp,
             itemContent = itemContent
         )
     }
@@ -159,6 +166,7 @@ fun <T : Any> LazyBeehiveVerticalGrid(
 
 /**
  * It is like [LazyColumn] where two row are placed as Beehive
+ * @param aspectRatio the desired width/height positive ratio
  * */
 @Composable
 internal fun <T : Any> LazyBeehive(
@@ -168,7 +176,9 @@ internal fun <T : Any> LazyBeehive(
     state: LazyListState = rememberLazyListState(),
     key: ((rowIndex: Int, List<T>) -> Any)? = null,
     spaceBetween: Dp = 4.dp,
-    contentPadding: PaddingValues = PaddingValues(0.dp),
+    aspectRatio: Float = 1f,
+    isUp: Boolean = false,
+    contentPadding: PaddingValues = PaddingValues(4.dp),
     verticalAlignment: Alignment.Vertical = Alignment.Top,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
     userScrollEnabled: Boolean = true,
@@ -187,11 +197,18 @@ internal fun <T : Any> LazyBeehive(
     }
 
     BoxWithConstraints {
-        val itemSize by remember(maxWidth, itemWidthWeight) {
+        val itemWidth by remember(maxWidth, itemWidthWeight) {
             mutableStateOf(
                 maxWidth * itemWidthWeight
             )
         }
+
+        val itemHeight by remember(itemWidth, aspectRatio) {
+            derivedStateOf {
+                itemWidth / aspectRatio
+            }
+        }
+
         val evenRowMaxCount by remember(columns) {
             mutableIntStateOf(
                 columns.div(2.0).roundToInt()
@@ -203,7 +220,9 @@ internal fun <T : Any> LazyBeehive(
             state = state,
             contentPadding = contentPadding,
             verticalArrangement = Arrangement.spacedBy(
-                -itemSize / 2 + spaceBetween, verticalAlignment
+                space = if (isUp) -itemHeight * .3f + spaceBetween
+                else -itemHeight / 2 + spaceBetween,
+                alignment = verticalAlignment
             ),
             horizontalAlignment = horizontalAlignment,
             userScrollEnabled = userScrollEnabled,
@@ -228,16 +247,30 @@ internal fun <T : Any> LazyBeehive(
                     }
                 }
 
-                BeehiveRow(
-                    rowItems,
-                    modifier = Modifier.fillMaxWidth(),
-                    startsOnZero = isEvenRow,
-                    evenRowMaxCount = evenRowMaxCount,
-                    itemsMaxCount = rowMaxCount,
-                    spaceBetween = spaceBetween,
-                    goThrough = goThrough,
-                    itemContent = itemContent
-                )
+                if (isUp) {
+                    UpBeehiveRow(
+                        items = rowItems,
+                        modifier = Modifier.fillMaxWidth(),
+                        startsOnZero = isEvenRow,
+                        itemsMaxCount = rowMaxCount,
+                        spaceBetween = spaceBetween,
+                        goThrough = goThrough,
+                        aspectRatio = aspectRatio,
+                        itemContent = itemContent
+                    )
+                } else {
+                    BeehiveRow(
+                        items = rowItems,
+                        modifier = Modifier.fillMaxWidth(),
+                        startsOnZero = isEvenRow,
+                        evenRowMaxCount = evenRowMaxCount,
+                        itemsMaxCount = rowMaxCount,
+                        spaceBetween = spaceBetween,
+                        goThrough = goThrough,
+                        aspectRatio = aspectRatio,
+                        itemContent = itemContent
+                    )
+                }
             }
         }
     }
@@ -254,8 +287,9 @@ internal fun <T : Any> LazyBeehiveLayout(
     modifier: Modifier = Modifier,
     state: LazyListState = rememberLazyListState(),
     key: ((rowIndex: Int, List<T>) -> Any)? = null,
-    spaceBetween: Dp = 4.dp,
-    contentPadding: PaddingValues = PaddingValues(0.dp),
+    spaceBetween: Dp = 2.dp,
+    aspectRatio: Float = 1f,
+    contentPadding: PaddingValues = PaddingValues(4.dp),
     verticalAlignment: Alignment.Vertical = Alignment.Top,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
     userScrollEnabled: Boolean = true,
@@ -278,10 +312,16 @@ internal fun <T : Any> LazyBeehiveLayout(
             testTagsAsResourceId = true
         }
     ) {
-        val itemSize by remember(maxWidth, itemWidthWeight) {
+        val itemWidth by remember(maxWidth, itemWidthWeight) {
             mutableStateOf(
                 maxWidth * itemWidthWeight
             )
+        }
+
+        val itemHeight by remember {
+            derivedStateOf {
+                itemWidth / aspectRatio
+            }
         }
 
         LazyColumn(
@@ -289,7 +329,7 @@ internal fun <T : Any> LazyBeehiveLayout(
             state = state,
             contentPadding = contentPadding,
             verticalArrangement = Arrangement.spacedBy(
-                -itemSize / 2 + spaceBetween / 2, verticalAlignment
+                -itemHeight / 2 + spaceBetween, verticalAlignment
             ),
             horizontalAlignment = horizontalAlignment,
             userScrollEnabled = userScrollEnabled,
@@ -303,15 +343,15 @@ internal fun <T : Any> LazyBeehiveLayout(
 
                 LazyBeehiveRowLayout(
                     modifier = Modifier
-                        .height(itemSize),
+                        .height(itemWidth / aspectRatio),
                     isEvenRow = isEvenRow,
                 ) {
                     rowItems.forEach {
                         Column(
                             modifier = Modifier
-                                .width(itemSize)
+                                .width(itemWidth)
                                 .padding(horizontal = spaceBetween / 2)
-                                .clip(LayDownHexagon)
+                                .clip(Hexagon)
                         ) {
                             itemContent(it)
                         }
