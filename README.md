@@ -1,6 +1,27 @@
+# Path Power
+
+1- First that all add this in the settings.gradle.kts
+```
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        ...
+        maven { url = uri("https://jitpack.io") }
+    }
+}
+```
+
+2- Second add the dependency in your build.gradle.kts
+```
+implementation("io.github.enmanuel52:path_power:0.0.1")
+```
+
 # Charts
 ```
 // Line Chart on video down below
+
+val earnings = listOf(15f, 45f, 18f, 20f, 21f, 35f, 25f)
+
 ChartGridContainer(
       chartData = ChartUiModel(
           steps = 4,
