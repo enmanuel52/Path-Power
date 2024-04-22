@@ -14,7 +14,10 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Build
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,6 +28,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asComposeRenderEffect
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
@@ -68,36 +72,9 @@ fun LiquidCircles() {
             .fillMaxHeight()
             .padding(24.dp)
     ) {
-        Box(
-            modifier = Modifier.fillMaxHeight()
-                .graphicsLayer {
-                renderEffect = liquidEffect
-            }
-        ) {
+        BoxWithIconGroup(liquidEffect, animationProgress, heightPx, primaryColor)
 
-            Box(
-                modifier = Modifier
-                    .size(150.dp)
-                    .clip(CircleShape)
-                    .background(primaryColor)
-            )
-            Box(modifier = Modifier
-                .graphicsLayer {
-                    translationY = animationProgress * heightPx * 1.3f
-                }
-                .size(150.dp)
-                .clip(CircleShape)
-                .background(primaryColor)
-            )
-            Box(modifier = Modifier
-                .graphicsLayer {
-                    translationY = animationProgress * heightPx * 2.6f
-                }
-                .size(150.dp)
-                .clip(CircleShape)
-                .background(primaryColor)
-            )
-        }
+        BoxWithIconGroup(null, animationProgress, heightPx, primaryColor)
 
         Button(
             onClick = { isExpanded = !isExpanded },
@@ -105,6 +82,55 @@ fun LiquidCircles() {
         ) {
             Text(text = if (isExpanded) "Shrink" else "Expand")
         }
+    }
+}
+
+@Composable
+private fun BoxWithIconGroup(
+    liquidEffect: androidx.compose.ui.graphics.RenderEffect?,
+    animationProgress: Float,
+    heightPx: Float,
+    primaryColor: Color,
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxHeight()
+            .graphicsLayer {
+                renderEffect = liquidEffect
+            }
+    ) {
+
+        BoxWithIcon(animationProgress, heightPx, primaryColor, 0f)
+
+        BoxWithIcon(animationProgress, heightPx, primaryColor, 1.3f)
+
+        BoxWithIcon(animationProgress, heightPx, primaryColor, 2.6f)
+    }
+}
+
+@Composable
+private fun BoxWithIcon(
+    animationProgress: Float,
+    heightPx: Float,
+    primaryColor: Color,
+    translation: Float,
+) {
+    Box(modifier = Modifier
+        .graphicsLayer {
+            translationY = animationProgress * heightPx * translation
+        }
+        .size(150.dp)
+        .clip(CircleShape)
+        .background(primaryColor)
+    ) {
+        Icon(
+            imageVector = Icons.Rounded.Build,
+            contentDescription = "some icon",
+            tint = MaterialTheme.colorScheme.onPrimary,
+            modifier = Modifier.align(
+                Alignment.Center
+            )
+        )
     }
 }
 

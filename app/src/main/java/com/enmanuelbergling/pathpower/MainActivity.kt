@@ -1,5 +1,6 @@
 package com.enmanuelbergling.pathpower
 
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -8,7 +9,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import com.enmanuelbergling.pathpower.ui.animation.liquid.LiquidCircles
-import com.enmanuelbergling.pathpower.ui.list.SimpleExample
 import com.enmanuelbergling.pathpower.ui.theme.PathPowerTheme
 
 class MainActivity : ComponentActivity() {
@@ -21,7 +21,9 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    LiquidCircles()
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        LiquidCircles()
+                    }
                 }
             }
         }
