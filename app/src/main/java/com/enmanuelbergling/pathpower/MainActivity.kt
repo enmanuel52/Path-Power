@@ -8,7 +8,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import com.enmanuelbergling.pathpower.ui.animation.liquid.LiquidCircles
+import com.enmanuelbergling.pathpower.ui.animation.liquid.MoreIcons
+import com.enmanuelbergling.pathpower.ui.animation.liquid.MoreIconsContainer
 import com.enmanuelbergling.pathpower.ui.theme.PathPowerTheme
 
 class MainActivity : ComponentActivity() {
@@ -22,7 +23,7 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                        LiquidCircles()
+                        MoreIconsContainer()
                     }
                 }
             }
