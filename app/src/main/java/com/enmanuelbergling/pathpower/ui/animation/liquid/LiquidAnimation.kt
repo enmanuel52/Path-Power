@@ -7,9 +7,12 @@ import android.graphics.Shader
 import android.os.Build
 import androidx.annotation.FloatRange
 import androidx.annotation.RequiresApi
-import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandIn
+import androidx.compose.animation.shrinkOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -28,7 +31,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,10 +44,13 @@ import androidx.compose.ui.graphics.asComposeRenderEffect
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import kotlin.math.cos
+import kotlin.math.roundToInt
 import kotlin.math.sin
 import androidx.compose.ui.graphics.RenderEffect as ComposeRenderEffect
 
@@ -169,7 +174,10 @@ private fun rememberLiquidEffect(): ComposeRenderEffect {
     return remember { liquidEffect }
 }
 
+const val DefaultAnimationDuration = 2_500
+
 @RequiresApi(Build.VERSION_CODES.S)
+@Preview
 @Composable
 fun MoreIconsContainer() {
     val liquidEffect = rememberLiquidEffect()
@@ -178,41 +186,48 @@ fun MoreIconsContainer() {
         mutableStateOf(false)
     }
 
-    val animationProgress = remember {
-        Animatable(0f)
-    }
-
-    LaunchedEffect(key1 = expanded) {
-        val animationSpec =
-            tween<Float>(2_500)// spring<Float>(Spring.DampingRatioMediumBouncy, Spring.StiffnessLow)
-
-        if (expanded) {
-            animationProgress.animateTo(targetValue = 1f, animationSpec = animationSpec)
-        } else {
-            animationProgress.animateTo(targetValue = 0f, animationSpec = animationSpec)
-        }
-    }
+    val animationProgress by animateFloatAsState(
+        targetValue = if (expanded) 1f else 0f,
+        label = "progress animation",
+        animationSpec = tween(
+            DefaultAnimationDuration
+        ),
+    )
 
 
     Box {
-        MoreIcons(animationProgress = animationProgress.value, renderEffect = liquidEffect) {}
-        MoreIcons(animationProgress = animationProgress.value, renderEffect = null) {
+        MoreIcons(
+            animationProgress = animationProgress,
+            renderEffect = liquidEffect,
+            isExpanded = expanded
+        ) {}
+        MoreIcons(
+            animationProgress = animationProgress,
+            renderEffect = null,
+            isExpanded = expanded
+        ) {
             expanded = !expanded
         }
     }
 }
 
 @Composable
-fun MoreIcons(animationProgress: Float, renderEffect: ComposeRenderEffect?, onToggle: () -> Unit) {
+fun MoreIcons(
+    animationProgress: Float,
+    renderEffect: ComposeRenderEffect?,
+    isExpanded: Boolean,
+    onToggle: () -> Unit,
+) {
     //Just icon should overlap the liquid animation
-    val containerColor =
-        if (renderEffect != null) MaterialTheme.colorScheme.primaryContainer else Color.Transparent
+    val containerColor = MaterialTheme.colorScheme.primaryContainer
+    //if (renderEffect != null) MaterialTheme.colorScheme.primaryContainer else Color.Transparent
 
     Box(modifier = Modifier
         .fillMaxSize()
         .graphicsLayer {
             this.renderEffect = renderEffect
-        }) {
+        }
+    ) {
         val count = 4
         val maxAngle = 180f
         val angleStep = maxAngle / (count - 1)
@@ -238,17 +253,73 @@ fun MoreIcons(animationProgress: Float, renderEffect: ComposeRenderEffect?, onTo
             )
         }
 
+        val density = LocalDensity.current
+        val fabSize = with(density) { 58.dp.toPx() }
 
-        LiquidFAB(
-            onClick = onToggle,
+        Box(
             modifier = Modifier
-                .align(Alignment.Center)
-                .graphicsLayer {
-                    rotationZ = 45f * animationProgress
+                .align(Alignment.Center),
+        ) {
+            AnimatedVisibility(
+                visible = !isExpanded,
+                label = "toggle button animation",
+                enter = expandIn(
+                    animationSpec = keyframes {
+                        IntSize(
+                            width = (fabSize * .5f).roundToInt(),
+                            height = (fabSize * .5f).roundToInt()
+                        ) at (DefaultAnimationDuration * .05).roundToInt()
+
+                        IntSize(
+                            width = (fabSize * 1f).roundToInt(),
+                            height = (fabSize * 1f).roundToInt()
+                        ) at DefaultAnimationDuration/2
+                    },
+                    expandFrom = Alignment.Center,
+                ) { size ->
+                    IntSize(
+                        size.width / 2,
+                        size.height / 2
+                    )
                 },
-            containerColor = containerColor,
-            imageVector = if (renderEffect == null) Icons.Rounded.Add else null
-        )
+                exit = shrinkOut(
+                    animationSpec = keyframes {
+                        IntSize(
+                            width = (fabSize * 1f).roundToInt(),
+                            height = (fabSize * 1f).roundToInt()
+                        ) at (DefaultAnimationDuration * .5).roundToInt()
+
+                        IntSize(
+                            width = (fabSize * .5f).roundToInt(),
+                            height = (fabSize * .5f).roundToInt()
+                        ) at (DefaultAnimationDuration * .99).roundToInt()
+                    },
+                    shrinkTowards = Alignment.Center,
+                ) { size ->
+                    IntSize(size.width / 2, size.height / 2)
+                },
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .clip(CircleShape),
+            ) {
+                LiquidFAB(
+                    onClick = onToggle,
+                    imageVector = null,
+                    modifier = Modifier.clip(CircleShape),
+                )
+            }
+
+            LiquidFAB(
+                onClick = onToggle,
+                containerColor = Color.Transparent,
+                contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                imageVector = Icons.Rounded.Add,
+                modifier = Modifier.graphicsLayer {
+                    rotationZ = animationProgress * (45f + 180f)
+                }
+            )
+
+        }
     }
 }
 
