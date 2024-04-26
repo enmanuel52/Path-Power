@@ -3,7 +3,8 @@ package com.enmanuelbergling.pathpower.ui.animation
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandIn
@@ -22,7 +23,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Face
-import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material.icons.rounded.ShoppingCart
@@ -51,9 +51,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.enmanuelbergling.pathpower.ui.custom.DefaultAnimationDuration
 import com.enmanuelbergling.pathpower.ui.custom.LiquidBottomShape
@@ -71,14 +71,15 @@ fun LiquidFABContainer(fabUis: List<LiquidFABUi>, modifier: Modifier = Modifier)
     val liquidEffect = rememberLiquidEffect()
 
     var expanded by remember {
-        mutableStateOf(true)
+        mutableStateOf(false)
     }
 
     val animationProgress by animateFloatAsState(
         targetValue = if (expanded) 1f else 0f,
         label = "progress animation",
         animationSpec = tween(
-            DefaultAnimationDuration
+            DefaultAnimationDuration,
+            easing = FastOutSlowInEasing,
         ),
     )
 
@@ -153,7 +154,7 @@ fun LiquidFABGroup(
                         rotationZ = -180f + (180f * itemProgress)
                     },
                 containerColor = containerColor,
-                imageVector = if (renderEffect == null) Icons.Rounded.Favorite else null
+                imageVector = if (renderEffect == null) liquidFABUi.icon else null
             )
         }
 
@@ -167,25 +168,26 @@ private fun ToggleFAB(
     onToggle: () -> Unit,
     animationProgress: Float,
 ) {
+    val density = LocalDensity.current
+    val fabSize = with(density) { 58.dp.toPx() }
     Box {
         AnimatedVisibility(
             visible = !isExpanded,
             label = "toggle button animation",
             enter = expandIn(
-                animationSpec = tween(DefaultAnimationDuration),
+                animationSpec = tween(
+                    DefaultAnimationDuration,
+                    easing = CubicBezierEasing(.22f, 1f, .1f, .68f)
+                ),
                 expandFrom = Alignment.Center,
-            ) { size ->
-                IntSize(
-                    size.width / 2,
-                    size.height / 2
-                )
-            },
+            ),
             exit = shrinkOut(
-                animationSpec = tween(DefaultAnimationDuration, easing = LinearOutSlowInEasing),
+                animationSpec = tween(
+                    DefaultAnimationDuration,
+                    easing = CubicBezierEasing(.89f, .29f, .53f, .09f)
+                ),
                 shrinkTowards = Alignment.Center,
-            ) { size ->
-                IntSize(size.width / 2, size.height / 2)
-            },
+            ),
             modifier = Modifier
                 .align(Alignment.Center)
                 .clip(CircleShape),
