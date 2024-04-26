@@ -13,24 +13,36 @@ import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandIn
 import androidx.compose.animation.shrinkOut
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Build
 import androidx.compose.material.icons.rounded.Favorite
+import androidx.compose.material.icons.rounded.Home
+import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,16 +50,24 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.asComposeRenderEffect
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import kotlin.math.cos
 import kotlin.math.roundToInt
@@ -61,22 +81,11 @@ fun LiquidCircles() {
 
     val liquidEffect = rememberLiquidEffect()
 
-    /*Box(
-        modifier = Modifier
-            .size(150.dp)
-            .clip(CircleShape)
-            .drawBehind { drawCircle(primaryColor) }
-//            .blur(4.dp)
-//            .blur(4.dp, 6.dp)
-            .graphicsLayer {
-                renderEffect = blurEffect.asComposeRenderEffect()
-            },
-    )*/
     val density = LocalDensity.current
     val heightPx = with(density) { 150.dp.toPx() }
 
     var isExpanded by remember {
-        mutableStateOf(true)
+        mutableStateOf(false)
     }
 
     val animationProgress by animateFloatAsState(
@@ -179,7 +188,7 @@ const val DefaultAnimationDuration = 2_500
 @RequiresApi(Build.VERSION_CODES.S)
 @Preview
 @Composable
-fun MoreIconsContainer() {
+fun MoreIconsContainer(modifier: Modifier = Modifier) {
     val liquidEffect = rememberLiquidEffect()
 
     var expanded by remember {
@@ -195,7 +204,7 @@ fun MoreIconsContainer() {
     )
 
 
-    Box {
+    Box(modifier) {
         MoreIcons(
             animationProgress = animationProgress,
             renderEffect = liquidEffect,
@@ -216,37 +225,42 @@ fun MoreIcons(
     animationProgress: Float,
     renderEffect: ComposeRenderEffect?,
     isExpanded: Boolean,
+    modifier: Modifier = Modifier,
     onToggle: () -> Unit,
 ) {
     //Just icon should overlap the liquid animation
     val containerColor = MaterialTheme.colorScheme.primaryContainer
     //if (renderEffect != null) MaterialTheme.colorScheme.primaryContainer else Color.Transparent
 
-    Box(modifier = Modifier
-        .fillMaxSize()
+    val minBoxSize = 66.dp + 90.dp * 2
+
+    Box(modifier = modifier
+        .widthIn(min = minBoxSize, minBoxSize)
+        .heightIn(min = minBoxSize, minBoxSize)
         .graphicsLayer {
             this.renderEffect = renderEffect
         }
     ) {
-        val count = 4
-        val maxAngle = 180f
-        val angleStep = maxAngle / (count - 1)
+        val count = 3
+        val startAngle = 30f
+        val sweepAngle = 180f - startAngle
+        val angleStep = (sweepAngle - startAngle) / (count - 1)
         repeat(count) { index ->
-            val angle = index * angleStep
+            val angle = index * angleStep + startAngle
 
             val offset = getOffsetAround(angle = angle, radius = 90.dp)
 
             LiquidFAB(
                 onClick = { /*TODO*/ },
                 modifier = Modifier
-                    .align(Alignment.Center)
+                    .align(Alignment.BottomCenter)
                     .graphicsLayer {
                         val maximumValue = (index + 1f) / count
                         val itemProgress =
                             animationProgress.coerceAtMost(maximumValue) / maximumValue
                         translationY = offset.y.toPx() * itemProgress
                         translationX = offset.x.toPx() * itemProgress
-                        rotationZ = -maxAngle + (maxAngle * itemProgress)
+                        rotationZ = -sweepAngle + (sweepAngle * itemProgress)
                     },
                 containerColor = containerColor,
                 imageVector = if (renderEffect == null) Icons.Rounded.Favorite else null
@@ -258,7 +272,7 @@ fun MoreIcons(
 
         Box(
             modifier = Modifier
-                .align(Alignment.Center),
+                .align(Alignment.BottomCenter),
         ) {
             AnimatedVisibility(
                 visible = !isExpanded,
@@ -273,7 +287,7 @@ fun MoreIcons(
                         IntSize(
                             width = (fabSize * 1f).roundToInt(),
                             height = (fabSize * 1f).roundToInt()
-                        ) at DefaultAnimationDuration/2
+                        ) at DefaultAnimationDuration / 2
                     },
                     expandFrom = Alignment.Center,
                 ) { size ->
@@ -283,17 +297,7 @@ fun MoreIcons(
                     )
                 },
                 exit = shrinkOut(
-                    animationSpec = keyframes {
-                        IntSize(
-                            width = (fabSize * 1f).roundToInt(),
-                            height = (fabSize * 1f).roundToInt()
-                        ) at (DefaultAnimationDuration * .5).roundToInt()
-
-                        IntSize(
-                            width = (fabSize * .5f).roundToInt(),
-                            height = (fabSize * .5f).roundToInt()
-                        ) at (DefaultAnimationDuration * .99).roundToInt()
-                    },
+                    animationSpec = tween(DefaultAnimationDuration),
                     shrinkTowards = Alignment.Center,
                 ) { size ->
                     IntSize(size.width / 2, size.height / 2)
@@ -312,7 +316,7 @@ fun MoreIcons(
             LiquidFAB(
                 onClick = onToggle,
                 containerColor = Color.Transparent,
-                contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                contentColor = MaterialTheme.colorScheme.onBackground,
                 imageVector = Icons.Rounded.Add,
                 modifier = Modifier.graphicsLayer {
                     rotationZ = animationProgress * (45f + 180f)
@@ -385,5 +389,170 @@ fun getOffsetAround(
         )
 
         else -> DpOffset.Zero
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun LiquidBottomBar(modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(92.dp)
+    ) {
+        Row(
+            Modifier
+                .fillMaxHeight()
+                .fillMaxWidth()
+                .align(Alignment.BottomCenter)
+                .padding(top = 32.dp)
+                .background(Color.Green)
+                .padding(all = 12.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            CompositionLocalProvider(LocalContentColor provides Color.White) {
+                Icon(imageVector = Icons.Rounded.Home, contentDescription = "home icon")
+                Icon(imageVector = Icons.Rounded.Favorite, contentDescription = "favorite icon")
+            }
+        }
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .size(64.dp)
+                .background(Color.White, CircleShape)
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun LiquidBottomBarCanvas() {
+
+
+    Canvas(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(62.dp)
+    ) {
+
+        val bottomPath = getLiquidBottomPath(
+            size = size,
+            density = Density(density, fontScale)
+        )
+
+        drawPath(
+            path = bottomPath,
+            color = Color.Green,
+            style = Stroke(1.dp.toPx())
+        )
+    }
+}
+
+class LiquidBottomShape(
+    private val fabSize: Dp = 58.dp,
+    private val roundX: Dp = 12.dp,
+    private val roundY: Dp = 6.dp,
+) : Shape {
+    override fun createOutline(
+        size: Size,
+        layoutDirection: LayoutDirection,
+        density: Density,
+    ): Outline = Outline.Generic(
+        getLiquidBottomPath(
+            size = size,
+            density = density,
+            fabSize = fabSize,
+            roundX = roundX,
+            roundY = roundY
+        )
+    )
+}
+
+private fun getLiquidBottomPath(
+    size: Size,
+    density: Density,
+    fabSize: Dp = 58.dp,
+    roundX: Dp = 12.dp,
+    roundY: Dp = 6.dp,
+) = Path().apply {
+    val fabSizePx = with(density) { fabSize.toPx() }
+    val roundYPx = with(density) { roundY.toPx() }
+    val roundXPx = with(density) { roundX.toPx() }
+
+    moveTo(0f, 0f)
+
+    lineTo(x = size.width / 2 - fabSizePx / 2 - roundXPx, y = 0f)
+
+    quadraticBezierTo(
+        x1 = size.width / 2 - fabSizePx / 2,
+        y1 = 0f,
+        x2 = size.width / 2 - fabSizePx / 2,
+        y2 = roundYPx
+    )
+
+    addArc(
+        oval = Rect(center = Offset(size.width / 2, roundYPx), radius = fabSizePx / 2),
+        startAngleDegrees = 180f,
+        sweepAngleDegrees = -180f
+    )
+
+    quadraticBezierTo(
+        x1 = size.width / 2 + fabSizePx / 2,
+        y1 = 0f,
+        x2 = size.width / 2 + fabSizePx / 2 + roundXPx,
+        y2 = 0f
+    )
+
+    lineTo(size.width, 0f)
+    lineTo(size.width, size.height)
+    lineTo(0f, size.height)
+
+    lineTo(0f, 0f)
+}
+
+@RequiresApi(Build.VERSION_CODES.S)
+@Composable
+fun BetterLiquidBottomBar() {
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+        BottomBar(
+            Modifier
+                .align(Alignment.BottomCenter)
+        )
+
+        MoreIconsContainer(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 38.dp)
+        )
+
+    }
+}
+
+@Composable
+private fun BottomBar(modifier: Modifier = Modifier) {
+    Row(
+        modifier = modifier
+            .height(94.dp - 12.dp)
+            .fillMaxWidth()
+            .padding(6.dp)
+            .clip(shape = RoundedCornerShape(12.dp))
+            .clip(
+                shape = LiquidBottomShape(fabSize = 64.dp, roundX = 12.dp, roundY = 12.dp)
+            )
+            .background(MaterialTheme.colorScheme.tertiaryContainer)
+            .padding(horizontal = 18.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.onTertiaryContainer) {
+            Icon(imageVector = Icons.Rounded.Home, contentDescription = "home icon")
+
+            Icon(imageVector = Icons.Rounded.Settings, contentDescription = "settings icon")
+        }
     }
 }
