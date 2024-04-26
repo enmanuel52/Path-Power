@@ -10,9 +10,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.enmanuelbergling.pathpower.ui.animation.liquid.BetterLiquidBottomBar
-import com.enmanuelbergling.pathpower.ui.animation.liquid.LiquidCircles
-import com.enmanuelbergling.pathpower.ui.animation.liquid.MoreIconsContainer
+import com.enmanuelbergling.pathpower.ui.animation.BetterLiquidBottomBar
 import com.enmanuelbergling.pathpower.ui.theme.PathPowerTheme
 
 class MainActivity : ComponentActivity() {
