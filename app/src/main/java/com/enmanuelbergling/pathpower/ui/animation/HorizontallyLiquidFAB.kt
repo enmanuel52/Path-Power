@@ -126,7 +126,7 @@ fun HorizontallyLiquidFABGroup(
     val density = LocalDensity.current
     val fabSize = 66.dp
     val fabSizePx = with(density) { fabSize.toPx() }
-    val horizontalSpace = 12.dp
+    val horizontalSpace = 18.dp
     val horizontalSpacePx = with(density) { horizontalSpace.toPx() }
 
     Box(
@@ -154,7 +154,7 @@ fun HorizontallyLiquidFABGroup(
         }
 
         ToggleFAB(isExpanded, onToggle, modifier = Modifier.graphicsLayer {
-            rotationZ = animationProgress * (-45f + 180f)
+            rotationZ = animationProgress * (-45f - 180f)
         })
     }
 }
