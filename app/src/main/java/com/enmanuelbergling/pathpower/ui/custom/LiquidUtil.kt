@@ -6,6 +6,7 @@ import android.graphics.Shader
 import android.os.Build
 import androidx.annotation.FloatRange
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.RenderEffect
@@ -83,4 +84,7 @@ fun getOffsetAround(
     }
 }
 
-const val DefaultAnimationDuration = 2_500
+const val DefaultAnimationDuration = 1_800
+
+val FastInEasing = CubicBezierEasing(.22f, 1f, .1f, .68f)
+val SlowInEasing = CubicBezierEasing(.89f, .29f, .53f, .09f)

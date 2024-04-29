@@ -3,7 +3,6 @@ package com.enmanuelbergling.pathpower.ui.animation
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -56,7 +55,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.enmanuelbergling.pathpower.ui.custom.DefaultAnimationDuration
+import com.enmanuelbergling.pathpower.ui.custom.FastInEasing
 import com.enmanuelbergling.pathpower.ui.custom.LiquidBottomShape
+import com.enmanuelbergling.pathpower.ui.custom.SlowInEasing
 import com.enmanuelbergling.pathpower.ui.custom.getOffsetAround
 import com.enmanuelbergling.pathpower.ui.custom.rememberLiquidEffect
 import com.enmanuelbergling.pathpower.ui.model.LiquidFABUi
@@ -79,7 +80,6 @@ fun LiquidFABContainer(fabUis: List<LiquidFABUi>, modifier: Modifier = Modifier)
         label = "progress animation",
         animationSpec = tween(
             DefaultAnimationDuration,
-            easing = FastOutSlowInEasing,
         ),
     )
 
@@ -158,15 +158,21 @@ fun LiquidFABGroup(
             )
         }
 
-        ToggleFAB(isExpanded, onToggle, animationProgress)
+        ToggleFAB(
+            isExpanded = isExpanded,
+            onToggle = onToggle,
+            modifier = Modifier.graphicsLayer {
+                rotationZ = animationProgress * (45f + 180f)
+            }
+        )
     }
 }
 
 @Composable
-private fun ToggleFAB(
+fun ToggleFAB(
     isExpanded: Boolean,
     onToggle: () -> Unit,
-    animationProgress: Float,
+    modifier: Modifier,
 ) {
     val density = LocalDensity.current
     val fabSize = with(density) { 58.dp.toPx() }
@@ -177,14 +183,14 @@ private fun ToggleFAB(
             enter = expandIn(
                 animationSpec = tween(
                     DefaultAnimationDuration,
-                    easing = CubicBezierEasing(.22f, 1f, .1f, .68f)
+                    easing = FastInEasing
                 ),
                 expandFrom = Alignment.Center,
             ),
             exit = shrinkOut(
                 animationSpec = tween(
                     DefaultAnimationDuration,
-                    easing = CubicBezierEasing(.89f, .29f, .53f, .09f)
+                    easing = SlowInEasing
                 ),
                 shrinkTowards = Alignment.Center,
             ),
@@ -203,16 +209,14 @@ private fun ToggleFAB(
             containerColor = Color.Transparent,
             contentColor = MaterialTheme.colorScheme.onBackground,
             imageVector = Icons.Rounded.Add,
-            modifier = Modifier.graphicsLayer {
-                rotationZ = animationProgress * (45f + 180f)
-            }
+            modifier = modifier,
         )
 
     }
 }
 
 @Composable
-private fun LiquidFAB(
+fun LiquidFAB(
     modifier: Modifier = Modifier,
     imageVector: ImageVector? = null,
     shape: Shape = CircleShape,
