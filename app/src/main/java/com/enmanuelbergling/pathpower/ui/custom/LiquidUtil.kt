@@ -6,7 +6,6 @@ import android.graphics.Shader
 import android.os.Build
 import androidx.annotation.FloatRange
 import androidx.annotation.RequiresApi
-import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.RenderEffect
@@ -21,7 +20,8 @@ import kotlin.math.sin
 @Composable
 fun rememberLiquidEffect(): RenderEffect {
     val radius = 60f
-    val blurEffect = android.graphics.RenderEffect.createBlurEffect(radius, radius, Shader.TileMode.DECAL)
+    val blurEffect =
+        android.graphics.RenderEffect.createBlurEffect(radius, radius, Shader.TileMode.DECAL)
 
     val matrixArray = floatArrayOf(
         1f, 0f, 0f, 0f, 0f, //Red
@@ -37,7 +37,8 @@ fun rememberLiquidEffect(): RenderEffect {
     )
 
     val liquidEffect =
-        android.graphics.RenderEffect.createChainEffect(colorFilter, blurEffect).asComposeRenderEffect()
+        android.graphics.RenderEffect.createChainEffect(colorFilter, blurEffect)
+            .asComposeRenderEffect()
 
     return remember { liquidEffect }
 }
@@ -83,8 +84,3 @@ fun getOffsetAround(
         else -> DpOffset.Zero
     }
 }
-
-const val DefaultAnimationDuration = 1_800
-
-val FastInEasing = CubicBezierEasing(.22f, 1f, .1f, .68f)
-val SlowInEasing = CubicBezierEasing(.89f, .29f, .53f, .09f)

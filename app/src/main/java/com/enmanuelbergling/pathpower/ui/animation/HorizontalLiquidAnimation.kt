@@ -2,7 +2,9 @@ package com.enmanuelbergling.pathpower.ui.animation
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -46,7 +48,7 @@ fun LiquidHorizontally() {
 
     fun snackBarAction(action: String) {
         scope.launch {
-            snackbarHostState.showSnackbar("$action action")
+            snackbarHostState.showSnackbar("$action action", withDismissAction = true)
         }
     }
 
@@ -112,6 +114,8 @@ fun HorizontallyLiquidFABContainer(fabUis: List<LiquidFABUi>, modifier: Modifier
     }
 }
 
+private val FabSize = 66.dp
+
 @Composable
 fun HorizontallyLiquidFABGroup(
     animationProgress: Float,
@@ -124,8 +128,7 @@ fun HorizontallyLiquidFABGroup(
 ) {
 
     val density = LocalDensity.current
-    val fabSize = 66.dp
-    val fabSizePx = with(density) { fabSize.toPx() }
+    val fabSizePx = with(density) { FabSize.toPx() }
     val horizontalSpace = 18.dp
     val horizontalSpacePx = with(density) { horizontalSpace.toPx() }
 
@@ -144,17 +147,22 @@ fun HorizontallyLiquidFABGroup(
                     .graphicsLayer {
 
                         val maxWidthOffset = (fabSizePx + horizontalSpacePx) * (index + 1)
-
                         translationX = -maxWidthOffset * animationProgress
-                        rotationZ = 180f + (-180f * animationProgress)
+
+//                        val degreesToRoll = 270f * (index + 1)
+//                        rotationZ = degreesToRoll + (-degreesToRoll * animationProgress)
                     },
                 containerColor = containerColor,
                 imageVector = if (renderEffect == null) liquidFABUi.icon else null
             )
         }
 
-        ToggleFAB(isExpanded, onToggle, modifier = Modifier.graphicsLayer {
-            rotationZ = animationProgress * (-45f - 180f)
-        })
+        ToggleFAB(
+            isExpanded = isExpanded,
+            onToggle = onToggle,
+            modifier = Modifier.graphicsLayer {
+                rotationZ = animationProgress * -45f
+            }
+        )
     }
 }
