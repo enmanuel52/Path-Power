@@ -3,7 +3,6 @@ package com.enmanuelbergling.pathpower.ui.animation
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandIn
@@ -50,7 +49,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -101,6 +99,8 @@ fun LiquidFABContainer(fabUis: List<LiquidFABUi>, modifier: Modifier = Modifier)
     }
 }
 
+private val FabSize = 64.dp
+
 /**
  * @param fabUis should be 3 for now
  * */
@@ -116,7 +116,9 @@ fun LiquidFABGroup(
     onToggle: () -> Unit,
 ) {
     val minBoxSize by remember {
-        derivedStateOf { 64.dp + liquidMetrics.expandedDistance * 2 }
+        derivedStateOf {
+            FabSize + liquidMetrics.expandedDistance * 2
+        }
     }
 
     Box(
@@ -131,6 +133,7 @@ fun LiquidFABGroup(
         val startAngle = liquidMetrics.startDegrees
         val sweepAngle = liquidMetrics.sweepDegrees
 
+        // because there are fab at start and end angles
         val angleStep = sweepAngle / (fabUis.lastIndex)
 
         fabUis.forEachIndexed { index, liquidFABUi ->
@@ -174,8 +177,6 @@ fun ToggleFAB(
     onToggle: () -> Unit,
     modifier: Modifier,
 ) {
-    val density = LocalDensity.current
-    val fabSize = with(density) { 58.dp.toPx() }
     Box {
         AnimatedVisibility(
             visible = !isExpanded,
@@ -250,7 +251,7 @@ fun BetterLiquidBottomBar() {
 
     fun snackBarAction(action: String) {
         scope.launch {
-            snackbarHostState.showSnackbar("$action action")
+            snackbarHostState.showSnackbar("$action action", withDismissAction = true)
         }
     }
 
