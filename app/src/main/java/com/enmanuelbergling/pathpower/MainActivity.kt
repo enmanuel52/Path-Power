@@ -8,6 +8,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import com.enmanuelbergling.path_power.ui.list.SimpleBeehiveExample
+import com.enmanuelbergling.pathpower.ui.animation.FlipOver
 import com.enmanuelbergling.pathpower.ui.theme.PathPowerTheme
 
 class MainActivity : ComponentActivity() {
@@ -20,7 +21,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    SimpleBeehiveExample()
+                    FlipOver()
                 }
             }
         }
