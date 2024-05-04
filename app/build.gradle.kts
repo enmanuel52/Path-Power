@@ -62,8 +62,8 @@ android {
 }
 
 dependencies {
-//    implementation(project(":path_power"))
-    implementation("com.github.enmanuel52:Path-Power:0.0.1-alpha01")
+    implementation(project(":path_power"))
+//    implementation("com.github.enmanuel52:Path-Power:0.0.1-alpha01")
 
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")

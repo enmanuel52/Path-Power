@@ -10,6 +10,7 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -33,22 +34,20 @@ fun AnimatedContentScope.HomeScreen(
     onDetails: (CarModel) -> Unit,
 ) {
     Scaffold(
-        topBar = { CenterAlignedTopAppBar(title = { Text(text = "Cars") }) },
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(
-                    listOf(
-                        Color(McQueen.color),
-                        Color.Transparent,
-                    )
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = { Text(text = "Cars") },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    Color.Transparent
                 )
             )
+        }
     ) {
         LazyBeehiveVerticalGrid(
             items = CARS,
             gridCells = BeehiveGridCells.Adaptive(150.dp),
-            modifier = Modifier.padding(it),
+            modifier = Modifier
+                .padding(it),
             spaceBetween = 8.dp
         ) { carModel ->
             ElevatedCard(

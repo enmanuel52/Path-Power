@@ -5,7 +5,6 @@ import androidx.annotation.IntRange
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import com.enmanuelbergling.pathpower.R
-import kotlinx.serialization.Serializable
 
 data class CarModel(
     @DrawableRes val imageResource: Int,
@@ -16,7 +15,15 @@ data class CarModel(
     @IntRange(0, 10) val funny: Int,
     @IntRange(0, 10) val wheels: Int,
     val color: Int,
-)
+) {
+    fun getLabeledFields() = listOf(
+        HexagonField.LabeledField("Velocity", velocity),
+        HexagonField.LabeledField("Kindness", kindness),
+        HexagonField.LabeledField("Popularity", popularity),
+        HexagonField.LabeledField("Funny", funny),
+        HexagonField.LabeledField("Wheels", wheels),
+    )
+}
 
 val ChickHicks = CarModel(
     imageResource = R.drawable.chick_hicks,
@@ -30,7 +37,7 @@ val ChickHicks = CarModel(
 )
 val CocHudson = CarModel(
     imageResource = R.drawable.coc_hudson,
-    name = "Coc Hudson",
+    name = "Doc Hudson",
     velocity = 6,
     kindness = 3,
     popularity = 4,
