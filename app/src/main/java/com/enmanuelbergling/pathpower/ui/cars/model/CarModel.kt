@@ -3,7 +3,9 @@ package com.enmanuelbergling.pathpower.ui.cars.model
 import androidx.annotation.DrawableRes
 import androidx.annotation.IntRange
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import com.enmanuelbergling.pathpower.R
+import kotlinx.serialization.Serializable
 
 data class CarModel(
     @DrawableRes val imageResource: Int,
@@ -13,7 +15,7 @@ data class CarModel(
     @IntRange(0, 10) val popularity: Int,
     @IntRange(0, 10) val funny: Int,
     @IntRange(0, 10) val wheels: Int,
-    val color: Color,
+    val color: Int,
 )
 
 val ChickHicks = CarModel(
@@ -24,7 +26,7 @@ val ChickHicks = CarModel(
     popularity = 2,
     funny = 1,
     wheels = 4,
-    color = Color(0xFF7DE15E)
+    color = Color(0xFF7DE15E).toArgb()
 )
 val CocHudson = CarModel(
     imageResource = R.drawable.coc_hudson,
@@ -34,7 +36,7 @@ val CocHudson = CarModel(
     popularity = 4,
     funny = 1,
     wheels = 4,
-    color = Color(0xFF373856)
+    color = Color(0xFF373856).toArgb()
 )
 val CruzRamirez = CarModel(
     imageResource = R.drawable.cruz_ramirez,
@@ -44,7 +46,7 @@ val CruzRamirez = CarModel(
     popularity = 5,
     funny = 2,
     wheels = 4,
-    color = Color(0xFFFEAE4E)
+    color = Color(0xFFFEAE4E).toArgb()
 )
 val Fillmore = CarModel(
     imageResource = R.drawable.fillmore,
@@ -54,7 +56,7 @@ val Fillmore = CarModel(
     popularity = 5,
     funny = 5,
     wheels = 4,
-    color = Color(0xFF18B126)
+    color = Color(0xFF18B126).toArgb()
 )
 val GreaterMate = CarModel(
     imageResource = R.drawable.greater_mate,
@@ -64,7 +66,7 @@ val GreaterMate = CarModel(
     popularity = 5,
     funny = 7,
     wheels = 4,
-    color = Color.White
+    color = Color.White.toArgb()
 )
 val Guido = CarModel(
     imageResource = R.drawable.guido,
@@ -74,7 +76,7 @@ val Guido = CarModel(
     popularity = 5,
     funny = 5,
     wheels = 3,
-    color = Color(0xFF71e1fb)
+    color = Color(0xFF71e1fb).toArgb()
 )
 val Mack = CarModel(
     imageResource = R.drawable.mack,
@@ -84,7 +86,7 @@ val Mack = CarModel(
     popularity = 6,
     funny = 3,
     wheels = 6,
-    color = Color(0xFFd93a25)
+    color = Color(0xFFd93a25).toArgb()
 )
 val Sheriff = CarModel(
     imageResource = R.drawable.sheriff,
@@ -94,7 +96,7 @@ val Sheriff = CarModel(
     popularity = 4,
     funny = 1,
     wheels = 4,
-    color = Color.Black
+    color = Color.Black.toArgb()
 )
 val Sally = CarModel(
     imageResource = R.drawable.sally,
@@ -104,7 +106,7 @@ val Sally = CarModel(
     popularity = 4,
     funny = 2,
     wheels = 4,
-    color = Color(0xFF8fb0dd)
+    color = Color(0xFF8fb0dd).toArgb()
 )
 val Rojo = CarModel(
     imageResource = R.drawable.rojo,
@@ -114,7 +116,7 @@ val Rojo = CarModel(
     popularity = 4,
     funny = 3,
     wheels = 4,
-    color = Color(0xFFf72c04)
+    color = Color(0xFFf72c04).toArgb()
 )
 val McQueen = CarModel(
     imageResource = R.drawable.mc_queen,
@@ -124,7 +126,7 @@ val McQueen = CarModel(
     popularity = 9,
     funny = 4,
     wheels = 4,
-    color = Color(0xFFc2061e)
+    color = Color(0xFFc2061e).toArgb()
 )
 val Matedor = CarModel(
     imageResource = R.drawable.matedor,
@@ -134,7 +136,7 @@ val Matedor = CarModel(
     popularity = 5,
     funny = 8,
     wheels = 4,
-    color = Color(0xFF03c9d2)
+    color = Color(0xFF03c9d2).toArgb()
 )
 val Mate = CarModel(
     imageResource = R.drawable.mate,
@@ -144,7 +146,7 @@ val Mate = CarModel(
     popularity = 9,
     funny = 9,
     wheels = 4,
-    color = Color(0xFFcc7e46)
+    color = Color(0xFFcc7e46).toArgb()
 )
 val CARS = listOf(
     ChickHicks,
