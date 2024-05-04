@@ -131,7 +131,7 @@ fun <T : Any> LazyBeehiveVerticalGrid(
     aspectRatio: Float = 1f,
     contentPadding: PaddingValues = PaddingValues(0.dp),
     verticalAlignment: Alignment.Vertical = Alignment.Top,
-    horizontalAlignment: Alignment.Horizontal = Alignment.Start,
+    centerHorizontal: Boolean = false,
     userScrollEnabled: Boolean = true,
     itemContent: @Composable ColumnScope.(T) -> Unit,
 ) {
@@ -155,7 +155,7 @@ fun <T : Any> LazyBeehiveVerticalGrid(
             aspectRatio = aspectRatio,
             contentPadding = contentPadding,
             verticalAlignment = verticalAlignment,
-            horizontalAlignment = horizontalAlignment,
+            centerHorizontal = centerHorizontal,
             userScrollEnabled = userScrollEnabled,
             isUp = false,
             itemContent = itemContent
@@ -179,7 +179,7 @@ internal fun <T : Any> LazyBeehive(
     isUp: Boolean = false,
     contentPadding: PaddingValues = PaddingValues(4.dp),
     verticalAlignment: Alignment.Vertical = Alignment.Top,
-    horizontalAlignment: Alignment.Horizontal = Alignment.Start,
+    centerHorizontal: Boolean = false,
     userScrollEnabled: Boolean = true,
     itemContent: @Composable ColumnScope.(T) -> Unit,
 ) {
@@ -189,9 +189,14 @@ internal fun <T : Any> LazyBeehive(
         )
     }
 
-    val groupedList by remember(columns, items) {
+    val groupedList by remember(columns, items, centerHorizontal) {
         derivedStateOf {
-            groupBeehiveItems(items, columns)
+            //duplicate fist row items and ignore the first one because start at left
+            val itemsToSplit = if (centerHorizontal) {
+                val skippableItems = items.take((columns / 2f).roundToInt())
+                skippableItems + items
+            } else items
+            groupBeehiveItems(itemsToSplit, columns)
         }
     }
 
@@ -223,10 +228,14 @@ internal fun <T : Any> LazyBeehive(
                 else -itemHeight / 2 + spaceBetween,
                 alignment = verticalAlignment
             ),
-            horizontalAlignment = horizontalAlignment,
             userScrollEnabled = userScrollEnabled,
         ) {
             itemsIndexed(groupedList, key = key) { index, rowItems ->
+                //ignore items previously duplicated
+                if (centerHorizontal && index == 0) {
+                    return@itemsIndexed
+                }
+
                 val isEvenRow by remember(columns) {
                     derivedStateOf {
                         index % 2 == 0 || columns == 1

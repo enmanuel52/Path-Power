@@ -137,7 +137,7 @@ fun <T : Any> groupBeehiveItems(originalItems: List<T>, columns: Int): List<List
         groupedList.add(
             taken
         )
-        listQueue.removeAll(taken)
+        taken.forEach(listQueue::remove)
     }
 
     val areColumnsEven = columns % 2 == 0
