@@ -4,14 +4,12 @@ import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -30,24 +28,18 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.enmanuelbergling.path_power.ui.shape.Hexagon
 import kotlin.math.roundToInt
 import kotlin.random.Random
 
@@ -183,11 +175,9 @@ internal fun <T : Any> LazyBeehive(
     userScrollEnabled: Boolean = true,
     itemContent: @Composable ColumnScope.(T) -> Unit,
 ) {
-    val itemWidthWeight: Float by remember(columns) {
-        mutableFloatStateOf(
-            1f / (1f + (columns - 1).times(.75f))
-        )
-    }
+    require(columns > 1) { "Provided count $columns should be larger than one" }
+
+    val itemWidthWeight: Float by rememberWidthWeight(columns)
 
     val groupedList by remember(columns, items, centerHorizontal) {
         derivedStateOf {
@@ -213,12 +203,6 @@ internal fun <T : Any> LazyBeehive(
             }
         }
 
-        val evenRowMaxCount by remember(columns) {
-            mutableIntStateOf(
-                columns.div(2.0).roundToInt()
-            )
-        }
-
         LazyColumn(
             modifier = modifier,
             state = state,
@@ -236,22 +220,24 @@ internal fun <T : Any> LazyBeehive(
                     return@itemsIndexed
                 }
 
-                val isEvenRow by remember(columns) {
+                val isEvenRow by remember {
                     derivedStateOf {
-                        index % 2 == 0 || columns == 1
+                        index % 2 == 0
                     }
                 }
 
                 val rowMaxCount by remember(isEvenRow, columns) {
                     mutableIntStateOf(
-                        if (isEvenRow) evenRowMaxCount
+                        if (isEvenRow) columns.div(2.0).roundToInt()
                         else columns / 2
                     )
                 }
 
                 val goThrough by remember(columns) {
                     derivedStateOf {
-                        (isEvenRow && columns % 2 == 1) || (!isEvenRow && columns % 2 == 0)
+                        val columnsOdd = columns % 2 == 1
+                        //(isEvenRow && columnsOdd) || (!isEvenRow && !columnsOdd)
+                        isEvenRow == columnsOdd
                     }
                 }
 
@@ -271,99 +257,12 @@ internal fun <T : Any> LazyBeehive(
                         items = rowItems,
                         modifier = Modifier.fillMaxWidth(),
                         startsOnZero = isEvenRow,
-                        evenRowMaxCount = evenRowMaxCount,
                         itemsMaxCount = rowMaxCount,
                         spaceBetween = spaceBetween,
                         goThrough = goThrough,
                         aspectRatio = aspectRatio,
                         itemContent = itemContent
                     )
-                }
-            }
-        }
-    }
-}
-
-/**
- * It is like [LazyColumn] where two row are placed as Beehive
- * */
-@OptIn(ExperimentalComposeUiApi::class)
-@Composable
-internal fun <T : Any> LazyBeehiveLayout(
-    items: List<T>,
-    columns: Int,
-    modifier: Modifier = Modifier,
-    state: LazyListState = rememberLazyListState(),
-    key: ((rowIndex: Int, List<T>) -> Any)? = null,
-    spaceBetween: Dp = 2.dp,
-    aspectRatio: Float = 1f,
-    contentPadding: PaddingValues = PaddingValues(4.dp),
-    verticalAlignment: Alignment.Vertical = Alignment.Top,
-    horizontalAlignment: Alignment.Horizontal = Alignment.Start,
-    userScrollEnabled: Boolean = true,
-    itemContent: @Composable ColumnScope.(T) -> Unit,
-) {
-    val itemWidthWeight: Float by remember(columns) {
-        mutableFloatStateOf(
-            1f / (1f + (columns - 1).times(.75f))
-        )
-    }
-
-    val groupedList by remember(columns, items) {
-        derivedStateOf {
-            groupBeehiveItems(items, columns)
-        }
-    }
-
-    BoxWithConstraints(
-        modifier = Modifier.semantics {
-            testTagsAsResourceId = true
-        }
-    ) {
-        val itemWidth by remember(maxWidth, itemWidthWeight) {
-            mutableStateOf(
-                maxWidth * itemWidthWeight
-            )
-        }
-
-        val itemHeight by remember {
-            derivedStateOf {
-                itemWidth / aspectRatio
-            }
-        }
-
-        LazyColumn(
-            modifier = modifier.testTag("beehive"),
-            state = state,
-            contentPadding = contentPadding,
-            verticalArrangement = Arrangement.spacedBy(
-                -itemHeight / 2 + spaceBetween, verticalAlignment
-            ),
-            horizontalAlignment = horizontalAlignment,
-            userScrollEnabled = userScrollEnabled,
-        ) {
-            itemsIndexed(groupedList, key = key) { index, rowItems ->
-                val isEvenRow by remember(columns) {
-                    derivedStateOf {
-                        index % 2 == 0 || columns == 1
-                    }
-                }
-
-                LazyBeehiveRowLayout(
-                    modifier = Modifier
-                        .height(itemWidth / aspectRatio),
-                    isEvenRow = isEvenRow,
-                ) {
-                    rowItems.forEach {
-                        Column(
-                            modifier = Modifier
-                                .width(itemWidth)
-                                .padding(horizontal = spaceBetween / 2)
-                                .clip(Hexagon)
-                        ) {
-                            itemContent(it)
-                        }
-                    }
                 }
             }
         }
@@ -379,7 +278,7 @@ sealed interface BeehiveGridCells {
      * */
     data class Fixed(val count: Int) : BeehiveGridCells {
         init {
-            require(count > 0) { "Provided count $count should be larger than zero" }
+            require(count > 1) { "Provided count $count should be larger than one" }
         }
     }
 

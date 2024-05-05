@@ -3,13 +3,16 @@ package com.enmanuelbergling.path_power.ui.list
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.UiComposable
 import androidx.compose.ui.draw.clip
@@ -19,6 +22,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.enmanuelbergling.path_power.ui.shape.Hexagon
 import com.enmanuelbergling.path_power.util.Honey
+import com.enmanuelbergling.path_power.util.LighterHoney
 import kotlin.math.roundToInt
 
 @Preview
@@ -28,15 +32,12 @@ internal fun LazyBeehiveLayout() {
 
     val spaceEvenly = 2.dp
 
-    val itemWidthWeight by remember(columns) {
-        mutableFloatStateOf(
-            1f / (1f + (columns - 1).times(.75f))
-        )
-    }
+    val itemWidthWeight by rememberWidthWeight(columns)
 
     BoxWithConstraints(
         modifier = Modifier
-            .fillMaxSize()
+            .fillMaxWidth()
+            .heightIn(max = 250.dp)
     ) {
 
         Layout(
@@ -67,7 +68,7 @@ internal fun LazyBeehiveLayout() {
                         placeBeehiveRow(
                             placeableList = placeableList1,
                             offsetY = index * (placeableList1.first().height / 2.07f).roundToInt(),
-                            isEvenRow = index % 2 == 0,
+                            startLeftEdge = index % 2 == 0,
                         )
                     }
                 }
@@ -79,7 +80,7 @@ internal fun LazyBeehiveLayout() {
 @Composable
 internal fun LazyBeehiveRowLayout(
     modifier: Modifier = Modifier,
-    isEvenRow: Boolean = true,
+    startLeftEdge: Boolean = true,
     content: @Composable @UiComposable () -> Unit,
 ) {
     Layout(
@@ -95,23 +96,46 @@ internal fun LazyBeehiveRowLayout(
                 placeBeehiveRow(
                     placeableList = placeableList,
                     offsetY = 0,
-                    isEvenRow = isEvenRow,
+                    startLeftEdge = startLeftEdge,
                 )
             }
         }
     )
 }
 
+@Preview
+@Composable
+private fun LazyBeehiveRowLayoutPrev() {
+    val columns = 7
+
+    val itemWidthWeight by rememberWidthWeight(columns)
+
+    BoxWithConstraints(Modifier.heightIn(max = 80.dp)) {
+        LazyBeehiveRowLayout(startLeftEdge = true) {
+            repeat(columns / 2) {
+                Box(
+                    modifier = Modifier
+                        .size(maxWidth.times(itemWidthWeight))
+                        .background(LighterHoney, Hexagon),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(text = "item $it")
+                }
+            }
+        }
+
+    }
+}
+
 private fun Placeable.PlacementScope.placeBeehiveRow(
     placeableList: List<Placeable>,
     offsetY: Int,
-    isEvenRow: Boolean,
-) =
-    placeableList.forEachIndexed { index, placeable ->
+    startLeftEdge: Boolean,
+) = placeableList.forEachIndexed { index, placeable ->
         val placeableWidth = placeable.width.times(1.5).roundToInt()
         //stick to left bound, larger row when there a odd amount of rows
         val placeableXPosition = placeableWidth * index
-        if (isEvenRow) {
+        if (startLeftEdge) {
             placeable.place(
                 y = offsetY,
                 x = placeableXPosition
@@ -123,36 +147,3 @@ private fun Placeable.PlacementScope.placeBeehiveRow(
             )
         }
     }
-
-/**
- * split a list of items into smaller lists for each row
- * */
-fun <T : Any> groupBeehiveItems(originalItems: List<T>, columns: Int): List<List<T>> {
-    val groupedList = mutableListOf<List<T>>()
-
-    val listQueue = originalItems.toMutableList()
-
-    fun takeFirst(n: Int) {
-        val taken = listQueue.take(n)
-        groupedList.add(
-            taken
-        )
-        taken.forEach(listQueue::remove)
-    }
-
-    val areColumnsEven = columns % 2 == 0
-
-    while (listQueue.isNotEmpty()) {
-        if (areColumnsEven) {
-            takeFirst(columns / 2)
-        } else {
-            val isEvenRow = groupedList.count() % 2 == 0
-            val takenCount = if (isEvenRow) columns.div(2).inc()
-            else columns.div(2)
-
-            takeFirst(takenCount)
-        }
-    }
-
-    return groupedList.toList()
-}
