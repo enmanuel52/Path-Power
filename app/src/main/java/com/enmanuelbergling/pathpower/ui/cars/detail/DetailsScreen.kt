@@ -3,6 +3,9 @@ package com.enmanuelbergling.pathpower.ui.cars.detail
 import androidx.annotation.DrawableRes
 import androidx.annotation.IntRange
 import androidx.compose.animation.AnimatedContentScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -34,14 +37,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
+import coil.compose.AsyncImage
 import com.enmanuelbergling.path_power.ui.list.BeehiveGridCells
 import com.enmanuelbergling.path_power.ui.list.LazyBeehiveVerticalGrid
 import com.enmanuelbergling.path_power.ui.shape.Hexagon
+import com.enmanuelbergling.pathpower.ui.cars.LocalSharedTransitionScope
 import com.enmanuelbergling.pathpower.ui.cars.model.CarModel
 import com.enmanuelbergling.pathpower.ui.cars.model.HexagonField
 import kotlinx.serialization.Serializable
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
 @Composable
 fun AnimatedContentScope.DetailsScreen(
     carModel: CarModel,
@@ -88,19 +93,34 @@ fun AnimatedContentScope.DetailsScreen(
                 .padding(paddingValues),
             verticalAlignment = Alignment.CenterVertically,
             centerHorizontal = true,
-            key = {rowIndex, hexagonFields -> rowIndex to hexagonFields }
+            key = { rowIndex, hexagonFields -> rowIndex to hexagonFields }
         ) { field ->
             when (field) {
-                is HexagonField.Car -> HexCarUi(
-                    image = field.image,
-                    name = field.name,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .graphicsLayer(
-                            scaleX = 1.05f,
-                            scaleY = 1.05f
-                        )
-                )
+                is HexagonField.Car -> {
+                    val sharedTransitionScope = LocalSharedTransitionScope.current!!
+                    HexCarUi(
+                        image = field.image,
+                        name = field.name,
+                        modifier = Modifier
+                                then with(sharedTransitionScope) {
+                            Modifier.sharedElement(
+                                rememberSharedContentState(key = carModel.imageResource),
+                                this@DetailsScreen,
+                                boundsTransform = { _, _ ->
+                                    spring(
+                                        Spring.DampingRatioMediumBouncy,
+                                        Spring.StiffnessLow
+                                    )
+                                }
+                            )
+                        }
+                            .fillMaxSize()
+                            .graphicsLayer(
+                                scaleX = 1.05f,
+                                scaleY = 1.05f
+                            )
+                    )
+                }
 
                 is HexagonField.ColorField -> HexColorUi(
                     color = field.color,
@@ -155,8 +175,8 @@ fun HexLabelUi(label: String, value: Int, modifier: Modifier = Modifier) {
 @Composable
 fun HexCarUi(image: Int, name: String, modifier: Modifier = Modifier) {
     ElevatedCard(shape = Hexagon, modifier = modifier) {
-        Image(
-            painter = painterResource(id = image),
+        AsyncImage(
+            model = image,
             contentDescription = "car image",
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop

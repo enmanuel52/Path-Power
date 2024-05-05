@@ -1,8 +1,11 @@
 package com.enmanuelbergling.pathpower.ui.cars.home
 
 import androidx.compose.animation.AnimatedContentScope
+import androidx.compose.animation.BoundsTransform
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -13,22 +16,22 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
+import coil.compose.AsyncImage
 import com.enmanuelbergling.path_power.ui.list.BeehiveGridCells
 import com.enmanuelbergling.path_power.ui.list.LazyBeehiveVerticalGrid
 import com.enmanuelbergling.path_power.ui.shape.Hexagon
+import com.enmanuelbergling.pathpower.ui.cars.LocalSharedTransitionScope
 import com.enmanuelbergling.pathpower.ui.cars.model.CARS
 import com.enmanuelbergling.pathpower.ui.cars.model.CarModel
-import com.enmanuelbergling.pathpower.ui.cars.model.McQueen
 import kotlinx.serialization.Serializable
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
 @Composable
 fun AnimatedContentScope.HomeScreen(
     onDetails: (CarModel) -> Unit,
@@ -52,14 +55,26 @@ fun AnimatedContentScope.HomeScreen(
         ) { carModel ->
             ElevatedCard(
                 onClick = { onDetails(carModel) },
-                modifier = Modifier.fillMaxSize(),
                 shape = Hexagon
             ) {
-                Image(
-                    painter = painterResource(id = carModel.imageResource),
+                val sharedTransitionScope = LocalSharedTransitionScope.current!!
+                AsyncImage(
+                    carModel.imageResource,
                     contentDescription = "car image",
                     contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier
+                            then with(sharedTransitionScope) {
+                        Modifier.sharedElement(
+                            rememberSharedContentState(key = carModel.imageResource),
+                            this@HomeScreen,
+                            boundsTransform = { _, _ ->
+                                spring(
+                                    Spring.DampingRatioMediumBouncy,
+                                    Spring.StiffnessLow
+                                )
+                            }
+                        )
+                    }.fillMaxSize()
                 )
             }
         }
