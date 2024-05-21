@@ -9,6 +9,7 @@ sealed interface HexagonField {
     data class LabeledField(
         val label: String,
         @IntRange val value: Int,
+        val color: Color
     ) : HexagonField
 
     data class Car(@DrawableRes val image: Int, val name: String) : HexagonField

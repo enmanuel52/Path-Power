@@ -6,20 +6,21 @@ import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -29,11 +30,13 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
@@ -44,6 +47,8 @@ import com.enmanuelbergling.path_power.ui.shape.Hexagon
 import com.enmanuelbergling.pathpower.ui.cars.LocalSharedTransitionScope
 import com.enmanuelbergling.pathpower.ui.cars.model.CarModel
 import com.enmanuelbergling.pathpower.ui.cars.model.HexagonField
+import com.enmanuelbergling.pathpower.ui.cars.model.McQueen
+import com.enmanuelbergling.pathpower.ui.theme.Honey
 import kotlinx.serialization.Serializable
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
@@ -98,11 +103,9 @@ fun AnimatedContentScope.DetailsScreen(
             when (field) {
                 is HexagonField.Car -> {
                     val sharedTransitionScope = LocalSharedTransitionScope.current!!
-                    HexCarUi(
+                    HexCarImageUi(
                         image = field.image,
-                        name = field.name,
-                        modifier = Modifier
-                                then with(sharedTransitionScope) {
+                        modifier = Modifier then with(sharedTransitionScope) {
                             Modifier.sharedElement(
                                 rememberSharedContentState(key = carModel.imageResource),
                                 this@DetailsScreen,
@@ -113,12 +116,10 @@ fun AnimatedContentScope.DetailsScreen(
                                     )
                                 }
                             )
-                        }
-                            .fillMaxSize()
-                            .graphicsLayer(
-                                scaleX = 1.05f,
-                                scaleY = 1.05f
-                            )
+                        }.graphicsLayer(
+                            scaleX = 1.05f,
+                            scaleY = 1.05f
+                        )
                     )
                 }
 
@@ -135,6 +136,7 @@ fun AnimatedContentScope.DetailsScreen(
                 is HexagonField.LabeledField -> HexLabelUi(
                     label = field.label,
                     value = field.value,
+                    color = field.color,
                     modifier = Modifier
                         .fillMaxSize()
                         .graphicsLayer(
@@ -156,32 +158,56 @@ fun HexColorUi(color: Color, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun HexLabelUi(label: String, value: Int, modifier: Modifier = Modifier) {
-    OutlinedCard(shape = Hexagon, modifier = modifier) {
+fun HexLabelUi(label: String, value: Int, color: Color, modifier: Modifier = Modifier) {
+    Column(
+        modifier = Modifier
+            .border(2.dp, color, Hexagon)
+            .clip(Hexagon) then modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.SpaceEvenly
+    ) {
+
         Text(
             text = label,
             modifier = Modifier.align(Alignment.CenterHorizontally),
-            style = MaterialTheme.typography.bodyMedium
+            style = MaterialTheme.typography.bodyMedium,
+            color = color
         )
 
         Text(
             text = value.toString(),
             modifier = Modifier.align(Alignment.CenterHorizontally),
-            fontWeight = FontWeight.SemiBold
+            fontWeight = FontWeight.SemiBold,
+            color = color
         )
     }
 }
 
+@Preview
 @Composable
-fun HexCarUi(image: Int, name: String, modifier: Modifier = Modifier) {
-    ElevatedCard(shape = Hexagon, modifier = modifier) {
-        AsyncImage(
-            model = image,
-            contentDescription = "car image",
-            modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Crop
-        )
-    }
+private fun HexLabelUiPrev() {
+    HexLabelUi(
+        "Strength", 8,
+        Honey,
+        Modifier
+            .size(120.dp)
+    )
+}
+
+@Composable
+fun HexCarImageUi(image: Int, modifier: Modifier = Modifier) {
+    AsyncImage(
+        model = image,
+        contentDescription = "car image",
+        modifier = Modifier.clip(Hexagon) then modifier,
+        contentScale = ContentScale.Crop
+    )
+}
+
+@Preview
+@Composable
+private fun HexCarImageUiPrev() {
+    HexCarImageUi(McQueen.imageResource, Modifier.size(120.dp))
 }
 
 fun CarModel.toDestination() = CarDetailsScreenDestination(

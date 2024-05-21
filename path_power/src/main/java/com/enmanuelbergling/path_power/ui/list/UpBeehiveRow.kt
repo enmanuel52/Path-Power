@@ -93,7 +93,7 @@ fun <T> UpBeehiveRow(
 
 @Preview
 @Composable
-fun UpBeehiveRowPrev() {
+fun UpBeehiveRowLargerPrev() {
     UpBeehiveRow(
         items = (1..4).toList(),
         itemsMaxCount = 4,
@@ -101,6 +101,26 @@ fun UpBeehiveRowPrev() {
         spaceBetween = 4.dp,
         goThrough = true,
         aspectRatio = .85f
+    ) {
+        Box(modifier = Modifier
+            .fillMaxSize()
+            .background(Honey)) {
+            Text(text = "item $it", modifier = Modifier.align(Alignment.Center))
+        }
+    }
+}
+
+@Preview
+@Composable
+fun UpBeehiveRowSmallerPrev() {
+    UpBeehiveRow(
+        items = (1..3).toList(),
+        itemsMaxCount = 3,
+        modifier = Modifier.fillMaxWidth(),
+        spaceBetween = 4.dp,
+        goThrough = false,
+        aspectRatio = .85f,
+        startsOnZero = false
     ) {
         Box(modifier = Modifier
             .fillMaxSize()

@@ -17,11 +17,11 @@ data class CarModel(
     val color: Int,
 ) {
     fun getLabeledFields() = listOf(
-        HexagonField.LabeledField("Velocity", velocity),
-        HexagonField.LabeledField("Kindness", kindness),
-        HexagonField.LabeledField("Popularity", popularity),
-        HexagonField.LabeledField("Funny", funny),
-        HexagonField.LabeledField("Wheels", wheels),
+        HexagonField.LabeledField("Velocity", velocity, Color(color)),
+        HexagonField.LabeledField("Kindness", kindness, Color(color)),
+        HexagonField.LabeledField("Popularity", popularity, Color(color)),
+        HexagonField.LabeledField("Funny", funny, Color(color)),
+        HexagonField.LabeledField("Wheels", wheels, Color(color)),
     )
 }
 

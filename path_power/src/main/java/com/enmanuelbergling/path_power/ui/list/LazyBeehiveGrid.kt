@@ -1,6 +1,5 @@
 package com.enmanuelbergling.path_power.ui.list
 
-import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -8,14 +7,12 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -34,23 +31,22 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 import kotlin.random.Random
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@PreviewLightDark
 @Composable
 fun SimpleBeehiveExample() {
     var columns by remember {
         mutableIntStateOf(2)
     }
-
+    
     Scaffold(
         topBar = {
             TopAppBar(
@@ -85,25 +81,6 @@ fun SimpleBeehiveExample() {
             ) {
                 Text(text = "Item $it", modifier = Modifier.align(Alignment.Center))
             }
-        }
-    }
-}
-
-//@Preview
-@Composable
-fun SimpleLazyListExample() {
-    LazyColumn(
-        verticalArrangement = Arrangement.spacedBy((-50).dp)
-    ) {
-        items(120) {
-            Box(modifier = Modifier
-                .fillMaxWidth()
-                .height(80.dp)
-                .clip(RoundedCornerShape(8.dp))
-                .drawBehind {
-                    drawRect(Color(Random.nextLong(0xFFFFFFFF)))
-                }
-            )
         }
     }
 }
@@ -208,7 +185,8 @@ internal fun <T : Any> LazyBeehive(
             state = state,
             contentPadding = contentPadding,
             verticalArrangement = Arrangement.spacedBy(
-                space = if (isUp) -itemHeight * .3f + spaceBetween
+                space =
+                if (isUp) -itemHeight * .3f + spaceBetween
                 else -itemHeight / 2 + spaceBetween,
                 alignment = verticalAlignment
             ),
