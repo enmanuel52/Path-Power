@@ -8,7 +8,11 @@ import androidx.compose.runtime.remember
 /**
  * split a list of items into smaller lists for each row
  * */
-internal fun <T : Any> groupBeehiveItems(originalItems: List<T>, columns: Int): List<List<T>> {
+internal fun <T : Any> groupBeehiveItems(
+    originalItems: List<T>,
+    columns: Int,
+    startAtLeft: Boolean = true,
+): List<List<T>> {
     val groupedList = mutableListOf<List<T>>()
 
     val listQueue = originalItems.toMutableList()
@@ -28,8 +32,13 @@ internal fun <T : Any> groupBeehiveItems(originalItems: List<T>, columns: Int): 
             takeFirst(columns / 2)
         } else {
             val isEvenRow = groupedList.count() % 2 == 0
-            val takenCount = if (isEvenRow) columns.div(2).inc()
-            else columns.div(2)
+
+            val largerRow = (isEvenRow && startAtLeft) || (!isEvenRow && !startAtLeft)
+            val takenCount = if (largerRow) {
+                columns.div(2).inc()
+            } else {
+                columns.div(2)
+            }
 
             takeFirst(takenCount)
         }
