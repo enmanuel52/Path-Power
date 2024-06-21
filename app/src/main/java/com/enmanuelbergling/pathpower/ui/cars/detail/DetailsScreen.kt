@@ -19,6 +19,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -68,8 +69,8 @@ fun AnimatedContentScope.DetailsScreen(
     }
 
     Scaffold(topBar = {
-        CenterAlignedTopAppBar(title = { Text(text = carModel.name) },
-            colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+        TopAppBar(title = { Text(text = carModel.name) },
+            colors = TopAppBarDefaults.topAppBarColors(
                 Color.Transparent
             ),
             navigationIcon = {
