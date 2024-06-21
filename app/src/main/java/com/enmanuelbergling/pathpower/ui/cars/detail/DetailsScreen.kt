@@ -5,12 +5,8 @@ import androidx.annotation.IntRange
 import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -66,31 +62,25 @@ fun AnimatedContentScope.DetailsScreen(
         val labeledFields = carModel.getLabeledFields()
         fields.addAll(labeledFields)
 
-        fields.add(fields.lastIndex - 1, HexagonField.ColorField(Color(carModel.color)))
-
         val carField = HexagonField.Car(carModel.imageResource, carModel.name)
 
         fields.add(3, carField)
     }
 
-    Scaffold(
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text(text = carModel.name) },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    Color.Transparent
-                ),
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
-                            contentDescription = "arrow back"
-                        )
-                    }
+    Scaffold(topBar = {
+        CenterAlignedTopAppBar(title = { Text(text = carModel.name) },
+            colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                Color.Transparent
+            ),
+            navigationIcon = {
+                IconButton(onClick = onBack) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
+                        contentDescription = "arrow back"
+                    )
                 }
-            )
-        }
-    ) { paddingValues ->
+            })
+    }) { paddingValues ->
         LazyBeehiveVerticalGrid(
             items = fields,
             gridCells = BeehiveGridCells.Fixed(3),
@@ -99,40 +89,27 @@ fun AnimatedContentScope.DetailsScreen(
                 .padding(paddingValues),
             verticalAlignment = Alignment.CenterVertically,
             centerHorizontal = true,
-            key = { rowIndex, hexagonFields -> rowIndex to hexagonFields }
+            key = { rowIndex, hexagonFields -> rowIndex to hexagonFields },
+            spaceBetween = 6.dp
         ) { field ->
             when (field) {
                 is HexagonField.Car -> {
                     val sharedTransitionScope = LocalSharedTransitionScope.current!!
+
                     HexCarImageUi(
-                        image = field.image,
-                        modifier = with(sharedTransitionScope) {
-                            Modifier.sharedElement(
-                                rememberSharedContentState(key = carModel.imageResource),
+                        image = field.image, modifier = with(sharedTransitionScope) {
+                            Modifier.sharedElement(rememberSharedContentState(key = carModel.imageResource),
                                 this@DetailsScreen,
                                 boundsTransform = { _, _ ->
-                                    spring(
-                                        Spring.DampingRatioMediumBouncy,
-                                        Spring.StiffnessLow
-                                    )
-                                }
-                            )
-                        }
-                    )
+                                    tween()
+                                })
+                        })
                 }
-
-                is HexagonField.ColorField -> HexColorUi(
-                    color = field.color,
-                    modifier = Modifier
-                        .fillMaxSize()
-                )
 
                 is HexagonField.LabeledField -> HexLabelUi(
                     label = field.label,
                     value = field.value,
-                    color = field.color,
-                    modifier = Modifier
-                        .fillMaxSize()
+                    modifier = Modifier.fillMaxSize()
                 )
             }
         }
@@ -140,32 +117,28 @@ fun AnimatedContentScope.DetailsScreen(
 }
 
 @Composable
-fun HexColorUi(color: Color, modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier
-            .background(color, Hexagon)
-    )
-}
-
-@Composable
-fun HexLabelUi(label: String, value: Int, color: Color, modifier: Modifier = Modifier) {
+fun HexLabelUi(
+    label: String,
+    value: Int,
+    modifier: Modifier = Modifier,
+    color: Color = MaterialTheme.colorScheme.primaryContainer,
+) {
     val animationProgress = remember {
         Animatable(0f)
     }
 
     LaunchedEffect(key1 = Unit) {
-        animationProgress.animateTo(value/10f, tween(500))
+        animationProgress.animateTo(value / 10f, tween(300, 200))
     }
 
     AnimatedWavesIndicator(
         progress = animationProgress.value,
         modifier = modifier
             .border(2.dp, color, Hexagon)
-            .clip(Hexagon)
-            .fillMaxSize(),
+            .clip(Hexagon),
         waveForce = WaveForce.Quiet,
         color = color
-    ){
+    ) {
         Text(
             text = "$label \n $value",
             style = MaterialTheme.typography.bodyLarge,
@@ -178,10 +151,7 @@ fun HexLabelUi(label: String, value: Int, color: Color, modifier: Modifier = Mod
 @Composable
 private fun HexLabelUiPrev() {
     HexLabelUi(
-        "Strength", 8,
-        Honey,
-        Modifier
-            .size(120.dp)
+        label = "Strength", value = 8, modifier = Modifier.size(120.dp), color = Honey
     )
 }
 
@@ -190,9 +160,9 @@ fun HexCarImageUi(image: Int, modifier: Modifier = Modifier) {
     AsyncImage(
         model = image,
         contentDescription = "car image",
-        modifier = Modifier
+        modifier = modifier
             .clip(Hexagon)
-            .fillMaxSize() then modifier,
+            .fillMaxSize(),
         contentScale = ContentScale.Crop
     )
 }
@@ -211,6 +181,7 @@ fun CarModel.toDestination() = CarDetailsScreenDestination(
     popularity = popularity,
     funny = funny,
     wheels = wheels,
+    cranky = cranky,
     color = color
 )
 
@@ -223,10 +194,20 @@ data class CarDetailsScreenDestination(
     @IntRange(0, 10) val popularity: Int,
     @IntRange(0, 10) val funny: Int,
     @IntRange(0, 10) val wheels: Int,
+    @IntRange(0, 10) val cranky: Int,
     val color: Int,
 ) {
-    fun toCar() =
-        CarModel(imageResource, name, velocity, kindness, popularity, funny, wheels, color)
+    fun toCar() = CarModel(
+        imageResource = imageResource,
+        name = name,
+        velocity = velocity,
+        kindness = kindness,
+        popularity = popularity,
+        funny = funny,
+        wheels = wheels,
+        cranky = cranky,
+        color = color
+    )
 }
 
 fun NavGraphBuilder.detailsScreen(onBack: () -> Unit) {

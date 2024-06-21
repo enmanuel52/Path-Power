@@ -14,14 +14,16 @@ data class CarModel(
     @IntRange(0, 10) val popularity: Int,
     @IntRange(0, 10) val funny: Int,
     @IntRange(0, 10) val wheels: Int,
+    @IntRange(0, 10) val cranky: Int,
     val color: Int,
 ) {
     fun getLabeledFields() = listOf(
-        HexagonField.LabeledField("Velocity", velocity, Color(color)),
-        HexagonField.LabeledField("Kindness", kindness, Color(color)),
-        HexagonField.LabeledField("Popularity", popularity, Color(color)),
-        HexagonField.LabeledField("Funny", funny, Color(color)),
-        HexagonField.LabeledField("Wheels", wheels, Color(color)),
+        HexagonField.LabeledField("Velocity", velocity),
+        HexagonField.LabeledField("Kindness", kindness),
+        HexagonField.LabeledField("Popularity", popularity),
+        HexagonField.LabeledField("Cranky", cranky),
+        HexagonField.LabeledField("Funny", funny),
+        HexagonField.LabeledField("Wheels", wheels),
     )
 }
 
@@ -33,7 +35,8 @@ val ChickHicks = CarModel(
     popularity = 2,
     funny = 1,
     wheels = 4,
-    color = Color(0xFF7DE15E).toArgb()
+    color = Color(0xFF7DE15E).toArgb(),
+    cranky = 8,
 )
 val CocHudson = CarModel(
     imageResource = R.drawable.coc_hudson,
@@ -43,7 +46,8 @@ val CocHudson = CarModel(
     popularity = 4,
     funny = 1,
     wheels = 4,
-    color = Color(0xFF373856).toArgb()
+    color = Color(0xFF373856).toArgb(),
+    cranky = 6,
 )
 val CruzRamirez = CarModel(
     imageResource = R.drawable.cruz_ramirez,
@@ -53,7 +57,8 @@ val CruzRamirez = CarModel(
     popularity = 5,
     funny = 2,
     wheels = 4,
-    color = Color(0xFFFEAE4E).toArgb()
+    color = Color(0xFFFEAE4E).toArgb(),
+    cranky = 3
 )
 val Fillmore = CarModel(
     imageResource = R.drawable.fillmore,
@@ -63,7 +68,8 @@ val Fillmore = CarModel(
     popularity = 5,
     funny = 5,
     wheels = 4,
-    color = Color(0xFF18B126).toArgb()
+    color = Color(0xFF18B126).toArgb(),
+    cranky = 1,
 )
 val GreaterMate = CarModel(
     imageResource = R.drawable.greater_mate,
@@ -73,7 +79,8 @@ val GreaterMate = CarModel(
     popularity = 5,
     funny = 7,
     wheels = 4,
-    color = Color(0xFF347ACD).toArgb()
+    color = Color(0xFF347ACD).toArgb(),
+    cranky = 2,
 )
 val Guido = CarModel(
     imageResource = R.drawable.guido,
@@ -83,7 +90,8 @@ val Guido = CarModel(
     popularity = 5,
     funny = 5,
     wheels = 3,
-    color = Color(0xFF71e1fb).toArgb()
+    color = Color(0xFF71e1fb).toArgb(),
+    cranky = 1,
 )
 val Mack = CarModel(
     imageResource = R.drawable.mack,
@@ -93,7 +101,8 @@ val Mack = CarModel(
     popularity = 6,
     funny = 3,
     wheels = 6,
-    color = Color(0xFFd93a25).toArgb()
+    color = Color(0xFFd93a25).toArgb(),
+    cranky = 2,
 )
 val Sheriff = CarModel(
     imageResource = R.drawable.sheriff,
@@ -103,7 +112,8 @@ val Sheriff = CarModel(
     popularity = 4,
     funny = 1,
     wheels = 4,
-    color = Color.Black.toArgb()
+    color = Color.Black.toArgb(),
+    cranky = 5,
 )
 val Sally = CarModel(
     imageResource = R.drawable.sally,
@@ -113,7 +123,8 @@ val Sally = CarModel(
     popularity = 4,
     funny = 2,
     wheels = 4,
-    color = Color(0xFF8fb0dd).toArgb()
+    color = Color(0xFF8fb0dd).toArgb(),
+    cranky = 4,
 )
 val Rojo = CarModel(
     imageResource = R.drawable.rojo,
@@ -123,7 +134,8 @@ val Rojo = CarModel(
     popularity = 4,
     funny = 3,
     wheels = 4,
-    color = Color(0xFFf72c04).toArgb()
+    color = Color(0xFFf72c04).toArgb(),
+    cranky = 3
 )
 val McQueen = CarModel(
     imageResource = R.drawable.mc_queen,
@@ -133,7 +145,8 @@ val McQueen = CarModel(
     popularity = 9,
     funny = 4,
     wheels = 4,
-    color = Color(0xFFc2061e).toArgb()
+    color = Color(0xFFc2061e).toArgb(),
+    cranky = 3,
 )
 val Matedor = CarModel(
     imageResource = R.drawable.matedor,
@@ -143,7 +156,8 @@ val Matedor = CarModel(
     popularity = 5,
     funny = 8,
     wheels = 4,
-    color = Color(0xFF03c9d2).toArgb()
+    color = Color(0xFF03c9d2).toArgb(),
+    cranky = 2
 )
 val Mate = CarModel(
     imageResource = R.drawable.mate,
@@ -153,7 +167,8 @@ val Mate = CarModel(
     popularity = 9,
     funny = 9,
     wheels = 4,
-    color = Color(0xFFcc7e46).toArgb()
+    color = Color(0xFFcc7e46).toArgb(),
+    cranky = 1
 )
 val CARS = listOf(
     ChickHicks,

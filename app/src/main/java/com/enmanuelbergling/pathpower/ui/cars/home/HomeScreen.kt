@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -18,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
@@ -76,15 +78,12 @@ private fun AnimatedContentScope.CarsBeeGrid(
         ElevatedCard(
             onClick = { onDetails(carModel) },
             shape = Hexagon,
-            modifier = Modifier then with(sharedTransitionScope) {
+            modifier = with(sharedTransitionScope) {
                 Modifier.sharedElement(
                     state = rememberSharedContentState(key = carModel.imageResource),
                     animatedVisibilityScope = this@CarsBeeGrid,
                     boundsTransform = { _, _ ->
-                        spring(
-                            Spring.DampingRatioMediumBouncy,
-                            Spring.StiffnessLow
-                        )
+                        tween()
                     }
                 )
             }
@@ -94,50 +93,8 @@ private fun AnimatedContentScope.CarsBeeGrid(
                 contentDescription = "car image",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
-//                    .clip(Hexagon)
                     .fillMaxSize()
             )
-        }
-    }
-}
-
-@OptIn(ExperimentalSharedTransitionApi::class)
-@Composable
-private fun AnimatedContentScope.CarsGrid(
-    onDetails: (CarModel) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val sharedTransitionScope = LocalSharedTransitionScope.current!!
-
-    LazyVerticalGrid(
-        columns = GridCells.Adaptive(150.dp),
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy((-70).dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        items(CARS) { carModel ->
-            ElevatedCard(
-                onClick = { onDetails(carModel) },
-            ) {
-                AsyncImage(
-                    carModel.imageResource,
-                    contentDescription = "car image",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                            then with(sharedTransitionScope) {
-                        Modifier.sharedElement(
-                            state = rememberSharedContentState(key = carModel.imageResource),
-                            animatedVisibilityScope = this@CarsGrid,
-                            boundsTransform = { _, _ ->
-                                spring(
-                                    Spring.DampingRatioMediumBouncy,
-                                    Spring.StiffnessLow
-                                )
-                            }
-                        )
-                    }.fillMaxSize()
-                )
-            }
         }
     }
 }
