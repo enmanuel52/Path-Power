@@ -26,10 +26,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
+import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -185,7 +188,7 @@ fun AnimatedWavesIndicator(
         label = "offset animation"
     )
 
-    Box {
+    Box(contentAlignment = Alignment.Center) {
         Canvas(
             modifier = modifier.onSizeChanged {
                 pxWidth = it.width
@@ -198,13 +201,14 @@ fun AnimatedWavesIndicator(
                 color = color
             )
         }
-        Box(modifier = Modifier.align(Alignment.Center)) {
+        CompositionLocalProvider(value = LocalContentColor provides contentColorFor(color)) {
             content()
         }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
+@Preview
 @Composable
 internal fun AnimatedWavesPreview() {
     var progress by remember {

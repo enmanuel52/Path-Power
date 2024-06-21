@@ -73,7 +73,7 @@ val GreaterMate = CarModel(
     popularity = 5,
     funny = 7,
     wheels = 4,
-    color = Color.White.toArgb()
+    color = Color(0xFF347ACD).toArgb()
 )
 val Guido = CarModel(
     imageResource = R.drawable.guido,

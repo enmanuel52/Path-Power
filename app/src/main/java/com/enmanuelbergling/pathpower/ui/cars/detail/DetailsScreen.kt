@@ -4,13 +4,13 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.IntRange
 import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -32,15 +32,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import coil.compose.AsyncImage
+import com.enmanuelbergling.path_power.ui.canvas.AnimatedWavesIndicator
+import com.enmanuelbergling.path_power.ui.canvas.WaveForce
 import com.enmanuelbergling.path_power.ui.list.BeehiveGridCells
 import com.enmanuelbergling.path_power.ui.list.LazyBeehiveVerticalGrid
 import com.enmanuelbergling.path_power.ui.shape.Hexagon
@@ -105,7 +106,7 @@ fun AnimatedContentScope.DetailsScreen(
                     val sharedTransitionScope = LocalSharedTransitionScope.current!!
                     HexCarImageUi(
                         image = field.image,
-                        modifier = Modifier then with(sharedTransitionScope) {
+                        modifier = with(sharedTransitionScope) {
                             Modifier.sharedElement(
                                 rememberSharedContentState(key = carModel.imageResource),
                                 this@DetailsScreen,
@@ -116,10 +117,7 @@ fun AnimatedContentScope.DetailsScreen(
                                     )
                                 }
                             )
-                        }.graphicsLayer(
-                            scaleX = 1.05f,
-                            scaleY = 1.05f
-                        )
+                        }
                     )
                 }
 
@@ -127,10 +125,6 @@ fun AnimatedContentScope.DetailsScreen(
                     color = field.color,
                     modifier = Modifier
                         .fillMaxSize()
-                        .graphicsLayer(
-                            scaleX = .95f,
-                            scaleY = .95f
-                        )
                 )
 
                 is HexagonField.LabeledField -> HexLabelUi(
@@ -139,10 +133,6 @@ fun AnimatedContentScope.DetailsScreen(
                     color = field.color,
                     modifier = Modifier
                         .fillMaxSize()
-                        .graphicsLayer(
-                            scaleX = .95f,
-                            scaleY = .95f
-                        )
                 )
             }
         }
@@ -159,26 +149,27 @@ fun HexColorUi(color: Color, modifier: Modifier = Modifier) {
 
 @Composable
 fun HexLabelUi(label: String, value: Int, color: Color, modifier: Modifier = Modifier) {
-    Column(
-        modifier = Modifier
+    val animationProgress = remember {
+        Animatable(0f)
+    }
+
+    LaunchedEffect(key1 = Unit) {
+        animationProgress.animateTo(value/10f, tween(500))
+    }
+
+    AnimatedWavesIndicator(
+        progress = animationProgress.value,
+        modifier = modifier
             .border(2.dp, color, Hexagon)
-            .clip(Hexagon) then modifier,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceEvenly
-    ) {
-
+            .clip(Hexagon)
+            .fillMaxSize(),
+        waveForce = WaveForce.Quiet,
+        color = color
+    ){
         Text(
-            text = label,
-            modifier = Modifier.align(Alignment.CenterHorizontally),
-            style = MaterialTheme.typography.bodyMedium,
-            color = color
-        )
-
-        Text(
-            text = value.toString(),
-            modifier = Modifier.align(Alignment.CenterHorizontally),
-            fontWeight = FontWeight.SemiBold,
-            color = color
+            text = "$label \n $value",
+            style = MaterialTheme.typography.bodyLarge,
+            textAlign = TextAlign.Center
         )
     }
 }
@@ -199,7 +190,9 @@ fun HexCarImageUi(image: Int, modifier: Modifier = Modifier) {
     AsyncImage(
         model = image,
         contentDescription = "car image",
-        modifier = Modifier.clip(Hexagon) then modifier,
+        modifier = Modifier
+            .clip(Hexagon)
+            .fillMaxSize() then modifier,
         contentScale = ContentScale.Crop
     )
 }
