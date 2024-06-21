@@ -5,6 +5,8 @@ import androidx.annotation.IntRange
 import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.fillMaxSize
@@ -102,7 +104,10 @@ fun AnimatedContentScope.DetailsScreen(
                             Modifier.sharedElement(rememberSharedContentState(key = carModel.imageResource),
                                 this@DetailsScreen,
                                 boundsTransform = { _, _ ->
-                                    tween()
+                                    spring(
+                                        Spring.DampingRatioLowBouncy,
+                                        Spring.StiffnessLow
+                                    )
                                 })
                         })
                 }

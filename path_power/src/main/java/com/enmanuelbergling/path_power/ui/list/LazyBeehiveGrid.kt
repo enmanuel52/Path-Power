@@ -3,6 +3,7 @@ package com.enmanuelbergling.path_power.ui.list
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,12 +11,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -28,6 +31,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,14 +43,77 @@ import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 import kotlin.random.Random
 
+data class BeehiveCells(
+    val label: String,
+    val gridCells: BeehiveGridCells,
+) {
+    companion object {
+        val BEEHIVE_CELLS_MOCK = listOf(
+            BeehiveCells("2 columns", BeehiveGridCells.Fixed(2)),
+            BeehiveCells("3 columns", BeehiveGridCells.Fixed(3)),
+            BeehiveCells("5 columns", BeehiveGridCells.Fixed(5)),
+            BeehiveCells("60 dp", BeehiveGridCells.Adaptive(60.dp)),
+            BeehiveCells("90 dp", BeehiveGridCells.Adaptive(90.dp)),
+            BeehiveCells("120 dp", BeehiveGridCells.Adaptive(120.dp)),
+        )
+    }
+}
+
+@Composable
+fun BasicBeehiveExample() {
+    var selectedGridCellsIndex by rememberSaveable {
+        mutableIntStateOf(0)
+    }
+
+    Scaffold { paddingValues ->
+        Column {
+
+            LazyRow(
+                contentPadding = PaddingValues(6.dp),
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                itemsIndexed(BeehiveCells.BEEHIVE_CELLS_MOCK) { index, item ->
+                    FilterChip(
+                        selected = selectedGridCellsIndex == index,
+                        onClick = { selectedGridCellsIndex = index },
+                        label = { Text(item.label) },
+                    )
+                }
+            }
+
+            LazyBeehiveVerticalGrid(
+                items = (1..120).toList(),
+                gridCells = BeehiveCells.BEEHIVE_CELLS_MOCK[selectedGridCellsIndex].gridCells,
+                spaceBetween = 8.dp,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
+                aspectRatio = 1.05f,
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .drawBehind {
+                            drawRect(Color(Random.nextLong(0xFFFFFFFF)))
+                        }
+                ) {
+                    Text(text = "Item $it", modifier = Modifier.align(Alignment.Center))
+                }
+            }
+        }
+
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @PreviewLightDark
 @Composable
-fun SimpleBeehiveExample() {
+fun SimplestBeehiveExample() {
     var columns by remember {
         mutableIntStateOf(2)
     }
-    
+
     Scaffold(
         topBar = {
             TopAppBar(
