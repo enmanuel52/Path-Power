@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -14,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
@@ -69,10 +71,13 @@ private fun AnimatedContentScope.CarsBeeGrid(
         modifier = modifier,
         spaceBetween = 8.dp
     ) { carModel ->
-        ElevatedCard(
-            onClick = { onDetails(carModel) },
-            shape = Hexagon,
-            modifier = with(sharedTransitionScope) {
+        AsyncImage(
+            carModel.imageResource,
+            contentDescription = "car image",
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .fillMaxSize()
+                    then with(sharedTransitionScope) {
                 Modifier.sharedElement(
                     state = rememberSharedContentState(key = carModel.imageResource),
                     animatedVisibilityScope = this@CarsBeeGrid,
@@ -83,16 +88,8 @@ private fun AnimatedContentScope.CarsBeeGrid(
                         )
                     }
                 )
-            }
-        ) {
-            AsyncImage(
-                carModel.imageResource,
-                contentDescription = "car image",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .fillMaxSize()
-            )
-        }
+            }.clip(Hexagon).clickable { onDetails(carModel) }
+        )
     }
 }
 
