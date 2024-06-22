@@ -13,7 +13,7 @@ dependencyResolutionManagement {
 
 2- Second add the dependency in your build.gradle.kts
 ```
-implementation("com.github.enmanuel52:Path-Power:0.0.1-alpha01")
+implementation("com.github.enmanuel52:Path-Power:0.0.1-alpha02")
 ```
 
 # Charts
@@ -62,13 +62,12 @@ AnimatedWavesIndicator(
 
 https://github.com/enmanuel52/Path-Power/assets/102194318/1511ad6a-9234-4339-8bab-b8399b1d08b1
 
-# Comming soon
 
 ## Beehive Grid
 ```
     LazyBeehiveVerticalGrid(
         items = (1..120).toList(),
-        gridCells = BeehiveGridCells.Fixed(3),
+        gridCells = BeehiveGridCells.Adaptive(90.dp),
         spaceBetween = 8.dp,
         modifier = Modifier
             .fillMaxSize()
@@ -88,7 +87,10 @@ https://github.com/enmanuel52/Path-Power/assets/102194318/1511ad6a-9234-4339-8ba
 ```
 
 <div style="margin: 10px;">
-  <img src="https://github.com/enmanuel52/Path-Power/assets/102194318/e71fe40b-feaa-4ce5-990f-82326cfd2254" style="display: flex; width: 40%; padding: 0% 3%;">
+  <img src="https://github.com/enmanuel52/Path-Power/assets/102194318/7d0df884-b2b4-469d-8712-3bad1921af34" style="display: flex; width: 30%; padding: 0% 5%;">
+
+  <img src="https://github.com/enmanuel52/Path-Power/assets/102194318/3863e57d-2422-4007-917e-b5d7908bcc74" style="display: flex; width: 60%; padding: 0% 5%;">
 </div>
+
 
 **🚧🚧 WORK IN PROGRESS 🚧🚧**
