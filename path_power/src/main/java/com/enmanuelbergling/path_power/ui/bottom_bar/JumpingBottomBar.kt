@@ -5,7 +5,7 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.ExperimentalTransitionApi
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.animateOffset
+import androidx.compose.animation.core.animateOffsetAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
@@ -95,59 +95,39 @@ fun JumpingBottomBar(
     val ballSize = 58.dp
     val density = LocalDensity.current
     val maxScreenWidth = with(density) { LocalConfiguration.current.screenWidthDp.dp.toPx() }
-    val holeSizePx = with(density) { (ballSize-16.dp).toPx() }
-    val ballSizePx = with(density){ballSize.toPx()}
+    val holeSizePx = with(density) { (ballSize - 16.dp).toPx() }
+    val ballSizePx = with(density) { ballSize.toPx() }
 
-    val transitionProgress =
-        updateTransition(targetState = animationProgress.value, label = "transition progress")
+    val ballOffsetAnimation by animateOffsetAsState(
+        targetValue = run {
+            val currentIndex = items.indexOf(selected)
+            val closeToMiddlePercent = 1 - abs(animationProgress.value - .5f).div(.5f)
 
-    val previousHoleAnimatedProgress by transitionProgress.animateFloat(
-        label = "previous hole animation",
-        transitionSpec = {
-            spring(Spring.DampingRatioLowBouncy, Spring.StiffnessLow)
-        }
-    ) { progress ->
-        1f - (progress / .6f).coerceAtMost(1f)
-    }
+            val previousIndex = items.indexOf(previousSelection)
+            val distance =
+                (currentIndex - previousIndex) / items.size.toFloat() * animationProgress.value
+            val xProgress = previousIndex.plus(1F) / items.size + distance
 
-    val holeAnimatedProgress by transitionProgress.animateFloat(
-        label = "hole animation",
-        transitionSpec = {
-            spring(Spring.DampingRatioLowBouncy, Spring.StiffnessLow)
-        }
-    ) { progress ->
-        (progress - .6f).div(.4F).coerceIn(0f, 1f)
-    }
+            Offset(
+                x = xProgress * maxScreenWidth,
+                y = -ballSizePx * closeToMiddlePercent
+            )
+        },
+        label = "ball animation",
+        animationSpec = spring(Spring.DampingRatioLowBouncy, Spring.StiffnessLow)
+    )
 
-    val ballOffsetAnimation by transitionProgress.animateOffset(
-        label = "ball offset animation",
-        transitionSpec = {
-            spring(Spring.DampingRatioMediumBouncy, Spring.StiffnessLow)
-        }
-    ) { progress ->
-        val currentIndex = items.indexOf(selected)
-        val closeToMiddlePercent = 1 - abs(progress - .5f).div(.5f)
-
-        val previousIndex = items.indexOf(previousSelection)
-        val distance = (currentIndex - previousIndex) / items.size.toFloat() * progress
-        val xProgress = previousIndex.plus(1F) / items.size + distance
-
-        Offset(
-            x = xProgress * maxScreenWidth,
-            y = -ballSizePx * closeToMiddlePercent
-        )
-    }
 
     Box(modifier = modifier) {
         Box(modifier = Modifier
             .graphicsLayer {
-                val xOffset = 1F/items.size * maxScreenWidth / 2 + ballSizePx/2
+                val xOffset = 1F / items.size * maxScreenWidth / 2 + ballSizePx / 2
 
                 translationY = ballOffsetAnimation.y - holeSizePx / 2
                 translationX = ballOffsetAnimation.x - xOffset
             }
             .size(ballSize)
-            .background(MaterialTheme.colorScheme.secondaryContainer, CircleShape)
+            .background(MaterialTheme.colorScheme.tertiaryContainer, CircleShape)
         )
 
         Row(
@@ -156,6 +136,14 @@ fun JumpingBottomBar(
                 .fillMaxWidth()
                 .height(70.dp)
                 .drawBehind {
+                    val previousHoleAnimatedProgress =
+                        1f - (animationProgress.value / .6f).coerceAtMost(1f)
+
+                    val holeAnimatedProgress =
+                        (animationProgress.value - .6f)
+                            .div(.4F)
+                            .coerceIn(0f, 1f)
+
                     drawPath(
                         path = getHoleRectPath(
                             size = size,
@@ -186,7 +174,7 @@ fun JumpingBottomBar(
                     if (selected) -holeSizePx.times(.6f) else 0f
                 }
 
-                val onPrimaryColor = MaterialTheme.colorScheme.onSecondaryContainer
+                val onPrimaryColor = MaterialTheme.colorScheme.onTertiaryContainer
                 val onSurfaceColor = MaterialTheme.colorScheme.onSurface
 
                 val colorAnimation by selectionTransition.animateColor(
