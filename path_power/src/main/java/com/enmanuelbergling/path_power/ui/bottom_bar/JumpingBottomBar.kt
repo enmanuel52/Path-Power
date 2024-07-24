@@ -3,10 +3,7 @@ package com.enmanuelbergling.path_power.ui.bottom_bar
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.ExperimentalTransitionApi
-import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.animateOffsetAsState
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
@@ -28,9 +25,11 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,6 +43,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.enmanuelbergling.path_power.ui.shape.getHoleRectPath
+import kotlinx.coroutines.launch
 import kotlin.math.abs
 
 val ITEMS = listOf(
@@ -87,9 +87,9 @@ fun JumpingBottomBar(
     }
 
     LaunchedEffect(key1 = selected) {
-        animationProgress.snapTo(0f)
 
-        animationProgress.animateTo(1f, tween(DurationInMillis, 100))
+
+        animationProgress.animateTo(1f, tween(DurationInMillis))
     }
 
     val ballSize = 58.dp
@@ -98,8 +98,8 @@ fun JumpingBottomBar(
     val holeSizePx = with(density) { (ballSize - 16.dp).toPx() }
     val ballSizePx = with(density) { ballSize.toPx() }
 
-    val ballOffsetAnimation by animateOffsetAsState(
-        targetValue = run {
+    val ballOffsetAnimation by remember(animationProgress.value) {
+        derivedStateOf {
             val currentIndex = items.indexOf(selected)
             val closeToMiddlePercent = 1 - abs(animationProgress.value - .5f).div(.5f)
 
@@ -112,10 +112,8 @@ fun JumpingBottomBar(
                 x = xProgress * maxScreenWidth,
                 y = -ballSizePx * closeToMiddlePercent
             )
-        },
-        label = "ball animation",
-        animationSpec = spring(Spring.DampingRatioLowBouncy, Spring.StiffnessLow)
-    )
+        }
+    }
 
 
     Box(modifier = modifier) {
@@ -184,10 +182,15 @@ fun JumpingBottomBar(
                     if (selected) onPrimaryColor else onSurfaceColor
                 }
 
+                val scope = rememberCoroutineScope()
+
                 IconButton(
                     onClick = {
                         if (item != selected) {
                             previousSelection = selected
+
+                            //rebooting here, otherwise it will blink
+                            scope.launch { animationProgress.snapTo(0f) }
 
                             onJump(item)
                         }
