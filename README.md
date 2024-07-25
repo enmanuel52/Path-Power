@@ -13,7 +13,7 @@ dependencyResolutionManagement {
 
 2- Second add the dependency in your build.gradle.kts
 ```
-implementation("com.github.enmanuel52:Path-Power:0.0.1-alpha02")
+implementation("com.github.enmanuel52:Path-Power:0.0.3")
 ```
 
 # Charts
@@ -91,6 +91,34 @@ https://github.com/enmanuel52/Path-Power/assets/102194318/1511ad6a-9234-4339-8ba
 
   <img src="https://github.com/enmanuel52/Path-Power/assets/102194318/3863e57d-2422-4007-917e-b5d7908bcc74" style="display: flex; width: 60%; padding: 0% 5%;">
 </div>
+
+## Jump Bottom Bar
+```
+val ITEMS = listOf(
+    JumpingItem(Icons.Rounded.Add),
+    JumpingItem(Icons.Rounded.Done),
+    JumpingItem(Icons.Rounded.Build),
+    JumpingItem(Icons.Rounded.Phone),
+    JumpingItem(Icons.Rounded.Delete),
+)
+
+@Composable
+fun JumpBottomBarSample(modifier: Modifier = Modifier) {
+
+    var selected by remember {
+        mutableStateOf(ITEMS.first())
+    }
+
+    JumpingBottomBar(items = ITEMS, selected = selected, modifier) {
+        selected = it
+    }
+}
+```
+
+
+https://github.com/user-attachments/assets/880e42ad-8417-4dc0-9bf8-b2081e93729f
+
+
 
 
 **🚧🚧 WORK IN PROGRESS 🚧🚧**
