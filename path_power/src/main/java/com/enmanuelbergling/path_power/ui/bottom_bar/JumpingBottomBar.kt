@@ -19,10 +19,13 @@ import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Build
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Done
+import androidx.compose.material.icons.rounded.Face
 import androidx.compose.material.icons.rounded.Phone
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -66,8 +69,6 @@ fun JumpBottomBarSample(modifier: Modifier = Modifier) {
     }
 }
 
-private const val DurationInMillis = 1000
-
 @OptIn(ExperimentalTransitionApi::class)
 @Composable
 fun JumpingBottomBar(
@@ -75,6 +76,7 @@ fun JumpingBottomBar(
     selected: JumpingItem,
     modifier: Modifier = Modifier,
     containerColor: Color = MaterialTheme.colorScheme.surfaceContainer,
+    ballContainerColor: Color = MaterialTheme.colorScheme.primaryContainer,
     onJump: (JumpingItem) -> Unit,
 ) {
 
@@ -87,16 +89,12 @@ fun JumpingBottomBar(
     }
 
     LaunchedEffect(key1 = selected) {
-
-
         animationProgress.animateTo(1f, tween(DurationInMillis))
     }
 
-    val ballSize = 58.dp
     val density = LocalDensity.current
-    val maxScreenWidth = with(density) { LocalConfiguration.current.screenWidthDp.dp.toPx() }
-    val holeSizePx = with(density) { (ballSize - 16.dp).toPx() }
-    val ballSizePx = with(density) { ballSize.toPx() }
+    val maxScreenWidthPx = with(density) { LocalConfiguration.current.screenWidthDp.dp.toPx() }
+    val ballSizePx = with(density) { BallSize.toPx() }
 
     val ballOffsetAnimation by remember(animationProgress.value) {
         derivedStateOf {
@@ -109,7 +107,7 @@ fun JumpingBottomBar(
             val xProgress = previousIndex.plus(1F) / items.size + distance
 
             Offset(
-                x = xProgress * maxScreenWidth,
+                x = xProgress * maxScreenWidthPx,
                 y = -ballSizePx * closeToMiddlePercent
             )
         }
@@ -119,20 +117,21 @@ fun JumpingBottomBar(
     Box(modifier = modifier) {
         Box(modifier = Modifier
             .graphicsLayer {
-                val xOffset = 1F / items.size * maxScreenWidth / 2 + ballSizePx / 2
+                val xOffset = 1F / items.size * maxScreenWidthPx / 2 + ballSizePx / 2
 
-                translationY = ballOffsetAnimation.y - holeSizePx / 2
+                translationY = ballOffsetAnimation.y - ballSizePx / 2
                 translationX = ballOffsetAnimation.x - xOffset
             }
-            .size(ballSize)
-            .background(MaterialTheme.colorScheme.tertiaryContainer, CircleShape)
+            .size(BallSize)
+            .background(ballContainerColor, CircleShape)
         )
+
+        val scope = rememberCoroutineScope()
 
         Row(
             modifier = Modifier
-                .align(Alignment.BottomCenter)
                 .fillMaxWidth()
-                .height(70.dp)
+                .height(BottomBarHeight)
                 .drawBehind {
                     val previousHoleAnimatedProgress =
                         1f - (animationProgress.value / .6f).coerceAtMost(1f)
@@ -145,11 +144,11 @@ fun JumpingBottomBar(
                     drawPath(
                         path = getHoleRectPath(
                             size = size,
-                            holeSizePx = holeSizePx.times(1.4f),
+                            holeSizePx = ballSizePx,
                             holesCount = items.size,
-                            hole = items.indexOf(selected),
+                            holeIndex = items.indexOf(selected),
                             holeProgress = holeAnimatedProgress,
-                            previousHole = items.indexOf(previousSelection),
+                            previousHoleIndex = items.indexOf(previousSelection),
                             previousHoleProgress = previousHoleAnimatedProgress
                         ),
                         color = containerColor,
@@ -164,25 +163,23 @@ fun JumpingBottomBar(
                     targetState = item == selected, label = "selection transition"
                 )
 
+                val bottomBarHeightPx = with(density){BottomBarHeight.toPx()}
                 val elevationOffset by selectionTransition.animateFloat(
-                    label =
-                    "elevation animation",
+                    label = "elevation animation",
                     transitionSpec = { tween(DurationInMillis) }
                 ) { selected ->
-                    if (selected) -holeSizePx.times(.6f) else 0f
+                    if (selected) -bottomBarHeightPx / 2 else 0f
                 }
 
-                val onPrimaryColor = MaterialTheme.colorScheme.onTertiaryContainer
-                val onSurfaceColor = MaterialTheme.colorScheme.onSurface
+                val onBallColor = contentColorFor(backgroundColor = ballContainerColor)
+                val onContainerColor = contentColorFor(backgroundColor = containerColor)
 
                 val colorAnimation by selectionTransition.animateColor(
                     label = "color animation",
-                    transitionSpec = { tween(1500) }
+                    transitionSpec = { tween(DurationInMillis) }
                 ) { selected ->
-                    if (selected) onPrimaryColor else onSurfaceColor
+                    if (selected) onBallColor else onContainerColor
                 }
-
-                val scope = rememberCoroutineScope()
 
                 IconButton(
                     onClick = {
@@ -208,10 +205,13 @@ fun JumpingBottomBar(
             }
         }
     }
-
-
 }
+
+private const val DurationInMillis = 500
+private val BallSize = 58.dp
+private val BottomBarHeight = 80.dp
 
 data class JumpingItem(
     val imageVector: ImageVector,
+    val label: String = "",
 )
