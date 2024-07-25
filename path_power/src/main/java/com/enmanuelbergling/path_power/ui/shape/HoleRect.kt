@@ -41,7 +41,7 @@ private fun HoleRectPrev() {
     }
 }
 
-class HoleRectShape(
+internal class HoleRectShape(
     private val holeSizePx: Float,
     private val holesCount: Int,
     private val holeIndex: Int,
@@ -74,7 +74,7 @@ class HoleRectShape(
  * @param previousHoleIndex to previous selected one
  * @param previousHoleProgress to control how deep the previous hole is
  * */
-fun getHoleRectPath(
+internal fun getHoleRectPath(
     size: Size,
     holeSizePx: Float,
     holesCount: Int,
@@ -130,7 +130,7 @@ fun getHoleRectPath(
 /**
  * @param deepProgress to control how deep the hole is
  * */
-fun Path.getSingleHolePath(
+internal fun Path.getSingleHolePath(
     holeSizePx: Float,
     centerX: Float,
     @FloatRange(.0, 1.0) deepProgress: Float,

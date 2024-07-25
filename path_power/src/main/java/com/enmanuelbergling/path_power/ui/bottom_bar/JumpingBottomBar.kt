@@ -221,5 +221,4 @@ private val BottomTonalElevation = 3.dp
 
 data class JumpingItem(
     val imageVector: ImageVector,
-    val label: String = "",
 )
