@@ -9,6 +9,11 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.Build
+import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.Done
+import androidx.compose.material.icons.rounded.Phone
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
@@ -19,10 +24,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import com.enmanuelbergling.path_power.ui.bottom_bar.JumpBottomBarSample
+import com.enmanuelbergling.path_power.ui.bottom_bar.JumpingBottomBar
+import com.enmanuelbergling.path_power.ui.bottom_bar.JumpingItem
 import com.enmanuelbergling.path_power.ui.list.BasicBeehiveExample
 import com.enmanuelbergling.pathpower.ui.cars.navigation.CarsNavHost
 import com.enmanuelbergling.pathpower.ui.theme.PathPowerTheme
@@ -47,6 +54,26 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+}
+
+val ITEMS = listOf(
+    JumpingItem(Icons.Rounded.Add),
+    JumpingItem(Icons.Rounded.Done),
+    JumpingItem(Icons.Rounded.Build),
+    JumpingItem(Icons.Rounded.Phone),
+    JumpingItem(Icons.Rounded.Delete),
+)
+
+@Composable
+fun JumpBottomBarSample(modifier: Modifier = Modifier) {
+
+    var selected by remember {
+        mutableStateOf(ITEMS.first())
+    }
+
+    JumpingBottomBar(items = ITEMS, selected = selected, modifier) {
+        selected = it
     }
 }
 

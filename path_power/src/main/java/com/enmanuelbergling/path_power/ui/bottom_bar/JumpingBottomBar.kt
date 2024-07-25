@@ -6,7 +6,6 @@ import androidx.compose.animation.core.ExperimentalTransitionApi
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -15,12 +14,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Add
-import androidx.compose.material.icons.rounded.Build
-import androidx.compose.material.icons.rounded.Delete
-import androidx.compose.material.icons.rounded.Done
-import androidx.compose.material.icons.rounded.Phone
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -46,26 +39,6 @@ import androidx.compose.ui.unit.dp
 import com.enmanuelbergling.path_power.ui.shape.HoleRectShape
 import kotlinx.coroutines.launch
 import kotlin.math.abs
-
-val ITEMS = listOf(
-    JumpingItem(Icons.Rounded.Add),
-    JumpingItem(Icons.Rounded.Done),
-    JumpingItem(Icons.Rounded.Build),
-    JumpingItem(Icons.Rounded.Phone),
-    JumpingItem(Icons.Rounded.Delete),
-)
-
-@Composable
-fun JumpBottomBarSample(modifier: Modifier = Modifier) {
-
-    var selected by remember {
-        mutableStateOf(ITEMS.first())
-    }
-
-    JumpingBottomBar(items = ITEMS, selected = selected, modifier) {
-        selected = it
-    }
-}
 
 @OptIn(ExperimentalTransitionApi::class)
 @Composable

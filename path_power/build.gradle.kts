@@ -65,7 +65,7 @@ publishing {
         register<MavenPublication>("maven") {
             groupId = "com.github.enmanuel52"
             artifactId = "path_power"
-            version = "0.0.1-alpha02"
+            version = "0.0.3"
 
             afterEvaluate {
                 from(components["release"])
