@@ -10,6 +10,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
@@ -19,12 +20,11 @@ import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Build
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Done
-import androidx.compose.material.icons.rounded.Face
 import androidx.compose.material.icons.rounded.Phone
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -36,16 +36,14 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
-import com.enmanuelbergling.path_power.ui.shape.getHoleRectPath
+import com.enmanuelbergling.path_power.ui.shape.HoleRectShape
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 
@@ -114,47 +112,56 @@ fun JumpingBottomBar(
     }
 
 
-    Box(modifier = modifier) {
-        Box(modifier = Modifier
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(BottomBarHeight)
+    ) {
+        Surface(modifier = Modifier
+            .size(BallSize)
             .graphicsLayer {
                 val xOffset = 1F / items.size * maxScreenWidthPx / 2 + ballSizePx / 2
 
                 translationY = ballOffsetAnimation.y - ballSizePx / 2
                 translationX = ballOffsetAnimation.x - xOffset
+            },
+            shape = CircleShape,
+            color = ballContainerColor,
+            tonalElevation = BottomTonalElevation,
+        ){}
+
+        val previousHoleAnimatedProgress by remember(animationProgress.value) {
+            derivedStateOf {
+                1f - (animationProgress.value / .6f).coerceAtMost(1f)
             }
-            .size(BallSize)
-            .background(ballContainerColor, CircleShape)
-        )
+        }
+
+        val holeAnimatedProgress by remember(animationProgress.value) {
+            derivedStateOf {
+                (animationProgress.value - .6f)
+                    .div(.4F)
+                    .coerceIn(0f, 1f)
+            }
+        }
+
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            shape = HoleRectShape(
+                holeSizePx = ballSizePx,
+                holesCount = items.size,
+                holeIndex = items.indexOf(selected),
+                holeProgress = holeAnimatedProgress,
+                previousHoleIndex = items.indexOf(previousSelection),
+                previousHoleProgress = previousHoleAnimatedProgress
+            ),
+            color = containerColor,
+            tonalElevation = BottomTonalElevation
+        ) {}
 
         val scope = rememberCoroutineScope()
-
+        //if I put this inside shaped surface items outside the shape wont be shown
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(BottomBarHeight)
-                .drawBehind {
-                    val previousHoleAnimatedProgress =
-                        1f - (animationProgress.value / .6f).coerceAtMost(1f)
-
-                    val holeAnimatedProgress =
-                        (animationProgress.value - .6f)
-                            .div(.4F)
-                            .coerceIn(0f, 1f)
-
-                    drawPath(
-                        path = getHoleRectPath(
-                            size = size,
-                            holeSizePx = ballSizePx,
-                            holesCount = items.size,
-                            holeIndex = items.indexOf(selected),
-                            holeProgress = holeAnimatedProgress,
-                            previousHoleIndex = items.indexOf(previousSelection),
-                            previousHoleProgress = previousHoleAnimatedProgress
-                        ),
-                        color = containerColor,
-                        style = Fill
-                    )
-                },
+            modifier = Modifier.fillMaxSize(),
             horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -163,7 +170,7 @@ fun JumpingBottomBar(
                     targetState = item == selected, label = "selection transition"
                 )
 
-                val bottomBarHeightPx = with(density){BottomBarHeight.toPx()}
+                val bottomBarHeightPx = with(density) { BottomBarHeight.toPx() }
                 val elevationOffset by selectionTransition.animateFloat(
                     label = "elevation animation",
                     transitionSpec = { tween(DurationInMillis) }
@@ -210,6 +217,7 @@ fun JumpingBottomBar(
 private const val DurationInMillis = 500
 private val BallSize = 58.dp
 private val BottomBarHeight = 80.dp
+private val BottomTonalElevation = 3.dp
 
 data class JumpingItem(
     val imageVector: ImageVector,

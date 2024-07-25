@@ -8,9 +8,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 
 @Preview
@@ -32,11 +36,34 @@ private fun HoleRectPrev() {
                 holeProgress = 1f,
                 previousHoleIndex = -1,
                 previousHoleProgress = 0f
-            ),
-            color = Color.Green,
-            style = Fill// Stroke(1.dp.toPx())
+            ), color = Color.Green, style = Fill// Stroke(1.dp.toPx())
         )
     }
+}
+
+class HoleRectShape(
+    private val holeSizePx: Float,
+    private val holesCount: Int,
+    private val holeIndex: Int,
+    @FloatRange(.0, 1.0) private val holeProgress: Float,
+    private val previousHoleIndex: Int,
+    @FloatRange(.0, 1.0) private val previousHoleProgress: Float,
+) : Shape {
+    override fun createOutline(
+        size: Size,
+        layoutDirection: LayoutDirection,
+        density: Density,
+    ) = Outline.Generic(
+        getHoleRectPath(
+            size = size,
+            holeSizePx = holeSizePx,
+            holesCount = holesCount,
+            holeIndex = holeIndex,
+            holeProgress = holeProgress,
+            previousHoleIndex = previousHoleIndex,
+            previousHoleProgress = previousHoleProgress
+        )
+    )
 }
 
 /**
@@ -55,54 +82,50 @@ fun getHoleRectPath(
     @FloatRange(.0, 1.0) holeProgress: Float,
     previousHoleIndex: Int,
     @FloatRange(.0, 1.0) previousHoleProgress: Float,
-) =
-    if (holeIndex >= holesCount) {
-        throw IllegalArgumentException("holeSpot $holeIndex must be minor that stops: $holesCount")
-    } else Path().apply {
-        moveTo(0f, 0f)
+) = if (holeIndex >= holesCount) {
+    throw IllegalArgumentException("holeSpot $holeIndex must be minor that stops: $holesCount")
+} else Path().apply {
+    moveTo(0f, 0f)
 
-        //here is where the fun begins
-        repeat(holesCount) { index ->
-            val currentWidth = size.width * index / holesCount
-            val nextWidthStep = size.width * (index + 1) / holesCount
-            val middleXPoint = (currentWidth + nextWidthStep) / 2
+    //here is where the fun begins
+    repeat(holesCount) { index ->
+        val currentWidth = size.width * index / holesCount
+        val nextWidthStep = size.width * (index + 1) / holesCount
+        val middleXPoint = (currentWidth + nextWidthStep) / 2
 
-            when (index) {
-                holeIndex -> {
-                    getSingleHolePath(
-                        holeSizePx = holeSizePx,
-                        centerX = middleXPoint,
-                        deepProgress = holeProgress
-                    )
-                }
+        when (index) {
+            holeIndex -> {
+                getSingleHolePath(
+                    holeSizePx = holeSizePx, centerX = middleXPoint, deepProgress = holeProgress
+                )
+            }
 
-                previousHoleIndex -> {
-                    getSingleHolePath(
-                        holeSizePx = holeSizePx,
-                        centerX = middleXPoint,
-                        deepProgress = previousHoleProgress
-                    )
-                }
+            previousHoleIndex -> {
+                getSingleHolePath(
+                    holeSizePx = holeSizePx,
+                    centerX = middleXPoint,
+                    deepProgress = previousHoleProgress
+                )
+            }
 
-                else -> {
-                    if (index == holesCount - 1) {
-                        lineTo(size.width, 0f)
-                    } else {
-                        val paddingPx = holeSizePx.times(.2f)
-                        val twoStepsAhead = size.width * (index + 2) / holesCount
-                        val nextXPoint =
-                            (nextWidthStep + twoStepsAhead) / 2 - (holeSizePx + paddingPx)
-                        lineTo(nextXPoint, 0f)
-                    }
+            else -> {
+                if (index == holesCount - 1) {
+                    lineTo(size.width, 0f)
+                } else {
+                    val paddingPx = holeSizePx.times(.2f)
+                    val twoStepsAhead = size.width * (index + 2) / holesCount
+                    val nextXPoint = (nextWidthStep + twoStepsAhead) / 2 - (holeSizePx + paddingPx)
+                    lineTo(nextXPoint, 0f)
                 }
             }
         }
-
-        lineTo(size.width, 0f)
-        lineTo(size.width, size.height)
-        lineTo(0f, size.height)
-        lineTo(0f, 0f)
     }
+
+    lineTo(size.width, 0f)
+    lineTo(size.width, size.height)
+    lineTo(0f, size.height)
+    lineTo(0f, 0f)
+}
 
 /**
  * @param deepProgress to control how deep the hole is
