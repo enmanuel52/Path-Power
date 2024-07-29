@@ -1,0 +1,41 @@
+[versions]
+androidx-activity = "1.8.2"
+androidx-core = "1.12.0"
+androidx-lifecycle = "2.7.0"
+coilCompose = "2.4.0"
+kotlinxSerializationJson = "1.6.0"
+navigationCompose = "2.8.0-alpha08"
+org-jetbrains-kotlin-android = "2.0.0"
+agp = "8.2.1"
+androidComposeBom = "2024.05.00"
+pathPower = "0.0.3"
+
+[libraries]
+androidx-activity-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activity" }
+androidx-compose-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "androidComposeBom" }
+androidx-compose-material3 = { module = "androidx.compose.material3:material3" }
+androidx-compose-ui = { module = "androidx.compose.ui:ui" }
+androidx-compose-ui-ui-graphics = { module = "androidx.compose.ui:ui-graphics" }
+androidx-compose-ui-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4" }
+androidx-compose-ui-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
+androidx-compose-ui-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
+androidx-compose-ui-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
+androidx-constraintlayout-constraintlayout-compose = "androidx.constraintlayout:constraintlayout-compose:1.0.1"
+androidx-core-core-ktx = { module = "androidx.core:core-ktx", version.ref = "androidx-core" }
+androidx-core-core-splashscreen = "androidx.core:core-splashscreen:1.0.1"
+androidx-lifecycle-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "androidx-lifecycle" }
+androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
+androidx-test-espresso-espresso-core = "androidx.test.espresso:espresso-core:3.5.1"
+androidx-test-ext-junit = "androidx.test.ext:junit:1.1.5"
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
+junit = "junit:junit:4.13.2"
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
+path-power = { module = "com.github.enmanuel52:Path-Power", version.ref = "pathPower" }
+
+[plugins]
+com-android-application = { id = "com.android.application", version.ref = "agp" }
+com-android-library = { id = "com.android.library", version.ref = "agp" }
+com-github-ben-manes-versions = "com.github.ben-manes.versions:0.41.0"
+nl-littlerobots-version-catalog-update = "nl.littlerobots.version-catalog-update:0.8.4"
+org-jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "org-jetbrains-kotlin-android" }
+kotlin-compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "org-jetbrains-kotlin-android" }
