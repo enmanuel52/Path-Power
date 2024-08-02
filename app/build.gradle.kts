@@ -62,6 +62,7 @@ android {
 dependencies {
 //    implementation(project(":path_power"))
     implementation(libs.path.power)
+    implementation(libs.enmanuel52.walkthrough)
 
     implementation(libs.androidx.core.core.ktx)
     implementation(libs.androidx.lifecycle.lifecycle.runtime.ktx)
@@ -71,6 +72,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.ui.graphics)
     implementation(libs.androidx.compose.ui.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.foundation)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.androidx.test.espresso.espresso.core)
@@ -84,9 +86,6 @@ dependencies {
 
     implementation(libs.androidx.navigation.compose)
     implementation(libs.kotlinx.serialization.json)
-
-    implementation("androidx.compose.animation:animation:1.7.0-alpha08")
-    implementation("androidx.compose.ui:ui:1.7.0-alpha08")
 
     implementation(libs.coil.compose)
 }

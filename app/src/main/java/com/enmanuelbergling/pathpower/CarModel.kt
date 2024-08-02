@@ -1,10 +1,9 @@
-package com.enmanuelbergling.pathpower.ui.cars.model
+package com.enmanuelbergling.pathpower
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.IntRange
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import com.enmanuelbergling.pathpower.R
 
 data class CarModel(
     @DrawableRes val imageResource: Int,
@@ -16,16 +15,7 @@ data class CarModel(
     @IntRange(0, 10) val wheels: Int,
     @IntRange(0, 10) val cranky: Int,
     val color: Int,
-) {
-    fun getLabeledFields() = listOf(
-        HexagonField.LabeledField("Velocity", velocity),
-        HexagonField.LabeledField("Kindness", kindness),
-        HexagonField.LabeledField("Popularity", popularity),
-        HexagonField.LabeledField("Cranky", cranky),
-        HexagonField.LabeledField("Funny", funny),
-        HexagonField.LabeledField("Wheels", wheels),
-    )
-}
+)
 
 val ChickHicks = CarModel(
     imageResource = R.drawable.chick_hicks,

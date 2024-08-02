@@ -47,6 +47,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.ui.graphics)
     implementation(libs.androidx.compose.ui.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+    implementation(libs.foundation)
 
     implementation(libs.androidx.constraintlayout.constraintlayout.compose)
 
