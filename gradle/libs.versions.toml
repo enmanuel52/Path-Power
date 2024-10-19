@@ -1,13 +1,13 @@
 [versions]
-androidx-activity = "1.8.2"
-androidx-core = "1.12.0"
-androidx-lifecycle = "2.7.0"
-coilCompose = "2.4.0"
+androidx-activity = "1.9.2"
+androidx-core = "1.13.1"
+androidx-lifecycle = "2.8.6"
+coilCompose = "2.6.0"
 kotlinxSerializationJson = "1.6.0"
-navigationCompose = "2.8.0-alpha08"
+navigationCompose = "2.8.1"
 org-jetbrains-kotlin-android = "2.0.0"
-agp = "8.2.1"
-androidComposeBom = "2024.05.00"
+agp = "8.2.2"
+androidComposeBom = "2024.09.02"
 pathPower = "0.0.3"
 
 [libraries]

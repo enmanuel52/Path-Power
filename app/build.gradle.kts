@@ -85,8 +85,5 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.kotlinx.serialization.json)
 
-    implementation("androidx.compose.animation:animation:1.7.0-alpha08")
-    implementation("androidx.compose.ui:ui:1.7.0-alpha08")
-
     implementation(libs.coil.compose)
 }
