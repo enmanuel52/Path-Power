@@ -4,7 +4,6 @@ plugins {
     alias(libs.plugins.com.android.library) apply false
     alias(libs.plugins.org.jetbrains.kotlin.android) apply false
     alias(libs.plugins.kotlin.compose.compiler) apply false
-    alias(libs.plugins.com.github.ben.manes.versions)
     alias(libs.plugins.nl.littlerobots.version.catalog.update)
     kotlin("plugin.serialization") version "1.9.22" apply false
     id("com.android.test") version "8.2.1" apply false

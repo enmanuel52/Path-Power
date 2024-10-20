@@ -142,7 +142,7 @@ fun HexLabelUi(
         modifier = modifier
             .border(2.dp, color, Hexagon)
             .clip(Hexagon),
-        waveForce = WaveForce.Quiet,
+        waveForce = WaveForce.CanvasBased.Quiet,
         color = color
     ) {
         Text(
