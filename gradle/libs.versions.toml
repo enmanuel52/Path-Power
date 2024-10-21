@@ -6,7 +6,7 @@ coilCompose = "2.4.0"
 kotlinxSerializationJson = "1.6.0"
 navigationCompose = "2.8.0-alpha08"
 org-jetbrains-kotlin-android = "2.0.0"
-agp = "8.2.1"
+agp = "8.7.1"
 androidComposeBom = "2024.05.00"
 pathPower = "0.0.3"
 
@@ -35,7 +35,7 @@ path-power = { module = "com.github.enmanuel52:Path-Power", version.ref = "pathP
 [plugins]
 com-android-application = { id = "com.android.application", version.ref = "agp" }
 com-android-library = { id = "com.android.library", version.ref = "agp" }
-com-github-ben-manes-versions = "com.github.ben-manes.versions:0.41.0"
 nl-littlerobots-version-catalog-update = "nl.littlerobots.version-catalog-update:0.8.4"
 org-jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "org-jetbrains-kotlin-android" }
 kotlin-compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "org-jetbrains-kotlin-android" }
+plugin-serialization = "org.jetbrains.kotlin.plugin.serialization:1.9.22"

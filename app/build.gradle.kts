@@ -12,7 +12,7 @@ android {
 
     defaultConfig {
         applicationId = "com.enmanuelbergling.pathpower"
-        minSdk = 24
+        minSdk = 33
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -60,8 +60,8 @@ android {
 }
 
 dependencies {
-//    implementation(project(":path_power"))
-    implementation(libs.path.power)
+    implementation(project(":path_power"))
+//    implementation(libs.path.power)
 
     implementation(libs.androidx.core.core.ktx)
     implementation(libs.androidx.lifecycle.lifecycle.runtime.ktx)
