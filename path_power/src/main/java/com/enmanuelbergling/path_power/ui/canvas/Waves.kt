@@ -26,10 +26,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
@@ -55,7 +52,6 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.enmanuelbergling.path_power.ui.modifiers.wavesShader
@@ -320,7 +316,7 @@ private fun AGSLBasedWaveIndicator(
     val time by produceState(0f) {
         while (isActive) {
             withInfiniteAnimationFrameMillis {
-                value = if (goForward) it / 1000f else -it / 1000f
+                value = if (goForward) it / 1_000f else -it / 1_000f
             }
         }
     }
@@ -336,8 +332,18 @@ private fun AGSLBasedWaveIndicator(
         modifier = modifier
             .fillMaxSize()
             .onSizeChanged {
-                (waveForce.backWaveColor as? WaveColor.Shader)?.apply { updateResolution(it.width.toFloat(), it.height.toFloat()) }
-                (waveForce.frontWaveColor as? WaveColor.Shader)?.apply { updateResolution(it.width.toFloat(), it.height.toFloat()) }
+                (waveForce.backWaveColor as? WaveColor.Shader)?.apply {
+                    updateResolution(
+                        it.width.toFloat(),
+                        it.height.toFloat()
+                    )
+                }
+                (waveForce.frontWaveColor as? WaveColor.Shader)?.apply {
+                    updateResolution(
+                        it.width.toFloat(),
+                        it.height.toFloat()
+                    )
+                }
             }
             .wavesShader(
                 progress = progress,
@@ -359,7 +365,8 @@ private fun WaveColor.toRuntimeShader(): RuntimeShader =
     when (this) {
         is WaveColor.Regular -> RuntimeShader(
             """
-                half4 main(vec2 fragCoord) { return half4(${this.color.red}, ${this.color.green}, ${this.color.blue}, 1.0); } 
+                half4 main(vec2 fragCoord) { return half4(${this.color.red}, ${this.color.green}, ${this.color.blue},
+                 ${this.color.alpha}); } 
             """.trimIndent()
         )
 
@@ -407,12 +414,6 @@ internal fun AnimatedWavesPreview() {
                 onValueChange = { progress = it },
                 valueRange = 0f..1f,
                 modifier = Modifier.fillMaxWidth(.6f),
-                thumb = {
-                    Icon(
-                        imageVector = Icons.Rounded.Settings,
-                        contentDescription = "progress thumb icon"
-                    )
-                }
             )
         }
 
@@ -424,12 +425,6 @@ internal fun AnimatedWavesPreview() {
                 onValueChange = { waveHeightPercent = it },
                 valueRange = 0f..0.15f,
                 modifier = Modifier.fillMaxWidth(.6f),
-                thumb = {
-                    Icon(
-                        imageVector = Icons.Rounded.Settings,
-                        contentDescription = "progress thumb icon"
-                    )
-                }
             )
         }
     }
@@ -437,7 +432,7 @@ internal fun AnimatedWavesPreview() {
 
 @Composable
 @Preview
-internal fun AnimatedWavesWithAGSLPreview() {
+fun AnimatedWavesWithAGSLPreview(modifier: Modifier = Modifier) {
     var progress by remember { mutableFloatStateOf(0f) }
     val animatedProgress by animateFloatAsState(progress, label = "progress animation")
     var height by remember { mutableFloatStateOf(0.6f) }
@@ -450,7 +445,7 @@ internal fun AnimatedWavesWithAGSLPreview() {
     val backWaveColor = remember { WaveColor.Shader.Animated(plasmaShader(0.45f)) }
     val frontWaveColor = remember { WaveColor.Shader.Animated(plasmaShader()) }
     Column(
-        modifier = Modifier
+        modifier = modifier
             .padding(16.dp)
             .fillMaxWidth()
             .padding(16.dp),
