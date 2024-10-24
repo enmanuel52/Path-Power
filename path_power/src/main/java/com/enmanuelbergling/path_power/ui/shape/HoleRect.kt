@@ -147,11 +147,11 @@ internal fun Path.getSingleHolePath(
         y2 = holeSizePx * 2 / 4 * deepProgress,
     )
 
-    quadraticBezierTo(
-        x2 = centerX + paddingPx,
-        y2 = (holeSizePx / 2 + paddingPx.times(.8f)) * deepProgress,
+    quadraticTo(
         x1 = centerX,
-        y1 = (holeSizePx / 2 + paddingPx) * deepProgress
+        y1 = (holeSizePx / 2 + paddingPx) * deepProgress,
+        x2 = centerX + paddingPx,
+        y2 = (holeSizePx / 2 + paddingPx.times(.8f)) * deepProgress
     )
 
     cubicTo(

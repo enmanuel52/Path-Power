@@ -46,29 +46,29 @@ private fun getHexagonPath(
     Path().apply {
         moveTo(y = size.height * round, x = size.width * (.5f + round * 2))
 
-        quadraticBezierTo(
-            y1 = 0f,
+        quadraticTo(
             x1 = size.width * .5f,
-            y2 = size.height * round,
-            x2 = size.width * (.5f - round * 2)
+            y1 = 0f,
+            x2 = size.width * (.5f - round * 2),
+            y2 = size.height * round
         )
 
         lineTo(y = size.height * (.25f - round), x = size.width * round)
 
-        quadraticBezierTo(
-            y1 = size.height * .25f,
+        quadraticTo(
             x1 = 0f,
-            y2 = size.height * (.25f + round),
-            x2 = 0f
+            y1 = size.height * .25f,
+            x2 = 0f,
+            y2 = size.height * (.25f + round)
         )
 
         lineTo(y = size.height * (.75f - round), x = 0f)
 
-        quadraticBezierTo(
-            y1 = size.height * .75f,
+        quadraticTo(
             x1 = 0f,
-            y2 = size.height * (.75f + round),
-            x2 = size.width * round
+            y1 = size.height * .75f,
+            x2 = size.width * round,
+            y2 = size.height * (.75f + round)
         )
 
         lineTo(
@@ -76,11 +76,11 @@ private fun getHexagonPath(
             x = size.width * (.5f - round * 2)
         )
 
-        quadraticBezierTo(
-            y1 = size.height,
+        quadraticTo(
             x1 = size.width * .5f,
-            y2 = size.height * (1f - round),
-            x2 = size.width * (.5f + round * 2)
+            y1 = size.height,
+            x2 = size.width * (.5f + round * 2),
+            y2 = size.height * (1f - round)
         )
 
         lineTo(
@@ -88,11 +88,11 @@ private fun getHexagonPath(
             x = size.width * (1f - round)
         )
 
-        quadraticBezierTo(
-            y1 = size.height * .75f,
+        quadraticTo(
             x1 = size.width,
-            y2 = size.height * (.75f - round),
-            x2 = size.width
+            y1 = size.height * .75f,
+            x2 = size.width,
+            y2 = size.height * (.75f - round)
         )
 
         lineTo(
@@ -100,11 +100,11 @@ private fun getHexagonPath(
             x = size.width
         )
 
-        quadraticBezierTo(
-            y1 = size.height * .25f,
+        quadraticTo(
             x1 = size.width,
-            y2 = size.height * (.25f - round),
-            x2 = size.width * (1f - round)
+            y1 = size.height * .25f,
+            x2 = size.width * (1f - round),
+            y2 = size.height * (.25f - round)
         )
 
         close()
