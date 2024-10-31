@@ -2,6 +2,8 @@ package com.enmanuelbergling.path_power.ui.canvas
 
 import android.graphics.RuntimeShader
 import androidx.annotation.FloatRange
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.Spring
@@ -13,8 +15,10 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.withInfiniteAnimationFrameMillis
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,7 +26,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -38,6 +41,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -54,8 +58,8 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.enmanuelbergling.path_power.ui.model.Glass
 import com.enmanuelbergling.path_power.ui.modifiers.wavesShader
-import com.enmanuelbergling.path_power.ui.shaders.plasmaShader
 import com.enmanuelbergling.path_power.ui.shape.Heart
 import com.enmanuelbergling.path_power.util.DarkBlue40
 import kotlinx.coroutines.isActive
@@ -172,7 +176,6 @@ sealed interface WaveColor {
             shader.setFloatUniform("resolution", width, height)
         }
 
-        data class Regular(override val shader: RuntimeShader) : Shader
         data class Animated(override val shader: RuntimeShader) : Shader {
             fun updateTime(time: Float) {
                 shader.setFloatUniform("time", time)
@@ -441,50 +444,64 @@ fun AnimatedWavesWithAGSLPreview(modifier: Modifier = Modifier) {
     val animatedFrequency by animateFloatAsState(frequency, label = "frequency animation")
     var speed by remember { mutableFloatStateOf(0.6f) }
     val animatedSpeed by animateFloatAsState(speed, label = "speed animation")
-    // Remembering shader wave color avoids glitches when progress and other params are updated
-    val backWaveColor = remember { WaveColor.Shader.Animated(plasmaShader(0.45f)) }
-    val frontWaveColor = remember { WaveColor.Shader.Animated(plasmaShader()) }
+    var selectedGlass by remember { mutableStateOf(Glass.SimpleWaterDrop) }
+
     Column(
         modifier = modifier
             .padding(16.dp)
             .fillMaxWidth()
             .padding(16.dp),
         horizontalAlignment = CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        AnimatedWavesIndicator(
-            progress = animatedProgress,
-            modifier = Modifier
-                .size(300.dp, 270.dp)
-                .clip(Heart)
-                .border(4.dp, MaterialTheme.colorScheme.surfaceVariant, Heart),
-            color = MaterialTheme.colorScheme.primary,
-            waveForce = WaveForce.AGSLBased.Custom(
-                frequency = animatedFrequency,
-                speed = animatedSpeed,
-                height = animatedHeight,
-                backWaveColor = backWaveColor,
-                frontWaveColor = frontWaveColor,
+        AnimatedContent(selectedGlass, transitionSpec = {
+            slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Up) togetherWith
+                    slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Up)
+        }, label = "glasses animation") { glass ->
+            // Remembering shader wave color avoids glitches when progress and other params are updated
+            val backWaveColor = remember { glass.backWaveColor }
+            val frontWaveColor = remember { glass.frontWaveColor }
+
+            AnimatedWavesIndicator(
+                progress = animatedProgress,
+                modifier = Modifier
+                    .size(300.dp, 270.dp)
+                    .clip(glass.shape)
+                    .border(1.dp, MaterialTheme.colorScheme.surfaceVariant, glass.shape)
+                    .clickable {
+                        val glasses = Glass.entries
+                        val index = glasses.indexOf(selectedGlass)
+                        val newGlass = if (index == glasses.lastIndex) Glass.entries.first()
+                        else Glass.entries[index + 1]
+
+                        selectedGlass = newGlass
+                    },
+                color = MaterialTheme.colorScheme.primary,
+                waveForce = WaveForce.AGSLBased.Custom(
+                    frequency = animatedFrequency,
+                    speed = animatedSpeed,
+                    height = animatedHeight,
+                    backWaveColor = backWaveColor,
+                    frontWaveColor = frontWaveColor,
+                )
             )
-        )
-        Spacer(modifier = Modifier.height(16.dp))
+        }
+
         Slider(
             value = progress,
             onValueChange = { newValue -> progress = newValue },
             valueRange = 0f..1f
         )
-        Spacer(modifier = Modifier.height(16.dp))
         Slider(
             value = height,
             onValueChange = { newValue -> height = newValue },
             valueRange = 0.1f..4.0f
         )
-        Spacer(modifier = Modifier.height(16.dp))
         Slider(
             value = frequency,
             onValueChange = { newValue -> frequency = newValue },
             valueRange = 0.1f..4.0f
         )
-        Spacer(modifier = Modifier.height(16.dp))
         Slider(
             value = speed,
             onValueChange = { newValue -> speed = newValue },

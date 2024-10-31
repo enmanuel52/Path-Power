@@ -24,7 +24,6 @@ private val shader = """
 
 fun plasmaShader(
     dimmer: Float = 1f,
-): RuntimeShader =
-    RuntimeShader(shader).apply {
-        setFloatUniform("dimmer", dimmer)
-    }
+) = RuntimeShader(shader).apply {
+    setFloatUniform("dimmer", dimmer)
+}
