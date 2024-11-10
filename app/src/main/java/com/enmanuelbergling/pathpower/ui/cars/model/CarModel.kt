@@ -18,7 +18,7 @@ data class CarModel(
     val color: Int,
 ) {
     val key:Any
-        get() = imageResource
+        get() = "$name, $color"
 
     fun getLabeledFields() = listOf(
         HexagonField.LabeledField("Velocity", velocity),
