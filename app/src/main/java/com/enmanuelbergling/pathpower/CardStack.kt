@@ -20,11 +20,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -41,7 +42,6 @@ import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.util.lerp
@@ -50,7 +50,6 @@ import com.enmanuelbergling.pathpower.ui.cars.model.CARS
 import com.enmanuelbergling.pathpower.ui.cars.model.CarModel
 
 @OptIn(ExperimentalSharedTransitionApi::class)
-@Preview
 @Composable
 fun SharedTransitionScope.CardStack(modifier: Modifier = Modifier) {
     val state = rememberLazyListState()
@@ -63,7 +62,7 @@ fun SharedTransitionScope.CardStack(modifier: Modifier = Modifier) {
         mutableStateOf<CarModel?>(null)
     }
 
-    Column {
+    Column(modifier) {
         AnimatedVisibility(
             visible = selectedCar != null,
             modifier = Modifier.weight(.4f)
@@ -78,8 +77,6 @@ fun SharedTransitionScope.CardStack(modifier: Modifier = Modifier) {
                 }
             }
         }
-
-        val verticalPadding = 12.dp
 
         AnimatedContent(
             targetState = selectedCar != null,
@@ -96,8 +93,8 @@ fun SharedTransitionScope.CardStack(modifier: Modifier = Modifier) {
             } else {
                 LazyColumn(
                     state = state,
-                    contentPadding = PaddingValues(horizontal = 6.dp, vertical = verticalPadding),
-                    verticalArrangement = Arrangement.spacedBy((-142).dp),
+                    contentPadding = PaddingValues(bottom = 36.dp, start = 6.dp, end = 6.dp),
+                    verticalArrangement = Arrangement.spacedBy((-150).dp),
                     modifier = Modifier.fillMaxSize(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
@@ -116,35 +113,52 @@ fun SharedTransitionScope.CardStack(modifier: Modifier = Modifier) {
 
                         val transition = updateTransition(fraction, "fraction transition")
 
-                        //to slightly increase rotation in the last ones
+                        val fartherSection = .4f
+
                         val animatedRotation by transition.animateFloat(
                             label = "rotation animation",
                             transitionSpec = { tween(50, easing = LinearEasing) },
                         ) { value ->
-                            if (value <= .65) lerp(0f, 40f, value)
-                            else lerp(0f, 80f, value)
+                            //to slightly increase rotation in the last ones
+                            if (value <= fartherSection) {
+                                val newFraction = value / fartherSection
+                                lerp(0f, 10f, newFraction)
+                            } else {
+                                val newFraction = (value - fartherSection) / (1f - fartherSection)
+                                lerp(10f, 80f, newFraction)
+                            }
+                        }
+
+                        val animatedScale by transition.animateFloat(label = "") { value ->
+                            if (value <= fartherSection) {
+                                val newFraction = value / fartherSection
+                                lerp(.8f, 1.2f, newFraction)
+                            } else 1.2f
                         }
 
                         val topPadding by transition.animateDp(label = "y translation") { value ->
-                            if (value >= .7f) 80.dp * value else 60.dp * value
+                            if (value <= fartherSection) 0.dp else {
+                                val newFraction = (value - fartherSection) / (1f - fartherSection)
+                                androidx.compose.ui.unit.lerp(0.dp, 80.dp, newFraction)
+                            }
                         }
 
-                        Column {
-                            Spacer(Modifier.height(topPadding))
+                        CarCard(
+                            carModel = car,
+                            modifier = Modifier
+                                .fillMaxWidth(.8f)
+                                .padding(top = topPadding)
+                                .height(180.dp)
+                                .graphicsLayer {
+                                    transformOrigin = TransformOrigin(.5f, .35f)
 
-                            CarCard(
-                                carModel = car,
-                                modifier = Modifier
-                                    .fillMaxWidth(.75f)
-                                    .heightIn(180.dp)
-                                    .graphicsLayer {
-                                        transformOrigin = TransformOrigin(.5f, .45f)
+                                    rotationX = -animatedRotation
 
-                                        rotationX = -animatedRotation
-                                    },
-                                animatedVisibilityScope = this@AnimatedContent
-                            ) { selectedCar = car }
-                        }
+                                    scaleX = animatedScale
+                                    scaleY = animatedScale
+                                },
+                            animatedVisibilityScope = this@AnimatedContent
+                        ) { selectedCar = car }
                     }
                 }
             }
@@ -161,7 +175,7 @@ fun SharedTransitionScope.CarCard(
     animatedVisibilityScope: AnimatedVisibilityScope,
     onClick: () -> Unit,
 ) {
-    ElevatedCard(onClick, modifier = modifier.sharedElement(
+    ElevatedCard(onClick, shape = RoundedCornerShape(4), modifier = modifier.sharedElement(
         state = rememberSharedContentState(key = carModel.key),
         animatedVisibilityScope = animatedVisibilityScope,
         boundsTransform = { _, _ ->
@@ -194,7 +208,7 @@ fun CarCard(
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
 ) {
-    ElevatedCard(onClick, modifier = modifier) {
+    ElevatedCard(onClick, shape = RoundedCornerShape(4), modifier = modifier) {
         Text(
             carModel.name,
             style = MaterialTheme.typography.bodyLarge,
