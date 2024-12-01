@@ -6,7 +6,10 @@ import com.enmanuelbergling.pathpower.R
 data class Wallpaper(
     @DrawableRes val image: Int,
     val label: String,
-)
+){
+    val key:String
+        get() = label
+}
 
 val WALLPAPERS = listOf(
     Wallpaper(

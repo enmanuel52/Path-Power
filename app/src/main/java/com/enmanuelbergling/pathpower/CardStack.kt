@@ -16,19 +16,15 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -47,7 +43,9 @@ import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.util.lerp
 import coil.compose.AsyncImage
 import com.enmanuelbergling.pathpower.ui.cars.model.CARS
-import com.enmanuelbergling.pathpower.ui.cars.model.CarModel
+import com.enmanuelbergling.pathpower.ui.wallpaper.WALLPAPERS
+import com.enmanuelbergling.pathpower.ui.wallpaper.Wallpaper
+import androidx.compose.ui.unit.lerp as dpLerp
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
@@ -58,28 +56,28 @@ fun SharedTransitionScope.CardStack(modifier: Modifier = Modifier) {
         mutableStateOf(Size.Zero)
     }
 
-    var selectedCar by remember {
-        mutableStateOf<CarModel?>(null)
+    var selectedWallpaper by remember {
+        mutableStateOf<Wallpaper?>(null)
     }
 
     Column(modifier) {
         AnimatedVisibility(
-            visible = selectedCar != null,
+            visible = selectedWallpaper != null,
             modifier = Modifier.weight(.4f)
         ) {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                selectedCar?.let { model ->
-                    CarCard(
-                        carModel = model,
+                selectedWallpaper?.let { model ->
+                    WallCard(
+                        model = model,
                         modifier = Modifier.size(300.dp, height = 180.dp),
                         animatedVisibilityScope = this@AnimatedVisibility,
-                    ) { selectedCar = null }
+                    ) { selectedWallpaper = null }
                 }
             }
         }
 
         AnimatedContent(
-            targetState = selectedCar != null,
+            targetState = selectedWallpaper != null,
             modifier = Modifier
                 .weight(.6f)
                 .fillMaxWidth()
@@ -89,7 +87,7 @@ fun SharedTransitionScope.CardStack(modifier: Modifier = Modifier) {
             label = "stack content switch",
         ) { selected ->
             if (selected) {
-                selectedCar?.let { CardHeap(it, Modifier.fillMaxSize()) }
+                selectedWallpaper?.let { WallHeap(it, Modifier.fillMaxSize()) }
             } else {
                 LazyColumn(
                     state = state,
@@ -99,7 +97,7 @@ fun SharedTransitionScope.CardStack(modifier: Modifier = Modifier) {
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
 
-                    items(CARS, key = { it.key }) { car ->
+                    items(WALLPAPERS, key = { it.key }) { car ->
                         val fraction by remember {
                             derivedStateOf {
                                 val itemInfo = state.layoutInfo.visibleItemsInfo.find { it.key == car.key }
@@ -139,15 +137,14 @@ fun SharedTransitionScope.CardStack(modifier: Modifier = Modifier) {
                         val topPadding by transition.animateDp(label = "y translation") { value ->
                             if (value <= fartherSection) 0.dp else {
                                 val newFraction = (value - fartherSection) / (1f - fartherSection)
-                                androidx.compose.ui.unit.lerp(0.dp, 80.dp, newFraction)
+                                dpLerp(0.dp, 80.dp, newFraction)
                             }
                         }
 
-                        CarCard(
-                            carModel = car,
+                        WallCard(
+                            model = car,
                             modifier = Modifier
                                 .fillMaxWidth(.8f)
-                                .padding(top = topPadding)
                                 .height(180.dp)
                                 .graphicsLayer {
                                     transformOrigin = TransformOrigin(.5f, .35f)
@@ -158,7 +155,7 @@ fun SharedTransitionScope.CardStack(modifier: Modifier = Modifier) {
                                     scaleY = animatedScale
                                 },
                             animatedVisibilityScope = this@AnimatedContent
-                        ) { selectedCar = car }
+                        ) { selectedWallpaper = car }
                     }
                 }
             }
@@ -169,14 +166,14 @@ fun SharedTransitionScope.CardStack(modifier: Modifier = Modifier) {
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun SharedTransitionScope.CarCard(
-    carModel: CarModel,
+fun SharedTransitionScope.WallCard(
+    model: Wallpaper,
     modifier: Modifier = Modifier,
     animatedVisibilityScope: AnimatedVisibilityScope,
     onClick: () -> Unit,
 ) {
     ElevatedCard(onClick, shape = RoundedCornerShape(4), modifier = modifier.sharedElement(
-        state = rememberSharedContentState(key = carModel.key),
+        state = rememberSharedContentState(key = model.key),
         animatedVisibilityScope = animatedVisibilityScope,
         boundsTransform = { _, _ ->
             spring(
@@ -185,59 +182,43 @@ fun SharedTransitionScope.CarCard(
             )
         }
     )) {
-        Text(
-            carModel.name,
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.align(Alignment.CenterHorizontally)
-        )
-
-        Spacer(Modifier.height(6.dp))
-
         AsyncImage(
-            carModel.imageResource,
+            model.image,
             contentDescription = "car image",
-            contentScale = ContentScale.Fit,
+            contentScale = ContentScale.FillWidth,
             modifier = Modifier.align(Alignment.CenterHorizontally)
         )
     }
 }
 
 @Composable
-fun CarCard(
-    carModel: CarModel,
+fun WallCard(
+    model: Wallpaper,
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
 ) {
     ElevatedCard(onClick, shape = RoundedCornerShape(4), modifier = modifier) {
-        Text(
-            carModel.name,
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.align(Alignment.CenterHorizontally)
-        )
-
-        Spacer(Modifier.height(6.dp))
-
         AsyncImage(
-            carModel.imageResource,
-            contentDescription = "car image",
-            contentScale = ContentScale.Fit,
+            model.image,
+            contentDescription = "wallpaper image",
+            contentScale = ContentScale.FillBounds,
             modifier = Modifier.align(Alignment.CenterHorizontally)
         )
     }
 }
 
 @Composable
-fun CardHeap(selected: CarModel, modifier: Modifier = Modifier) {
+fun WallHeap(selected: Wallpaper, modifier: Modifier = Modifier) {
 
     Column(
         verticalArrangement = Arrangement.spacedBy((-165).dp),
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        CARS.filterNot { it == selected }.forEachIndexed { index, it ->
+        WALLPAPERS.filterNot { it == selected }.forEachIndexed { index, it ->
             val fraction = remember { (index + 1) / CARS.size.toFloat() - 1f }
             val scale = remember { lerp(1f, 1.1f, fraction) }
-            CarCard(it,
+            WallCard(it,
                 Modifier
                     .fillMaxWidth(.8f)
                     .graphicsLayer {
