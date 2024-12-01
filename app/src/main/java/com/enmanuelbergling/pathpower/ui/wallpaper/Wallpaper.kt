@@ -33,12 +33,12 @@ val WALLPAPERS = listOf(
         "Black cat"
     ),
     Wallpaper(
-        R.drawable.bunny1,
-        "A really bad bunny :)"
+        R.drawable._626_tears,
+        "626 crying"
     ),
     Wallpaper(
-        R.drawable.cat_gossiping,
-        "Gossiping"
+        R.drawable.bob1,
+        "Bob"
     ),
     Wallpaper(
         R.drawable.deadpool,
@@ -49,31 +49,51 @@ val WALLPAPERS = listOf(
         "Dizzy cat"
     ),
     Wallpaper(
-        R.drawable.groot_making_friends,
-        "You know who i am"
+        R.drawable.eric,
+        "Eric"
     ),
     Wallpaper(
-        R.drawable.lakers,
-        "Lakers"
+        R.drawable.feelings,
+        "Feelings"
     ),
     Wallpaper(
-        R.drawable.night,
-        "Night"
+        R.drawable.freddy,
+        "Freddy"
     ),
     Wallpaper(
         R.drawable.peter,
         "Peter"
     ),
     Wallpaper(
-        R.drawable.planets,
-        "Planets"
+        R.drawable.futurama,
+        "Futurama"
     ),
     Wallpaper(
-        R.drawable.some_cats,
-        "Some cats"
+        R.drawable.garfield,
+        "Garfield"
     ),
     Wallpaper(
         R.drawable.tom,
         "Tom"
+    ),
+    Wallpaper(
+        R.drawable.homero,
+        "Homero"
+    ),
+    Wallpaper(
+        R.drawable.packman,
+        "Packman"
+    ),
+    Wallpaper(
+        R.drawable.patric2,
+        "Patricio"
+    ),
+    Wallpaper(
+        R.drawable.walter,
+        "Walter"
+    ),
+    Wallpaper(
+        R.drawable.no_idea,
+        "No idea"
     ),
 )

@@ -16,10 +16,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -69,7 +69,7 @@ fun SharedTransitionScope.CardStack(modifier: Modifier = Modifier) {
                 selectedWallpaper?.let { model ->
                     WallCard(
                         model = model,
-                        modifier = Modifier.size(300.dp, height = 180.dp),
+                        modifier = Modifier.height(240.dp),
                         animatedVisibilityScope = this@AnimatedVisibility,
                     ) { selectedWallpaper = null }
                 }
@@ -89,10 +89,13 @@ fun SharedTransitionScope.CardStack(modifier: Modifier = Modifier) {
             if (selected) {
                 selectedWallpaper?.let { WallHeap(it, Modifier.fillMaxSize()) }
             } else {
+                val itemHeight = 180.dp
+                val maxPaddingItem = 80.dp
+
                 LazyColumn(
                     state = state,
-                    contentPadding = PaddingValues(bottom = 36.dp, start = 6.dp, end = 6.dp),
-                    verticalArrangement = Arrangement.spacedBy((-150).dp),
+                    contentPadding = PaddingValues(bottom = 36.dp, start = 16.dp, end = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(-itemHeight),
                     modifier = Modifier.fillMaxSize(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
@@ -137,25 +140,32 @@ fun SharedTransitionScope.CardStack(modifier: Modifier = Modifier) {
                         val topPadding by transition.animateDp(label = "y translation") { value ->
                             if (value <= fartherSection) 0.dp else {
                                 val newFraction = (value - fartherSection) / (1f - fartherSection)
-                                dpLerp(0.dp, 80.dp, newFraction)
+                                dpLerp(0.dp, maxPaddingItem, newFraction)
                             }
                         }
 
-                        WallCard(
-                            model = car,
-                            modifier = Modifier
-                                .fillMaxWidth(.8f)
-                                .height(180.dp)
-                                .graphicsLayer {
-                                    transformOrigin = TransformOrigin(.5f, .35f)
+                        Column(
+                            Modifier.height(maxPaddingItem + itemHeight)
+                        ) {
+                            WallCard(
+                                model = car,
+                                modifier = Modifier
+                                    .height(itemHeight)
+                                    .graphicsLayer {
+                                        translationY = topPadding.toPx()
+                                    }
+                                    .graphicsLayer {
+                                        transformOrigin = TransformOrigin(.5f, .35f)
 
-                                    rotationX = -animatedRotation
+                                        rotationX = -animatedRotation
 
-                                    scaleX = animatedScale
-                                    scaleY = animatedScale
-                                },
-                            animatedVisibilityScope = this@AnimatedContent
-                        ) { selectedWallpaper = car }
+                                        scaleX = animatedScale
+                                        scaleY = animatedScale
+                                    },
+                                animatedVisibilityScope = this@AnimatedContent
+                            ) { selectedWallpaper = car }
+
+                        }
                     }
                 }
             }
@@ -172,21 +182,23 @@ fun SharedTransitionScope.WallCard(
     animatedVisibilityScope: AnimatedVisibilityScope,
     onClick: () -> Unit,
 ) {
-    ElevatedCard(onClick, shape = RoundedCornerShape(4), modifier = modifier.sharedElement(
-        state = rememberSharedContentState(key = model.key),
-        animatedVisibilityScope = animatedVisibilityScope,
-        boundsTransform = { _, _ ->
-            spring(
-                Spring.DampingRatioLowBouncy,
-                Spring.StiffnessLow
-            )
-        }
-    )) {
+    ElevatedCard(onClick, shape = RoundedCornerShape(4), modifier = modifier
+        .aspectRatio(7f / 5f)
+        .sharedElement(
+            state = rememberSharedContentState(key = model.key),
+            animatedVisibilityScope = animatedVisibilityScope,
+            boundsTransform = { _, _ ->
+                spring(
+                    Spring.DampingRatioLowBouncy,
+                    Spring.StiffnessLow
+                )
+            }
+        )) {
         AsyncImage(
             model.image,
             contentDescription = "car image",
-            contentScale = ContentScale.FillWidth,
-            modifier = Modifier.align(Alignment.CenterHorizontally)
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize()
         )
     }
 }
@@ -197,12 +209,15 @@ fun WallCard(
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
 ) {
-    ElevatedCard(onClick, shape = RoundedCornerShape(4), modifier = modifier) {
+    ElevatedCard(
+        onClick, shape = RoundedCornerShape(4), modifier =
+        modifier.aspectRatio(7f / 5f)
+    ) {
         AsyncImage(
             model.image,
             contentDescription = "wallpaper image",
-            contentScale = ContentScale.FillBounds,
-            modifier = Modifier.align(Alignment.CenterHorizontally)
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize()
         )
     }
 }
@@ -211,7 +226,7 @@ fun WallCard(
 fun WallHeap(selected: Wallpaper, modifier: Modifier = Modifier) {
 
     Column(
-        verticalArrangement = Arrangement.spacedBy((-165).dp),
+        verticalArrangement = Arrangement.spacedBy((-175).dp),
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -220,7 +235,7 @@ fun WallHeap(selected: Wallpaper, modifier: Modifier = Modifier) {
             val scale = remember { lerp(1f, 1.1f, fraction) }
             WallCard(it,
                 Modifier
-                    .fillMaxWidth(.8f)
+                    .height(200.dp)
                     .graphicsLayer {
                         scaleX = scale
                         scaleY = scale
