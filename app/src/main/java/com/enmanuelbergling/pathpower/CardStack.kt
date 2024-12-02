@@ -43,13 +43,13 @@ import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.util.lerp
 import coil.compose.AsyncImage
 import com.enmanuelbergling.pathpower.ui.cars.model.CARS
-import com.enmanuelbergling.pathpower.ui.wallpaper.WALLPAPERS
 import com.enmanuelbergling.pathpower.ui.wallpaper.Wallpaper
-import androidx.compose.ui.unit.lerp as dpLerp
+import kotlin.math.absoluteValue
+import androidx.compose.ui.unit.lerp as dpInterpolation
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun SharedTransitionScope.CardStack(modifier: Modifier = Modifier) {
+fun SharedTransitionScope.CardStack(list: List<Wallpaper>, modifier: Modifier = Modifier) {
     val state = rememberLazyListState()
 
     var listSize by remember {
@@ -87,34 +87,34 @@ fun SharedTransitionScope.CardStack(modifier: Modifier = Modifier) {
             label = "stack content switch",
         ) { selected ->
             if (selected) {
-                selectedWallpaper?.let { WallHeap(it, Modifier.fillMaxSize()) }
+                selectedWallpaper?.let { WallHeap(it, list, Modifier.fillMaxSize()) }
             } else {
                 val itemHeight = 180.dp
                 val maxPaddingItem = 80.dp
 
                 LazyColumn(
                     state = state,
-                    contentPadding = PaddingValues(bottom = 36.dp, start = 16.dp, end = 16.dp),
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 6.dp),
                     verticalArrangement = Arrangement.spacedBy(-itemHeight),
                     modifier = Modifier.fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
 
-                    items(WALLPAPERS, key = { it.key }) { car ->
+                    items(list, key = { it.key }) { wallpaper ->
                         val fraction by remember {
                             derivedStateOf {
-                                val itemInfo = state.layoutInfo.visibleItemsInfo.find { it.key == car.key }
+                                val itemInfo = state.layoutInfo.visibleItemsInfo.find { it.key == wallpaper.key }
                                 val result = itemInfo?.let {
                                     it.offset / listSize.height
                                 } ?: 0f
 
-                                result.coerceIn(0f, 1f)
+                                result.coerceAtMost(1f)
                             }
                         }
 
                         val transition = updateTransition(fraction, "fraction transition")
 
-                        val fartherSection = .4f
+                        val fartherSection = .3f
 
                         val animatedRotation by transition.animateFloat(
                             label = "rotation animation",
@@ -122,7 +122,7 @@ fun SharedTransitionScope.CardStack(modifier: Modifier = Modifier) {
                         ) { value ->
                             //to slightly increase rotation in the last ones
                             if (value <= fartherSection) {
-                                val newFraction = value / fartherSection
+                                val newFraction = value.coerceAtLeast(0f) / fartherSection
                                 lerp(0f, 10f, newFraction)
                             } else {
                                 val newFraction = (value - fartherSection) / (1f - fartherSection)
@@ -133,22 +133,37 @@ fun SharedTransitionScope.CardStack(modifier: Modifier = Modifier) {
                         val animatedScale by transition.animateFloat(label = "") { value ->
                             if (value <= fartherSection) {
                                 val newFraction = value / fartherSection
-                                lerp(.8f, 1.2f, newFraction)
+                                lerp(.85f, 1.2f, newFraction)
                             } else 1.2f
                         }
 
-                        val topPadding by transition.animateDp(label = "y translation") { value ->
-                            if (value <= fartherSection) 0.dp else {
+                        val topPadding by transition.animateDp(
+                            label = "y translation",
+                            transitionSpec = { tween(50, easing = LinearEasing) },
+                        ) { value ->
+                            if (value < 0f) {
+                                val maxValue = .35f
+                                val newFraction = value.absoluteValue / maxValue
+                                dpInterpolation(
+                                    start = maxPaddingItem,
+                                    stop = maxPaddingItem.times(3.7f),
+                                    fraction = newFraction
+                                )
+                            } else if (value <= fartherSection) {
+                                val newFraction = value / fartherSection
+                                dpInterpolation(maxPaddingItem, 0.dp, newFraction)
+                            } else {
                                 val newFraction = (value - fartherSection) / (1f - fartherSection)
-                                dpLerp(0.dp, maxPaddingItem, newFraction)
+                                dpInterpolation(0.dp, maxPaddingItem, newFraction)
                             }
                         }
 
                         Column(
-                            Modifier.height(maxPaddingItem + itemHeight)
+                            modifier = Modifier
+                                .height(maxPaddingItem + itemHeight)
                         ) {
                             WallCard(
-                                model = car,
+                                model = wallpaper,
                                 modifier = Modifier
                                     .height(itemHeight)
                                     .graphicsLayer {
@@ -163,7 +178,7 @@ fun SharedTransitionScope.CardStack(modifier: Modifier = Modifier) {
                                         scaleY = animatedScale
                                     },
                                 animatedVisibilityScope = this@AnimatedContent
-                            ) { selectedWallpaper = car }
+                            ) { selectedWallpaper = wallpaper }
 
                         }
                     }
@@ -210,8 +225,8 @@ fun WallCard(
     onClick: () -> Unit,
 ) {
     ElevatedCard(
-        onClick, shape = RoundedCornerShape(4), modifier =
-        modifier.aspectRatio(7f / 5f)
+        onClick, shape = RoundedCornerShape(4),
+        modifier = modifier.aspectRatio(7f / 5f)
     ) {
         AsyncImage(
             model.image,
@@ -223,14 +238,14 @@ fun WallCard(
 }
 
 @Composable
-fun WallHeap(selected: Wallpaper, modifier: Modifier = Modifier) {
+fun WallHeap(selected: Wallpaper, list: List<Wallpaper>, modifier: Modifier = Modifier) {
 
     Column(
         verticalArrangement = Arrangement.spacedBy((-175).dp),
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        WALLPAPERS.filterNot { it == selected }.forEachIndexed { index, it ->
+        list.filterNot { it == selected }.forEachIndexed { index, it ->
             val fraction = remember { (index + 1) / CARS.size.toFloat() - 1f }
             val scale = remember { lerp(1f, 1.1f, fraction) }
             WallCard(it,

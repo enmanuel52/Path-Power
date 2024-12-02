@@ -35,6 +35,7 @@ import com.enmanuelbergling.path_power.ui.bottom_bar.JumpingItem
 import com.enmanuelbergling.path_power.ui.list.BasicBeehiveExample
 import com.enmanuelbergling.pathpower.ui.cars.navigation.CarsNavHost
 import com.enmanuelbergling.pathpower.ui.theme.PathPowerTheme
+import com.enmanuelbergling.pathpower.ui.wallpaper.WALLPAPERS
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalSharedTransitionApi::class)
@@ -49,12 +50,17 @@ class MainActivity : ComponentActivity() {
                 ) {
                     Scaffold(
                         bottomBar = {
-                            JumpBottomBarSample()
-                        }
+//                            JumpBottomBarSample()
+                        },
                     ) { paddingValues ->
 //                        AnimatedWavesWithAGSLPreview(Modifier.padding(paddingValues))
                         SharedTransitionLayout {
-                            CardStack(Modifier.padding(paddingValues))
+                            CardStack(
+                                list = WALLPAPERS,
+                                modifier = Modifier
+                                    .padding(paddingValues)
+                                    .fillMaxSize()
+                            )
                         }
                     }
                 }

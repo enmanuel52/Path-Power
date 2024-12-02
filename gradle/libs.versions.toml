@@ -9,6 +9,7 @@ org-jetbrains-kotlin-android = "2.0.0"
 agp = "8.7.1"
 androidComposeBom = "2024.10.00"
 pathPower = "0.0.3"
+material-icons-extended = "1.6.7"
 
 [libraries]
 androidx-activity-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activity" }
@@ -20,6 +21,7 @@ androidx-compose-ui-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-jun
 androidx-compose-ui-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
 androidx-compose-ui-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
 androidx-compose-ui-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
+androidx-compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "material-icons-extended" }
 androidx-constraintlayout-constraintlayout-compose = "androidx.constraintlayout:constraintlayout-compose:1.0.1"
 androidx-core-core-ktx = { module = "androidx.core:core-ktx", version.ref = "androidx-core" }
 androidx-core-core-splashscreen = "androidx.core:core-splashscreen:1.0.1"
