@@ -7,12 +7,10 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
-import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
@@ -55,6 +53,7 @@ import androidx.compose.ui.unit.lerp as dpInterpolation
 
 val itemHeight = 180.dp
 val maxPaddingItem = 80.dp
+const val fartherSection = .35f
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
@@ -126,55 +125,50 @@ fun SharedTransitionScope.CardStack(list: List<Wallpaper>, modifier: Modifier = 
 
                         val transition = updateTransition(fraction, "fraction transition")
 
-                        val fartherSection = .35f
-
                         val animatedRotation by transition.animateFloat(
                             label = "rotation animation",
-                            transitionSpec = { tween(10, easing = LinearEasing) },
                         ) { value ->
                             //to slightly increase rotation in the last ones
                             if (value <= fartherSection) {
                                 val newFraction = value.coerceAtLeast(0f) / fartherSection
-                                lerp(0f, 8f, newFraction)
+                                lerp(0f, 12f, newFraction)
                             } else {
                                 val newFraction = (value - fartherSection) / (1f - fartherSection)
-                                lerp(8f, 40f, newFraction)
+                                lerp(12f, 55f, newFraction)
                             }
                         }
 
                         val animatedScale by transition.animateFloat(
                             label = "",
-                            transitionSpec = { tween(10, easing = LinearEasing) },
                         ) { value ->
                             if (value < 0) {
                                 val maxValue = .35f
                                 val newFraction = value.absoluteValue / maxValue
-                                lerp(.75f, .6f, newFraction)
+                                lerp(.85f, .55f, newFraction)
                             } else if (value <= fartherSection) {
                                 val newFraction = value / fartherSection
-                                lerp(.75f, 1.25f, newFraction)
+                                lerp(.85f, 1.4f, newFraction)
                             } else {
                                 val newFraction = (value - fartherSection) / (1f - fartherSection)
-                                lerp(1.25f, 1.5f, newFraction)
+                                lerp(1.4f, 1.55f, newFraction)
                             }
                         }
 
                         val topPadding by transition.animateDp(
                             label = "y translation",
-                            transitionSpec = { tween(10, easing = LinearEasing) },
                         ) { value ->
                             if (value < 0f) {
                                 val maxValue = .35f
                                 val newFraction = value.absoluteValue / maxValue
                                 dpInterpolation(
-                                    start = maxPaddingItem.times(1.3f),
-                                    stop = maxPaddingItem.times(3.7f),
+                                    start = maxPaddingItem,
+                                    stop = maxPaddingItem.times(3.9f),
                                     fraction = newFraction
                                 )
                             } else if (value <= fartherSection) {
                                 val newFraction = value / fartherSection
                                 dpInterpolation(
-                                    maxPaddingItem.times(1.3f), 0.dp, newFraction
+                                    maxPaddingItem, 0.dp, newFraction
                                 )
                             } else {
                                 val newFraction = (value - fartherSection) / (1f - fartherSection)
