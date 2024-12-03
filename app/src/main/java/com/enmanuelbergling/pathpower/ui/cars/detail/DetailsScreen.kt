@@ -101,7 +101,7 @@ fun AnimatedContentScope.DetailsScreen(
 
                     HexCarImageUi(
                         image = field.image, modifier = with(sharedTransitionScope) {
-                            Modifier.sharedElement(rememberSharedContentState(key = carModel.imageResource),
+                            Modifier.sharedElement(rememberSharedContentState(key = carModel.key),
                                 this@DetailsScreen,
                                 boundsTransform = { _, _ ->
                                     spring(

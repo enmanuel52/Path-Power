@@ -5,6 +5,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -30,12 +32,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.enmanuelbergling.path_power.ui.bottom_bar.JumpingBottomBar
 import com.enmanuelbergling.path_power.ui.bottom_bar.JumpingItem
-import com.enmanuelbergling.path_power.ui.canvas.AnimatedWavesWithAGSLPreview
 import com.enmanuelbergling.path_power.ui.list.BasicBeehiveExample
 import com.enmanuelbergling.pathpower.ui.cars.navigation.CarsNavHost
 import com.enmanuelbergling.pathpower.ui.theme.PathPowerTheme
+import com.enmanuelbergling.pathpower.ui.wallpaper.WALLPAPERS
 
 class MainActivity : ComponentActivity() {
+    @OptIn(ExperimentalSharedTransitionApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -47,10 +50,18 @@ class MainActivity : ComponentActivity() {
                 ) {
                     Scaffold(
                         bottomBar = {
-                            JumpBottomBarSample()
-                        }
+//                            JumpBottomBarSample()
+                        },
                     ) { paddingValues ->
-                        AnimatedWavesWithAGSLPreview(Modifier.padding(paddingValues))
+//                        AnimatedWavesWithAGSLPreview(Modifier.padding(paddingValues))
+                        SharedTransitionLayout {
+                            CardStack(
+                                list = WALLPAPERS,
+                                modifier = Modifier
+                                    .padding(paddingValues)
+                                    .fillMaxSize()
+                            )
+                        }
                     }
                 }
             }

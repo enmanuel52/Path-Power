@@ -17,6 +17,9 @@ data class CarModel(
     @IntRange(0, 10) val cranky: Int,
     val color: Int,
 ) {
+    val key:Any
+        get() = "$name, $color"
+
     fun getLabeledFields() = listOf(
         HexagonField.LabeledField("Velocity", velocity),
         HexagonField.LabeledField("Kindness", kindness),

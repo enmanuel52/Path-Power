@@ -79,7 +79,7 @@ private fun AnimatedContentScope.CarsBeeGrid(
                 .fillMaxSize()
                     then with(sharedTransitionScope) {
                 Modifier.sharedElement(
-                    state = rememberSharedContentState(key = carModel.imageResource),
+                    state = rememberSharedContentState(key = carModel.key),
                     animatedVisibilityScope = this@CarsBeeGrid,
                     boundsTransform = { _, _ ->
                         spring(
