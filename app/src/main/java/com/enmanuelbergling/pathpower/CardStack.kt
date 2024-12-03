@@ -126,7 +126,7 @@ fun SharedTransitionScope.CardStack(list: List<Wallpaper>, modifier: Modifier = 
 
                         val transition = updateTransition(fraction, "fraction transition")
 
-                        val fartherSection = .3f
+                        val fartherSection = .4f
 
                         val animatedRotation by transition.animateFloat(
                             label = "rotation animation",
@@ -135,10 +135,10 @@ fun SharedTransitionScope.CardStack(list: List<Wallpaper>, modifier: Modifier = 
                             //to slightly increase rotation in the last ones
                             if (value <= fartherSection) {
                                 val newFraction = value.coerceAtLeast(0f) / fartherSection
-                                lerp(0f, 10f, newFraction)
+                                lerp(0f, 15f, newFraction)
                             } else {
                                 val newFraction = (value - fartherSection) / (1f - fartherSection)
-                                lerp(10f, 80f, newFraction)
+                                lerp(15f, 65f, newFraction)
                             }
                         }
 
@@ -149,11 +149,14 @@ fun SharedTransitionScope.CardStack(list: List<Wallpaper>, modifier: Modifier = 
                             if (value < 0) {
                                 val maxValue = .35f
                                 val newFraction = value.absoluteValue / maxValue
-                                lerp(.85f, .7f, newFraction)
+                                lerp(.75f, .6f, newFraction)
                             } else if (value <= fartherSection) {
                                 val newFraction = value / fartherSection
-                                lerp(.85f, 1.2f, newFraction)
-                            } else 1.2f
+                                lerp(.75f, 1.25f, newFraction)
+                            } else {
+                                val newFraction = (value - fartherSection) / (1f - fartherSection)
+                                lerp(1.25f, 1.5f, newFraction)
+                            }
                         }
 
                         val topPadding by transition.animateDp(
@@ -170,39 +173,38 @@ fun SharedTransitionScope.CardStack(list: List<Wallpaper>, modifier: Modifier = 
                                 )
                             } else if (value <= fartherSection) {
                                 val newFraction = value / fartherSection
-                                dpInterpolation(maxPaddingItem, 0.dp, newFraction)
+                                dpInterpolation(
+                                    maxPaddingItem, maxPaddingItem.times(.1f), newFraction
+                                )
                             } else {
                                 val newFraction = (value - fartherSection) / (1f - fartherSection)
-                                dpInterpolation(0.dp, maxPaddingItem, newFraction)
+                                dpInterpolation(
+                                    0.dp,  maxPaddingItem/2, newFraction,
+                                )
                             }
                         }
 
                         val background = MaterialTheme.colorScheme.background
-                        Column(
-                            modifier = Modifier
-                                .height(maxPaddingItem + itemHeight)
-                                .drawBehind {
-                                    if (wallpaper == list.last()) {
-                                        drawRect(background, topLeft = Offset(0f, size.height / 2))
-                                    }
+                        Column(modifier = Modifier
+                            .height(maxPaddingItem + itemHeight)
+                            .drawBehind {
+                                if (wallpaper == list.last()) {
+                                    drawRect(background, topLeft = Offset(0f, size.height / 2))
                                 }
-                        ) {
-                            WallCard(
-                                model = wallpaper,
-                                modifier = Modifier
-                                    .height(itemHeight)
-                                    .graphicsLayer {
-                                        translationY = topPadding.toPx()
-                                    }
-                                    .graphicsLayer {
-                                        transformOrigin = TransformOrigin(.5f, .35f)
+                            }) {
+                            WallCard(model = wallpaper, modifier = Modifier
+                                .height(itemHeight)
+                                .graphicsLayer {
+                                    translationY = topPadding.toPx()
+                                }
+                                .graphicsLayer {
+                                    transformOrigin = TransformOrigin(.5f, .12f)
 
-                                        rotationX = -animatedRotation
+                                    rotationX = -animatedRotation
 
-                                        scaleX = animatedScale
-                                        scaleY = animatedScale
-                                    },
-                                animatedVisibilityScope = this@AnimatedContent
+                                    scaleX = animatedScale
+                                    scaleY = animatedScale
+                                }, animatedVisibilityScope = this@AnimatedContent
                             ) { selectedWallpaper = wallpaper }
 
                         }
@@ -243,8 +245,7 @@ fun SharedTransitionScope.WallCard(
             model.image,
             contentDescription = "car image",
             contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .fillMaxSize()
+            modifier = Modifier.fillMaxSize()
         )
     }
 }
