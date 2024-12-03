@@ -118,7 +118,7 @@ fun SharedTransitionScope.CardStack(list: List<Wallpaper>, modifier: Modifier = 
                                 val itemInfo = state.layoutInfo.visibleItemsInfo.find { it.key == wallpaper.key }
                                 val result = itemInfo?.let {
                                     it.offset / listSize.height
-                                } ?: 0f
+                                } ?: -0.4f
 
                                 result.coerceAtMost(1f)
                             }
@@ -126,7 +126,7 @@ fun SharedTransitionScope.CardStack(list: List<Wallpaper>, modifier: Modifier = 
 
                         val transition = updateTransition(fraction, "fraction transition")
 
-                        val fartherSection = .4f
+                        val fartherSection = .35f
 
                         val animatedRotation by transition.animateFloat(
                             label = "rotation animation",
@@ -135,10 +135,10 @@ fun SharedTransitionScope.CardStack(list: List<Wallpaper>, modifier: Modifier = 
                             //to slightly increase rotation in the last ones
                             if (value <= fartherSection) {
                                 val newFraction = value.coerceAtLeast(0f) / fartherSection
-                                lerp(0f, 15f, newFraction)
+                                lerp(0f, 8f, newFraction)
                             } else {
                                 val newFraction = (value - fartherSection) / (1f - fartherSection)
-                                lerp(15f, 65f, newFraction)
+                                lerp(8f, 40f, newFraction)
                             }
                         }
 
@@ -167,19 +167,19 @@ fun SharedTransitionScope.CardStack(list: List<Wallpaper>, modifier: Modifier = 
                                 val maxValue = .35f
                                 val newFraction = value.absoluteValue / maxValue
                                 dpInterpolation(
-                                    start = maxPaddingItem,
+                                    start = maxPaddingItem.times(1.3f),
                                     stop = maxPaddingItem.times(3.7f),
                                     fraction = newFraction
                                 )
                             } else if (value <= fartherSection) {
                                 val newFraction = value / fartherSection
                                 dpInterpolation(
-                                    maxPaddingItem, maxPaddingItem.times(.1f), newFraction
+                                    maxPaddingItem.times(1.3f), 0.dp, newFraction
                                 )
                             } else {
                                 val newFraction = (value - fartherSection) / (1f - fartherSection)
                                 dpInterpolation(
-                                    0.dp,  maxPaddingItem/2, newFraction,
+                                    0.dp, maxPaddingItem / 4, newFraction,
                                 )
                             }
                         }
