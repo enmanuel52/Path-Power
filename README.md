@@ -118,6 +118,16 @@ fun JumpBottomBarSample(modifier: Modifier = Modifier) {
 
 https://github.com/user-attachments/assets/880e42ad-8417-4dc0-9bf8-b2081e93729f
 
+## Lazy Heap
+[Source Code](https://github.com/enmanuel52/Path-Power/blob/master/app/src/main/java/com/enmanuelbergling/pathpower/CardStack.kt "code")
+
+
+
+https://github.com/user-attachments/assets/313a43a8-67b8-4706-9b77-ed8585c28555
+
+
+
+https://github.com/user-attachments/assets/9587531b-1587-4d64-8615-4e9e347be651
 
 
 
