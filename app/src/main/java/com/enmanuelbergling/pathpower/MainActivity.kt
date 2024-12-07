@@ -6,7 +6,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.togetherWith
@@ -40,8 +39,10 @@ import com.enmanuelbergling.path_power.ui.bottom_bar.JumpingBottomBar
 import com.enmanuelbergling.path_power.ui.bottom_bar.JumpingItem
 import com.enmanuelbergling.path_power.ui.list.BasicBeehiveExample
 import com.enmanuelbergling.pathpower.ui.cars.navigation.CarsNavHost
+import com.enmanuelbergling.pathpower.ui.theme.NeutralYellow
 import com.enmanuelbergling.pathpower.ui.theme.PathPowerTheme
-import com.enmanuelbergling.pathpower.ui.theme.SoftYellow
+import com.enmanuelbergling.pathpower.ui.theme.SoftNeutralYellow
+import com.enmanuelbergling.pathpower.ui.theme.SoftPink
 import com.enmanuelbergling.pathpower.ui.wallpaper.WALLPAPERS
 
 class MainActivity : ComponentActivity() {
@@ -72,7 +73,8 @@ class MainActivity : ComponentActivity() {
                                         drawRect(
                                             Brush.verticalGradient(
                                                 0f to Color.Transparent,
-                                                .35f to SoftYellow,
+                                                .2f to SoftNeutralYellow,
+                                                .35f to NeutralYellow,
                                             )
                                         )
                                     },

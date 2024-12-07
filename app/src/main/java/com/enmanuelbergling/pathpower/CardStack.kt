@@ -9,7 +9,7 @@ import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.updateTransition
-import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,7 +23,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -32,8 +31,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
@@ -84,7 +81,7 @@ fun SharedTransitionScope.CardStack(
                 selectedWallpaper?.let { model ->
                     WallCard(
                         model = model,
-                        modifier = Modifier.height(240.dp),
+                        modifier = Modifier.fillMaxWidth(.7f),
                         animatedVisibilityScope = this,
                     ) { selectedWallpaper = null }
                 }
@@ -105,45 +102,40 @@ fun SharedTransitionScope.CardStack(
         ) {
 
             items(list, key = { it.key }) { wallpaper ->
-                val fraction by remember {
-                    derivedStateOf {
-                        val itemInfo = state.layoutInfo.visibleItemsInfo.find { it.key == wallpaper.key }
-                        val result = itemInfo?.let {
-                            it.offset / listSize.height
-                        } ?: -0.4f
-
-                        result.coerceAtMost(1f)
-                    }
-                }
-
-                val transition = updateTransition(fraction, "fraction transition")
-
-                val topPadding by transition.animateDp(label = "padding animation") {
-                    computeTopPadding(it)
-                }
-                val animatedRotation by transition.animateFloat(label = "rotation animation") {
-                    computeRotation(it)
-                }
-                val animatedScale by transition.animateFloat(label = "scale animation") {
-                    computeScale(it)
-                }
-
-
-                val background = MaterialTheme.colorScheme.background
-
                 androidx.compose.animation.AnimatedVisibility(
                     selectedWallpaper != wallpaper,
-                    enter = slideInVertically { -it },
+                    modifier = Modifier.animateItem(),
+                    enter = fadeIn(),
                 ) {
+                    val fraction by remember {
+                        derivedStateOf {
+                            val itemInfo = state.layoutInfo.visibleItemsInfo.find { it.key == wallpaper.key }
+                            val result = itemInfo?.let {
+                                it.offset / listSize.height
+                            } ?: -0.4f
+
+                            result.coerceAtMost(1f)
+                        }
+                    }
+
+                    val transition = updateTransition(fraction, "fraction transition")
+
+                    val topPadding by transition.animateDp(label = "padding animation") {
+                        computeTopPadding(it)
+                    }
+                    val animatedRotation by transition.animateFloat(label = "rotation animation") {
+                        computeRotation(it)
+                    }
+                    val animatedScale by transition.animateFloat(label = "scale animation") {
+                        computeScale(it)
+                    }
 
                     Column(
                         modifier = Modifier
                             .height(MaxPaddingItem + ItemHeight)
-                            .drawBehind {
-//                                if (wallpaper == list.last()) {
-//                                    drawRect(background, topLeft = Offset(0f, size.height / 2))
-//                                }
-                            }) {
+                            .fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
                         WallCard(
                             model = wallpaper,
                             modifier = Modifier
@@ -232,14 +224,11 @@ fun SharedTransitionScope.WallCard(
         shape = RoundedCornerShape(4),
         modifier = Modifier
             .sharedElement(
-                state = rememberSharedContentState(key = model.key),
+                rememberSharedContentState(key = model.key),
                 animatedVisibilityScope = animatedVisibilityScope,
                 boundsTransform = { _, _ ->
-                    spring(
-                        Spring.DampingRatioLowBouncy, Spring.StiffnessLow
-                    )
+                    spring(Spring.DampingRatioLowBouncy, Spring.StiffnessLow)
                 },
-                renderInOverlayDuringTransition = true,
             )
             .then(modifier)
             .aspectRatio(7f / 5f),
