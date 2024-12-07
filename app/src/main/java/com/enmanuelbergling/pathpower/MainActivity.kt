@@ -3,11 +3,14 @@ package com.enmanuelbergling.pathpower
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -41,6 +44,8 @@ class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalSharedTransitionApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        enableEdgeToEdge()
         setContent {
 
             PathPowerTheme {
@@ -54,12 +59,11 @@ class MainActivity : ComponentActivity() {
                         },
                     ) { paddingValues ->
 //                        AnimatedWavesWithAGSLPreview(Modifier.padding(paddingValues))
-                        SharedTransitionLayout {
+                        SharedTransitionLayout(modifier = Modifier.consumeWindowInsets(paddingValues)) {
                             CardStack(
                                 list = WALLPAPERS,
                                 modifier = Modifier
-                                    .padding(paddingValues)
-                                    .fillMaxSize()
+                                    .fillMaxSize(),
                             )
                         }
                     }

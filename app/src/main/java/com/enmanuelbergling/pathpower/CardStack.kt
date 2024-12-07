@@ -1,9 +1,6 @@
 package com.enmanuelbergling.pathpower
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
@@ -12,7 +9,7 @@ import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.updateTransition
-import androidx.compose.animation.togetherWith
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -46,7 +43,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.util.lerp
 import coil.compose.AsyncImage
-import com.enmanuelbergling.pathpower.ui.cars.model.CARS
 import com.enmanuelbergling.pathpower.ui.wallpaper.Wallpaper
 import kotlin.math.absoluteValue
 import androidx.compose.ui.unit.lerp as dpInterpolation
@@ -57,7 +53,10 @@ const val FartherSection = .35f
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun SharedTransitionScope.CardStack(list: List<Wallpaper>, modifier: Modifier = Modifier) {
+fun SharedTransitionScope.CardStack(
+    list: List<Wallpaper>,
+    modifier: Modifier = Modifier,
+) {
     val state = rememberLazyListState()
 
     var listSize by remember {
@@ -73,74 +72,81 @@ fun SharedTransitionScope.CardStack(list: List<Wallpaper>, modifier: Modifier = 
     }
 
     Column(modifier) {
-        AnimatedVisibility(
-            visible = selectedWallpaper != null, modifier = Modifier.weight(.4f)
+        Box(
+            Modifier
+                .weight(.4f)
+                .fillMaxWidth(), contentAlignment = Alignment.Center
         ) {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            androidx.compose.animation.AnimatedVisibility(
+                selectedWallpaper != null,
+            ) {
+
                 selectedWallpaper?.let { model ->
                     WallCard(
                         model = model,
                         modifier = Modifier.height(240.dp),
-                        animatedVisibilityScope = this@AnimatedVisibility,
+                        animatedVisibilityScope = this,
                     ) { selectedWallpaper = null }
                 }
             }
         }
 
-        AnimatedContent(targetState = selectedWallpaper != null,
+        LazyColumn(
+            state = state,
+            contentPadding = PaddingValues(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(-ItemHeight),
             modifier = Modifier
                 .weight(.6f)
                 .fillMaxWidth()
                 .onSizeChanged {
                     listSize = it.toSize()
                 },
-            label = "stack content switch",
-            transitionSpec = {
-                slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Up) togetherWith slideOutOfContainer(
-                    AnimatedContentTransitionScope.SlideDirection.Down
-                )
-            }) { selected ->
-            if (selected) {
-                selectedWallpaper?.let { WallHeap(it, list, Modifier.fillMaxSize()) }
-            } else {
-                LazyColumn(
-                    state = state,
-                    contentPadding = PaddingValues(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(-ItemHeight),
-                    modifier = Modifier.fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+
+            items(list, key = { it.key }) { wallpaper ->
+                val fraction by remember {
+                    derivedStateOf {
+                        val itemInfo = state.layoutInfo.visibleItemsInfo.find { it.key == wallpaper.key }
+                        val result = itemInfo?.let {
+                            it.offset / listSize.height
+                        } ?: -0.4f
+
+                        result.coerceAtMost(1f)
+                    }
+                }
+
+                val transition = updateTransition(fraction, "fraction transition")
+
+                val topPadding by transition.animateDp(label = "padding animation") {
+                    computeTopPadding(it)
+                }
+                val animatedRotation by transition.animateFloat(label = "rotation animation") {
+                    computeRotation(it)
+                }
+                val animatedScale by transition.animateFloat(label = "scale animation") {
+                    computeScale(it)
+                }
+
+
+                val background = MaterialTheme.colorScheme.background
+
+                androidx.compose.animation.AnimatedVisibility(
+                    selectedWallpaper != wallpaper,
+                    enter = slideInVertically { -it },
                 ) {
 
-                    items(list, key = { it.key }) { wallpaper ->
-                        val fraction by remember {
-                            derivedStateOf {
-                                val itemInfo = state.layoutInfo.visibleItemsInfo.find { it.key == wallpaper.key }
-                                val result = itemInfo?.let {
-                                    it.offset / listSize.height
-                                } ?: -0.4f
-
-                                result.coerceAtMost(1f)
-                            }
-                        }
-
-                        val transition = updateTransition(fraction, "fraction transition")
-
-                        val topPadding by transition.animateDp(label = "padding animation") { computeTopPadding(it) }
-                        val animatedRotation by transition.animateFloat(label = "rotation animation") {
-                            computeRotation(it)
-                        }
-                        val animatedScale by transition.animateFloat(label = "scale animation") { computeScale(it) }
-
-
-                        val background = MaterialTheme.colorScheme.background
-                        Column(modifier = Modifier
+                    Column(
+                        modifier = Modifier
                             .height(MaxPaddingItem + ItemHeight)
                             .drawBehind {
                                 if (wallpaper == list.last()) {
                                     drawRect(background, topLeft = Offset(0f, size.height / 2))
                                 }
                             }) {
-                            WallCard(model = wallpaper, modifier = Modifier
+                        WallCard(
+                            model = wallpaper,
+                            modifier = Modifier
                                 .height(ItemHeight)
                                 .graphicsLayer {
                                     translationY = topPadding.toPx()
@@ -151,15 +157,18 @@ fun SharedTransitionScope.CardStack(list: List<Wallpaper>, modifier: Modifier = 
 
                                     scaleX = animatedScale
                                     scaleY = animatedScale
-                                }, animatedVisibilityScope = this@AnimatedContent
-                            ) { selectedWallpaper = wallpaper }
+                                },
+                            animatedVisibilityScope = this@AnimatedVisibility,
+                        ) {
+                            if (selectedWallpaper == null) {
+                                selectedWallpaper = wallpaper
+                            }
                         }
                     }
                 }
             }
         }
     }
-
 }
 
 private fun computeRotation(fraction: Float) =
@@ -173,6 +182,9 @@ private fun computeRotation(fraction: Float) =
     }
 
 
+/**
+ * Its high increase rating is due the rotation point is up
+ * */
 private fun computeScale(fraction: Float) =
     if (fraction < 0) {
         val maxValue = .35f
@@ -227,7 +239,7 @@ fun SharedTransitionScope.WallCard(
                         Spring.DampingRatioLowBouncy, Spring.StiffnessLow
                     )
                 },
-                renderInOverlayDuringTransition = false,
+                renderInOverlayDuringTransition = true,
             )
             .then(modifier)
             .aspectRatio(7f / 5f),
@@ -238,44 +250,5 @@ fun SharedTransitionScope.WallCard(
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize()
         )
-    }
-}
-
-@Composable
-fun WallCard(
-    model: Wallpaper,
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit,
-) {
-    ElevatedCard(
-        onClick, shape = RoundedCornerShape(4), modifier = modifier.aspectRatio(7f / 5f)
-    ) {
-        AsyncImage(
-            model.image,
-            contentDescription = "wallpaper image",
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize()
-        )
-    }
-}
-
-@Composable
-fun WallHeap(selected: Wallpaper, list: List<Wallpaper>, modifier: Modifier = Modifier) {
-
-    Column(
-        verticalArrangement = Arrangement.spacedBy(-ItemHeight + 10.dp),
-        modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        list.filterNot { it == selected }.forEachIndexed { index, it ->
-            val fraction = remember { (index + 1) / CARS.size.toFloat() - 1f }
-            val scale = remember { lerp(.9f, 1.15f, fraction) }
-            WallCard(model = it, modifier = Modifier
-                .height(ItemHeight)
-                .graphicsLayer {
-                    scaleX = scale
-                    scaleY = scale
-                }) { }
-        }
     }
 }
