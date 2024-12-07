@@ -140,9 +140,9 @@ fun SharedTransitionScope.CardStack(
                         modifier = Modifier
                             .height(MaxPaddingItem + ItemHeight)
                             .drawBehind {
-                                if (wallpaper == list.last()) {
-                                    drawRect(background, topLeft = Offset(0f, size.height / 2))
-                                }
+//                                if (wallpaper == list.last()) {
+//                                    drawRect(background, topLeft = Offset(0f, size.height / 2))
+//                                }
                             }) {
                         WallCard(
                             model = wallpaper,

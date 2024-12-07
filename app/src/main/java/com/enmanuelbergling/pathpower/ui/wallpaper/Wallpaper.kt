@@ -5,95 +5,27 @@ import com.enmanuelbergling.pathpower.R
 
 data class Wallpaper(
     @DrawableRes val image: Int,
-    val label: String,
-){
-    val key:String
+    val label: String = "",
+) {
+    val key: String
         get() = label
 }
 
 val WALLPAPERS = listOf(
-    Wallpaper(
-        R.drawable._626,
-        "626"
-    ),
-    Wallpaper(
-        R.drawable.avengers,
-        "Avengers"
-    ),
-    Wallpaper(
-        R.drawable.avicii1,
-        "Colorful Avicii"
-    ),
-    Wallpaper(
-        R.drawable.avicii_burning,
-        "Burning fast"
-    ),
-    Wallpaper(
-        R.drawable.black_cat,
-        "Black cat"
-    ),
-    Wallpaper(
-        R.drawable._626_tears,
-        "626 crying"
-    ),
-    Wallpaper(
-        R.drawable.bob1,
-        "Bob"
-    ),
-    Wallpaper(
-        R.drawable.deadpool,
-        "Deadpool being he"
-    ),
-    Wallpaper(
-        R.drawable.dizzy_cat,
-        "Dizzy cat"
-    ),
-    Wallpaper(
-        R.drawable.eric,
-        "Eric"
-    ),
-    Wallpaper(
-        R.drawable.feelings,
-        "Feelings"
-    ),
-    Wallpaper(
-        R.drawable.freddy,
-        "Freddy"
-    ),
-    Wallpaper(
-        R.drawable.peter,
-        "Peter"
-    ),
-    Wallpaper(
-        R.drawable.futurama,
-        "Futurama"
-    ),
-    Wallpaper(
-        R.drawable.garfield,
-        "Garfield"
-    ),
-    Wallpaper(
-        R.drawable.tom,
-        "Tom"
-    ),
-    Wallpaper(
-        R.drawable.homero,
-        "Homero"
-    ),
-    Wallpaper(
-        R.drawable.packman,
-        "Packman"
-    ),
-    Wallpaper(
-        R.drawable.patric2,
-        "Patricio"
-    ),
-    Wallpaper(
-        R.drawable.walter,
-        "Walter"
-    ),
-    Wallpaper(
-        R.drawable.no_idea,
-        "No idea"
-    ),
+    Wallpaper(R.drawable.beach,"beach"),
+    Wallpaper(R.drawable.brothers,"brother"),
+    Wallpaper(R.drawable.brunch,"brunch"),
+    Wallpaper(R.drawable.cheese,"cheese"),
+    Wallpaper(R.drawable.couple, "couple"),
+    Wallpaper(R.drawable.family,"family"),
+    Wallpaper(R.drawable.guys,"guys"),
+    Wallpaper(R.drawable.having_beer,"having beer"),
+    Wallpaper(R.drawable.having_pizza,"having pizza"),
+    Wallpaper(R.drawable.kids,"kids"),
+    Wallpaper(R.drawable.lunch_at_work,"lunch at work"),
+    Wallpaper(R.drawable.lunch_selfie,"lunch selfie"),
+    Wallpaper(R.drawable.picnic,"picnic"),
+    Wallpaper(R.drawable.selfie1,"selfie1"),
+    Wallpaper(R.drawable.style_gal,"style gal"),
+    Wallpaper(R.drawable.wine_selfie,"wine selfie"),
 )
