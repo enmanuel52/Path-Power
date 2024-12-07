@@ -9,9 +9,11 @@ import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Build
@@ -62,9 +64,10 @@ class MainActivity : ComponentActivity() {
                         bottomBar = {
 //                            JumpBottomBarSample()
                         },
+                        contentWindowInsets = WindowInsets.statusBars,
                     ) { paddingValues ->
 //                        AnimatedWavesWithAGSLPreview(Modifier.padding(paddingValues))
-                        SharedTransitionLayout(modifier = Modifier.consumeWindowInsets(paddingValues)) {
+                        SharedTransitionLayout(modifier = Modifier.padding(paddingValues)) {
                             CardStack(
                                 list = WALLPAPERS,
                                 modifier = Modifier

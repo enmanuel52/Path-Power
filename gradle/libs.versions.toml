@@ -7,6 +7,7 @@ kotlinxSerializationJson = "1.6.0"
 navigationCompose = "2.8.3"
 org-jetbrains-kotlin-android = "2.0.0"
 agp = "8.7.1"
+airbnb-lottie-compose = "6.4.1"
 androidComposeBom = "2024.10.00"
 pathPower = "0.0.3"
 material-icons-extended = "1.6.7"
@@ -32,6 +33,7 @@ androidx-test-ext-junit = "androidx.test.ext:junit:1.1.5"
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
 junit = "junit:junit:4.13.2"
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
+com-airbnb-android-lottie-compose = { module = "com.airbnb.android:lottie-compose", version.ref = "airbnb-lottie-compose" }
 path-power = { module = "com.github.enmanuel52:Path-Power", version.ref = "pathPower" }
 
 [plugins]

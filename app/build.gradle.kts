@@ -87,4 +87,6 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
 
     implementation(libs.coil.compose)
+
+    implementation(libs.com.airbnb.android.lottie.compose)
 }

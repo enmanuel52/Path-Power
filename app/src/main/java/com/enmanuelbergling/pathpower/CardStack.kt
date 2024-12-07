@@ -10,6 +10,9 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,16 +21,21 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,12 +44,18 @@ import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.util.lerp
 import coil.compose.AsyncImage
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.enmanuelbergling.pathpower.ui.wallpaper.Wallpaper
+import kotlinx.coroutines.delay
 import kotlin.math.absoluteValue
+import kotlin.math.roundToLong
 import androidx.compose.ui.unit.lerp as dpInterpolation
 
 val ItemHeight = 180.dp
@@ -64,6 +78,20 @@ fun SharedTransitionScope.CardStack(
         mutableStateOf<Wallpaper?>(null)
     }
 
+    var firstLaunch by rememberSaveable { mutableStateOf(true) }
+
+    val lottieComposition by rememberLottieComposition(
+        LottieCompositionSpec.RawRes(R.raw.hammer)
+    )
+
+    LaunchedEffect(Unit) {
+        val timeMillis = lottieComposition?.duration?.roundToLong()
+        if (timeMillis != null) {
+            delay(timeMillis)
+        }
+        firstLaunch = false
+    }
+
     BackHandler(selectedWallpaper != null) {
         selectedWallpaper = null
     }
@@ -77,14 +105,28 @@ fun SharedTransitionScope.CardStack(
             androidx.compose.animation.AnimatedVisibility(
                 selectedWallpaper != null,
             ) {
-
                 selectedWallpaper?.let { model ->
                     WallCard(
                         model = model,
-                        modifier = Modifier.fillMaxWidth(.7f),
+                        modifier = Modifier
+                            .width(240.dp)
+                            .padding(12.dp),
                         animatedVisibilityScope = this,
                     ) { selectedWallpaper = null }
                 }
+            }
+            WoodenFrame()
+
+            androidx.compose.animation.AnimatedVisibility(
+                firstLaunch,
+                enter = slideInHorizontally { -it },
+                exit = fadeOut(),
+                modifier = Modifier.align(Alignment.TopCenter).padding(end = 75.dp),
+            ) {
+                LottieAnimation(
+                    composition = lottieComposition,
+                    modifier = Modifier.size(100.dp),
+                )
             }
         }
 
@@ -161,6 +203,19 @@ fun SharedTransitionScope.CardStack(
             }
         }
     }
+}
+
+@Composable
+private fun WoodenFrame() {
+    Image(
+        painter = painterResource(R.drawable.picture_frame),
+        contentDescription = "wooden frame",
+        modifier = Modifier
+            .height(240.dp)
+            .aspectRatio(5f / 7f)
+            .graphicsLayer(rotationZ = 90f),
+        contentScale = ContentScale.FillBounds
+    )
 }
 
 private fun computeRotation(fraction: Float) =
