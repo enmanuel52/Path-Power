@@ -51,9 +51,9 @@ import com.enmanuelbergling.pathpower.ui.wallpaper.Wallpaper
 import kotlin.math.absoluteValue
 import androidx.compose.ui.unit.lerp as dpInterpolation
 
-val itemHeight = 180.dp
-val maxPaddingItem = 80.dp
-const val fartherSection = .35f
+val ItemHeight = 180.dp
+val MaxPaddingItem = 80.dp
+const val FartherSection = .35f
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
@@ -106,7 +106,7 @@ fun SharedTransitionScope.CardStack(list: List<Wallpaper>, modifier: Modifier = 
                 LazyColumn(
                     state = state,
                     contentPadding = PaddingValues(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(-itemHeight),
+                    verticalArrangement = Arrangement.spacedBy(-ItemHeight),
                     modifier = Modifier.fillMaxSize(),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
@@ -125,82 +125,34 @@ fun SharedTransitionScope.CardStack(list: List<Wallpaper>, modifier: Modifier = 
 
                         val transition = updateTransition(fraction, "fraction transition")
 
-                        val animatedRotation by transition.animateFloat(
-                            label = "rotation animation",
-                        ) { value ->
-                            //to slightly increase rotation in the last ones
-                            if (value <= fartherSection) {
-                                val newFraction = value.coerceAtLeast(0f) / fartherSection
-                                lerp(0f, 12f, newFraction)
-                            } else {
-                                val newFraction = (value - fartherSection) / (1f - fartherSection)
-                                lerp(12f, 55f, newFraction)
-                            }
+                        val topPadding by transition.animateDp(label = "padding animation") { computeTopPadding(it) }
+                        val animatedRotation by transition.animateFloat(label = "rotation animation") {
+                            computeRotation(it)
                         }
+                        val animatedScale by transition.animateFloat(label = "scale animation") { computeScale(it) }
 
-                        val animatedScale by transition.animateFloat(
-                            label = "",
-                        ) { value ->
-                            if (value < 0) {
-                                val maxValue = .35f
-                                val newFraction = value.absoluteValue / maxValue
-                                lerp(.85f, .55f, newFraction)
-                            } else if (value <= fartherSection) {
-                                val newFraction = value / fartherSection
-                                lerp(.85f, 1.4f, newFraction)
-                            } else {
-                                val newFraction = (value - fartherSection) / (1f - fartherSection)
-                                lerp(1.4f, 1.55f, newFraction)
-                            }
-                        }
-
-                        val topPadding by transition.animateDp(
-                            label = "y translation",
-                        ) { value ->
-                            if (value < 0f) {
-                                val maxValue = .35f
-                                val newFraction = value.absoluteValue / maxValue
-                                dpInterpolation(
-                                    start = maxPaddingItem,
-                                    stop = maxPaddingItem.times(3.9f),
-                                    fraction = newFraction
-                                )
-                            } else if (value <= fartherSection) {
-                                val newFraction = value / fartherSection
-                                dpInterpolation(
-                                    maxPaddingItem, 0.dp, newFraction
-                                )
-                            } else {
-                                val newFraction = (value - fartherSection) / (1f - fartherSection)
-                                dpInterpolation(
-                                    0.dp, maxPaddingItem / 4, newFraction,
-                                )
-                            }
-                        }
 
                         val background = MaterialTheme.colorScheme.background
                         Column(modifier = Modifier
-                            .height(maxPaddingItem + itemHeight)
+                            .height(MaxPaddingItem + ItemHeight)
                             .drawBehind {
                                 if (wallpaper == list.last()) {
                                     drawRect(background, topLeft = Offset(0f, size.height / 2))
                                 }
                             }) {
                             WallCard(model = wallpaper, modifier = Modifier
-                                .height(itemHeight)
+                                .height(ItemHeight)
                                 .graphicsLayer {
                                     translationY = topPadding.toPx()
                                 }
                                 .graphicsLayer {
                                     transformOrigin = TransformOrigin(.5f, .12f)
-
                                     rotationX = -animatedRotation
 
                                     scaleX = animatedScale
                                     scaleY = animatedScale
                                 }, animatedVisibilityScope = this@AnimatedContent
                             ) { selectedWallpaper = wallpaper }
-
                         }
                     }
                 }
@@ -208,6 +160,51 @@ fun SharedTransitionScope.CardStack(list: List<Wallpaper>, modifier: Modifier = 
         }
     }
 
+}
+
+private fun computeRotation(fraction: Float) =
+    //to slightly increase rotation in the last ones
+    if (fraction <= FartherSection) {
+        val newFraction = fraction.coerceAtLeast(0f) / FartherSection
+        lerp(0f, 12f, newFraction)
+    } else {
+        val newFraction = (fraction - FartherSection) / (1f - FartherSection)
+        lerp(12f, 55f, newFraction)
+    }
+
+
+private fun computeScale(fraction: Float) =
+    if (fraction < 0) {
+        val maxValue = .35f
+        val newFraction = fraction.absoluteValue / maxValue
+        lerp(.85f, .55f, newFraction)
+    } else if (fraction <= FartherSection) {
+        val newFraction = fraction / FartherSection
+        lerp(.85f, 1.4f, newFraction)
+    } else {
+        val newFraction = (fraction - FartherSection) / (1f - FartherSection)
+        lerp(1.4f, 1.55f, newFraction)
+    }
+
+
+private fun computeTopPadding(fraction: Float) = if (fraction < 0f) {
+    val maxValue = .35f
+    val newFraction = fraction.absoluteValue / maxValue
+    dpInterpolation(
+        start = MaxPaddingItem,
+        stop = MaxPaddingItem.times(3.9f),
+        fraction = newFraction
+    )
+} else if (fraction <= FartherSection) {
+    val newFraction = fraction / FartherSection
+    dpInterpolation(
+        MaxPaddingItem, 0.dp, newFraction
+    )
+} else {
+    val newFraction = (fraction - FartherSection) / (1f - FartherSection)
+    dpInterpolation(
+        0.dp, MaxPaddingItem / 4, newFraction,
+    )
 }
 
 @OptIn(ExperimentalSharedTransitionApi::class)
@@ -266,7 +263,7 @@ fun WallCard(
 fun WallHeap(selected: Wallpaper, list: List<Wallpaper>, modifier: Modifier = Modifier) {
 
     Column(
-        verticalArrangement = Arrangement.spacedBy(-itemHeight + 10.dp),
+        verticalArrangement = Arrangement.spacedBy(-ItemHeight + 10.dp),
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -274,7 +271,7 @@ fun WallHeap(selected: Wallpaper, list: List<Wallpaper>, modifier: Modifier = Mo
             val fraction = remember { (index + 1) / CARS.size.toFloat() - 1f }
             val scale = remember { lerp(.9f, 1.15f, fraction) }
             WallCard(model = it, modifier = Modifier
-                .height(itemHeight)
+                .height(ItemHeight)
                 .graphicsLayer {
                     scaleX = scale
                     scaleY = scale
