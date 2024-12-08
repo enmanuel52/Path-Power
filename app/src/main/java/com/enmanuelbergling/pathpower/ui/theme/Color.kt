@@ -5,6 +5,14 @@ import androidx.compose.ui.graphics.Color
 val Honey = Color(0xFFFFA000)
 val LighterHoney = Color(0xFFE9A93D)
 
+val NeutralYellow = Color(0xFFc2aa8b)
+val SoftNeutralYellow = Color(0xFFd6c5b1)
+
+val SofterYellow = Color(0xFFffe182)
+val SoftYellow = Color(0xFFfdd22d)
+
+val Metal = Color(0xFF435a5a)
+
 
 val primaryLight = Color(0xFF415F91)
 val onPrimaryLight = Color(0xFFFFFFFF)

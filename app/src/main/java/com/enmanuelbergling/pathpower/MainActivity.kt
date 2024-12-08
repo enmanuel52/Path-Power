@@ -3,13 +3,18 @@ package com.enmanuelbergling.pathpower
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Build
@@ -30,17 +35,27 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import com.enmanuelbergling.path_power.ui.bottom_bar.JumpingBottomBar
 import com.enmanuelbergling.path_power.ui.bottom_bar.JumpingItem
 import com.enmanuelbergling.path_power.ui.list.BasicBeehiveExample
+import com.enmanuelbergling.pathpower.ui.cars.model.Mate
 import com.enmanuelbergling.pathpower.ui.cars.navigation.CarsNavHost
+import com.enmanuelbergling.pathpower.ui.theme.NeutralYellow
 import com.enmanuelbergling.pathpower.ui.theme.PathPowerTheme
+import com.enmanuelbergling.pathpower.ui.theme.SoftNeutralYellow
+import com.enmanuelbergling.pathpower.ui.theme.SoftYellow
+import com.enmanuelbergling.pathpower.ui.theme.SofterYellow
 import com.enmanuelbergling.pathpower.ui.wallpaper.WALLPAPERS
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalSharedTransitionApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        enableEdgeToEdge()
         setContent {
 
             PathPowerTheme {
@@ -52,14 +67,23 @@ class MainActivity : ComponentActivity() {
                         bottomBar = {
 //                            JumpBottomBarSample()
                         },
+                        contentWindowInsets = WindowInsets.statusBars,
+                        modifier = Modifier.drawBehind {
+                            drawRect(
+                                Brush.linearGradient(
+                                    listOf(SoftYellow, SofterYellow)
+                                )
+                            )
+                        },
+                        containerColor = Color.Transparent,
+                        contentColor = MaterialTheme.colorScheme.onBackground
                     ) { paddingValues ->
 //                        AnimatedWavesWithAGSLPreview(Modifier.padding(paddingValues))
-                        SharedTransitionLayout {
+                        SharedTransitionLayout(modifier = Modifier.padding(paddingValues)) {
                             CardStack(
                                 list = WALLPAPERS,
                                 modifier = Modifier
-                                    .padding(paddingValues)
-                                    .fillMaxSize()
+                                    .fillMaxSize(),
                             )
                         }
                     }

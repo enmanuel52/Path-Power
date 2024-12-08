@@ -5,24 +5,27 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import com.enmanuelbergling.pathpower.R
 
-private val LatoFontFamily = FontFamily(Font(R.raw.lato_regular))
+val LatoFontFamily = FontFamily(Font(R.raw.lato_regular))
+private val YellowTailFontFamily = FontFamily(Font(R.raw.yellowtail_regular))
+private val MadiFontFamily = FontFamily(Font(R.raw.ms_madi_regular))
+private val fontFamily = MadiFontFamily
 
 val DefaultTypography = Typography()
 
 val BeehiveTypography = Typography(
-    displayLarge = DefaultTypography.displayLarge.copy(fontFamily = LatoFontFamily),
-    displayMedium = DefaultTypography.displayMedium.copy(fontFamily = LatoFontFamily),
-    displaySmall = DefaultTypography.displaySmall.copy(fontFamily = LatoFontFamily),
-    headlineLarge = DefaultTypography.headlineLarge.copy(fontFamily = LatoFontFamily),
-    headlineMedium = DefaultTypography.headlineMedium.copy(fontFamily = LatoFontFamily),
-    headlineSmall = DefaultTypography.headlineSmall.copy(fontFamily = LatoFontFamily),
-    titleLarge = DefaultTypography.titleLarge.copy(fontFamily = LatoFontFamily),
-    titleMedium = DefaultTypography.titleMedium.copy(fontFamily = LatoFontFamily),
-    titleSmall = DefaultTypography.titleSmall.copy(fontFamily = LatoFontFamily),
-    bodyLarge = DefaultTypography.bodyLarge.copy(fontFamily = LatoFontFamily),
-    bodyMedium = DefaultTypography.bodyMedium.copy(fontFamily = LatoFontFamily),
-    bodySmall = DefaultTypography.bodySmall.copy(fontFamily = LatoFontFamily),
-    labelLarge = DefaultTypography.labelLarge.copy(fontFamily = LatoFontFamily),
-    labelMedium = DefaultTypography.labelMedium.copy(fontFamily = LatoFontFamily),
-    labelSmall = DefaultTypography.labelSmall.copy(fontFamily = LatoFontFamily),
+    displayLarge = DefaultTypography.displayLarge.copy(fontFamily = fontFamily),
+    displayMedium = DefaultTypography.displayMedium.copy(fontFamily = fontFamily),
+    displaySmall = DefaultTypography.displaySmall.copy(fontFamily = fontFamily),
+    headlineLarge = DefaultTypography.headlineLarge.copy(fontFamily = fontFamily),
+    headlineMedium = DefaultTypography.headlineMedium.copy(fontFamily = fontFamily),
+    headlineSmall = DefaultTypography.headlineSmall.copy(fontFamily = fontFamily),
+    titleLarge = DefaultTypography.titleLarge.copy(fontFamily = fontFamily),
+    titleMedium = DefaultTypography.titleMedium.copy(fontFamily = fontFamily),
+    titleSmall = DefaultTypography.titleSmall.copy(fontFamily = fontFamily),
+    bodyLarge = DefaultTypography.bodyLarge.copy(fontFamily = fontFamily),
+    bodyMedium = DefaultTypography.bodyMedium.copy(fontFamily = fontFamily),
+    bodySmall = DefaultTypography.bodySmall.copy(fontFamily = fontFamily),
+    labelLarge = DefaultTypography.labelLarge.copy(fontFamily = fontFamily),
+    labelMedium = DefaultTypography.labelMedium.copy(fontFamily = fontFamily),
+    labelSmall = DefaultTypography.labelSmall.copy(fontFamily = fontFamily),
 )
