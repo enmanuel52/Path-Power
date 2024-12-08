@@ -13,6 +13,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -39,14 +40,13 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.util.lerp
 import coil.compose.AsyncImage
 import com.airbnb.lottie.compose.LottieAnimation
@@ -54,13 +54,15 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.enmanuelbergling.pathpower.ui.wallpaper.Wallpaper
 import kotlinx.coroutines.delay
-import kotlin.math.absoluteValue
 import kotlin.math.roundToLong
 import androidx.compose.ui.unit.lerp as dpInterpolation
 
 val ItemHeight = 180.dp
 val MaxPaddingItem = 80.dp
-const val FartherSection = .35f
+const val FarSection = 0f
+const val MediumSection = .25f
+const val CloseSection = .7f
+const val LowerFraction = -.3f
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
@@ -71,7 +73,7 @@ fun SharedTransitionScope.CardStack(
     val state = rememberLazyListState()
 
     var listSize by remember {
-        mutableStateOf(Size.Zero)
+        mutableStateOf(IntSize.Zero)
     }
 
     var selectedWallpaper by remember {
@@ -99,8 +101,9 @@ fun SharedTransitionScope.CardStack(
     Column(modifier) {
         Box(
             Modifier
-                .weight(.4f)
-                .fillMaxWidth(), contentAlignment = Alignment.Center
+                .weight(.3f)
+                .fillMaxWidth(),
+            contentAlignment = Alignment.BottomCenter,
         ) {
             androidx.compose.animation.AnimatedVisibility(
                 selectedWallpaper != null,
@@ -110,18 +113,27 @@ fun SharedTransitionScope.CardStack(
                         model = model,
                         modifier = Modifier
                             .width(240.dp)
-                            .padding(12.dp),
+                            .padding(horizontal = 12.dp)
+                            .padding(top = 8.dp, bottom = 8.dp),
                         animatedVisibilityScope = this,
-                    ) { selectedWallpaper = null }
+                    ) { }
                 }
             }
-            WoodenFrame()
+            WoodenFrame(
+                Modifier
+                    .width(240.dp)
+                    .aspectRatio(7f / 5f)
+            ) {
+                selectedWallpaper = null
+            }
 
             androidx.compose.animation.AnimatedVisibility(
                 firstLaunch,
                 enter = slideInHorizontally { -it },
                 exit = fadeOut(),
-                modifier = Modifier.align(Alignment.TopCenter).padding(end = 75.dp),
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(end = 75.dp),
             ) {
                 LottieAnimation(
                     composition = lottieComposition,
@@ -132,13 +144,13 @@ fun SharedTransitionScope.CardStack(
 
         LazyColumn(
             state = state,
-            contentPadding = PaddingValues(horizontal = 16.dp),
+            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 24.dp),
             verticalArrangement = Arrangement.spacedBy(-ItemHeight),
             modifier = Modifier
-                .weight(.6f)
+                .weight(.7f)
                 .fillMaxWidth()
                 .onSizeChanged {
-                    listSize = it.toSize()
+                    listSize = it
                 },
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
@@ -153,8 +165,9 @@ fun SharedTransitionScope.CardStack(
                         derivedStateOf {
                             val itemInfo = state.layoutInfo.visibleItemsInfo.find { it.key == wallpaper.key }
                             val result = itemInfo?.let {
-                                it.offset / listSize.height
-                            } ?: -0.4f
+                                val offset = it.offset + state.layoutInfo.beforeContentPadding
+                                offset.toFloat() / listSize.height
+                            } ?: (LowerFraction - 0.5f)
 
                             result.coerceAtMost(1f)
                         }
@@ -183,6 +196,7 @@ fun SharedTransitionScope.CardStack(
                             modifier = Modifier
                                 .height(ItemHeight)
                                 .graphicsLayer {
+                                    alpha = if (fraction < LowerFraction) 0f else 1f
                                     translationY = topPadding.toPx()
                                 }
                                 .graphicsLayer {
@@ -206,26 +220,27 @@ fun SharedTransitionScope.CardStack(
 }
 
 @Composable
-private fun WoodenFrame() {
+private fun WoodenFrame(modifier: Modifier = Modifier, onClick: () -> Unit) {
     Image(
         painter = painterResource(R.drawable.picture_frame),
         contentDescription = "wooden frame",
-        modifier = Modifier
-            .height(240.dp)
-            .aspectRatio(5f / 7f)
-            .graphicsLayer(rotationZ = 90f),
+        modifier = modifier
+            .clickable(null, null, onClick = onClick),
         contentScale = ContentScale.FillBounds
     )
 }
 
 private fun computeRotation(fraction: Float) =
-    //to slightly increase rotation in the last ones
-    if (fraction <= FartherSection) {
-        val newFraction = fraction.coerceAtLeast(0f) / FartherSection
-        lerp(0f, 12f, newFraction)
+    if (fraction <= MediumSection) {
+        val newFraction = fraction.coerceAtLeast(0f) / MediumSection
+        lerp(0f, 15f, newFraction)
+    } else if (fraction <= CloseSection) {
+        val newFraction = (fraction - MediumSection) / (CloseSection - MediumSection)
+        lerp(15f, 35f, newFraction)
     } else {
-        val newFraction = (fraction - FartherSection) / (1f - FartherSection)
-        lerp(12f, 55f, newFraction)
+        //increasing rotation in the closer ones
+        val newFraction = (fraction - CloseSection) / (1f - CloseSection)
+        lerp(35f, 55f, newFraction)
     }
 
 
@@ -233,34 +248,35 @@ private fun computeRotation(fraction: Float) =
  * Its high increase rating is due the rotation point is up
  * */
 private fun computeScale(fraction: Float) =
-    if (fraction < 0) {
-        val maxValue = .35f
-        val newFraction = fraction.absoluteValue / maxValue
-        lerp(.85f, .55f, newFraction)
-    } else if (fraction <= FartherSection) {
-        val newFraction = fraction / FartherSection
+    if (fraction < 0f) {
+        val newFraction = 1f - (fraction.coerceAtLeast(LowerFraction) / LowerFraction)
+        lerp(.5f, .6f, newFraction)
+    } else if (fraction <= MediumSection) {
+        val newFraction = fraction / MediumSection
+        lerp(.6f, .85f, newFraction)
+    } else if (fraction <= CloseSection) {
+        val newFraction = (fraction - MediumSection) / (CloseSection - MediumSection)
         lerp(.85f, 1.4f, newFraction)
     } else {
-        val newFraction = (fraction - FartherSection) / (1f - FartherSection)
+        val newFraction = (fraction - CloseSection) / (1f - CloseSection)
         lerp(1.4f, 1.55f, newFraction)
     }
 
 
-private fun computeTopPadding(fraction: Float) = if (fraction < 0f) {
-    val maxValue = .35f
-    val newFraction = fraction.absoluteValue / maxValue
+private fun computeTopPadding(fraction: Float) = if (fraction <= MediumSection) {
+    val newFraction = fraction / MediumSection
     dpInterpolation(
-        start = MaxPaddingItem,
-        stop = MaxPaddingItem.times(3.9f),
+        start = MaxPaddingItem.times(2.7f),
+        stop = MaxPaddingItem,
         fraction = newFraction
     )
-} else if (fraction <= FartherSection) {
-    val newFraction = fraction / FartherSection
+} else if (fraction <= CloseSection) {
+    val newFraction = (fraction - MediumSection) / (CloseSection - MediumSection)
     dpInterpolation(
         MaxPaddingItem, 0.dp, newFraction
     )
 } else {
-    val newFraction = (fraction - FartherSection) / (1f - FartherSection)
+    val newFraction = (fraction - CloseSection) / (1f - CloseSection)
     dpInterpolation(
         0.dp, MaxPaddingItem / 4, newFraction,
     )

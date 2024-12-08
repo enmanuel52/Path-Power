@@ -40,11 +40,13 @@ import androidx.compose.ui.graphics.Color
 import com.enmanuelbergling.path_power.ui.bottom_bar.JumpingBottomBar
 import com.enmanuelbergling.path_power.ui.bottom_bar.JumpingItem
 import com.enmanuelbergling.path_power.ui.list.BasicBeehiveExample
+import com.enmanuelbergling.pathpower.ui.cars.model.Mate
 import com.enmanuelbergling.pathpower.ui.cars.navigation.CarsNavHost
 import com.enmanuelbergling.pathpower.ui.theme.NeutralYellow
 import com.enmanuelbergling.pathpower.ui.theme.PathPowerTheme
 import com.enmanuelbergling.pathpower.ui.theme.SoftNeutralYellow
-import com.enmanuelbergling.pathpower.ui.theme.SoftPink
+import com.enmanuelbergling.pathpower.ui.theme.SoftYellow
+import com.enmanuelbergling.pathpower.ui.theme.SofterYellow
 import com.enmanuelbergling.pathpower.ui.wallpaper.WALLPAPERS
 
 class MainActivity : ComponentActivity() {
@@ -65,22 +67,22 @@ class MainActivity : ComponentActivity() {
 //                            JumpBottomBarSample()
                         },
                         contentWindowInsets = WindowInsets.statusBars,
+                        modifier = Modifier.drawBehind {
+                            drawRect(
+                                Brush.linearGradient(
+                                    listOf(SoftYellow, SofterYellow)
+                                )
+                            )
+                        },
+                        containerColor = Color.Transparent,
+                        contentColor = MaterialTheme.colorScheme.onBackground
                     ) { paddingValues ->
 //                        AnimatedWavesWithAGSLPreview(Modifier.padding(paddingValues))
                         SharedTransitionLayout(modifier = Modifier.padding(paddingValues)) {
                             CardStack(
                                 list = WALLPAPERS,
                                 modifier = Modifier
-                                    .fillMaxSize()
-                                    .drawBehind {
-                                        drawRect(
-                                            Brush.verticalGradient(
-                                                0f to Color.Transparent,
-                                                .2f to SoftNeutralYellow,
-                                                .35f to NeutralYellow,
-                                            )
-                                        )
-                                    },
+                                    .fillMaxSize(),
                             )
                         }
                     }
