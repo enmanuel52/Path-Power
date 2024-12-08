@@ -1,6 +1,7 @@
 package com.enmanuelbergling.pathpower
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
@@ -8,10 +9,12 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -19,6 +22,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -40,7 +44,11 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
@@ -52,6 +60,8 @@ import coil.compose.AsyncImage
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.rememberLottieComposition
+import com.enmanuelbergling.pathpower.ui.theme.Metal
+import com.enmanuelbergling.pathpower.ui.theme.NeutralYellow
 import com.enmanuelbergling.pathpower.ui.wallpaper.Wallpaper
 import kotlinx.coroutines.delay
 import kotlin.math.roundToLong
@@ -80,7 +90,7 @@ fun SharedTransitionScope.CardStack(
         mutableStateOf<Wallpaper?>(null)
     }
 
-    var firstLaunch by rememberSaveable { mutableStateOf(true) }
+    var hammerVisible by rememberSaveable { mutableStateOf(true) }
 
     val lottieComposition by rememberLottieComposition(
         LottieCompositionSpec.RawRes(R.raw.hammer)
@@ -91,7 +101,7 @@ fun SharedTransitionScope.CardStack(
         if (timeMillis != null) {
             delay(timeMillis)
         }
-        firstLaunch = false
+        hammerVisible = false
     }
 
     BackHandler(selectedWallpaper != null) {
@@ -102,33 +112,57 @@ fun SharedTransitionScope.CardStack(
         Box(
             Modifier
                 .weight(.3f)
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .padding(top = 12.dp)
+                .drawWithContent {
+                    drawContent()
+                    if (!hammerVisible) {
+                        //nail
+                        drawCircle(Metal, 5.dp.toPx(), this.center.copy(y = 0f))
+                    }
+                },
             contentAlignment = Alignment.BottomCenter,
         ) {
+
             androidx.compose.animation.AnimatedVisibility(
-                selectedWallpaper != null,
+                visible = !hammerVisible,
+                enter = slideInVertically(tween(delayMillis = 100)) { -it },
             ) {
-                selectedWallpaper?.let { model ->
-                    WallCard(
-                        model = model,
-                        modifier = Modifier
-                            .width(240.dp)
-                            .padding(horizontal = 12.dp)
-                            .padding(top = 8.dp, bottom = 8.dp),
-                        animatedVisibilityScope = this,
-                    ) { }
+                Box(contentAlignment = Alignment.BottomCenter){
+                    AnimatedContent(
+                        selectedWallpaper != null,
+                        label = "frame content animation"
+                    ) { pictureOn ->
+                        if (pictureOn) {
+                            selectedWallpaper?.let { model ->
+                                WallCard(
+                                    model = model,
+                                    modifier = Modifier
+                                        .width(240.dp)
+                                        .padding(horizontal = 12.dp)
+                                        .padding(top = 8.dp, bottom = 8.dp),
+                                    animatedVisibilityScope = this,
+                                ) { }
+                            }
+                        } else {
+                            Image(
+                                painter = painterResource(R.drawable.light_blue_paper),
+                                contentDescription = "wooden frame paper",
+                                modifier = Modifier
+                                    .width(240.dp)
+                                    .aspectRatio(7f / 5)
+                                    .padding(12.dp),
+                                contentScale = ContentScale.FillBounds
+                            )
+                        }
+                    }
+
+                    WallFrameWithString { selectedWallpaper = null }
                 }
-            }
-            WoodenFrame(
-                Modifier
-                    .width(240.dp)
-                    .aspectRatio(7f / 5f)
-            ) {
-                selectedWallpaper = null
             }
 
             androidx.compose.animation.AnimatedVisibility(
-                firstLaunch,
+                hammerVisible,
                 enter = slideInHorizontally { -it },
                 exit = fadeOut(),
                 modifier = Modifier
@@ -216,6 +250,38 @@ fun SharedTransitionScope.CardStack(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun WallFrameWithString(onRemove: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .fillMaxHeight()
+            .drawBehind {
+                val frameStringSupportPath = Path().apply {
+                    val frameHeight = size.height / 4f
+                    moveTo(size.width / 3, frameHeight)
+                    lineTo(size.width / 2, 0f)
+                    lineTo(size.width.times(.66f), frameHeight)
+                }
+
+                //string
+                drawPath(
+                    path = frameStringSupportPath,
+                    color = NeutralYellow,
+                    style = Stroke(width = 2.dp.toPx())
+                )
+            },
+        contentAlignment = Alignment.BottomCenter
+    ) {
+        WoodenFrame(
+            Modifier
+                .width(240.dp)
+                .aspectRatio(7f / 5f),
+            onClick = onRemove
+        )
+
     }
 }
 
