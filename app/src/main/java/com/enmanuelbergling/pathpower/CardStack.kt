@@ -13,8 +13,6 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -50,25 +48,23 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.times
 import androidx.compose.ui.util.lerp
 import coil.compose.AsyncImage
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.rememberLottieComposition
-import com.enmanuelbergling.pathpower.ui.theme.Metal
 import com.enmanuelbergling.pathpower.ui.theme.NeutralYellow
 import com.enmanuelbergling.pathpower.ui.wallpaper.Wallpaper
 import kotlinx.coroutines.delay
 import kotlin.math.roundToLong
 import androidx.compose.ui.unit.lerp as dpInterpolation
-import androidx.compose.animation.AnimatedVisibility as Visibility
 
 val ItemHeight = 180.dp
 val MaxPaddingItem = 80.dp
@@ -116,14 +112,7 @@ fun SharedTransitionScope.CardStack(
             Modifier
                 .weight(.3f)
                 .fillMaxWidth()
-                .padding(top = 12.dp)
-                .drawWithContent {
-                    drawContent()
-                    if (!hammerVisible) {
-                        //nail
-                        drawCircle(Metal, 5.dp.toPx(), this.center.copy(y = 0f))
-                    }
-                },
+                .padding(top = 12.dp),
             contentAlignment = Alignment.BottomCenter,
         ) {
 
@@ -176,20 +165,38 @@ fun SharedTransitionScope.CardStack(
                 }
             }
 
-            androidx.compose.animation.AnimatedVisibility(
+            AnimatedContent(
                 hammerVisible,
-                enter = slideInHorizontally { -it },
-                exit = fadeOut(),
                 modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .padding(end = 85.dp),
-            ) {
-                LottieAnimation(
-                    composition = lottieComposition,
-                    modifier = Modifier.size(100.dp).graphicsLayer{
-                        translationY = -24.dp.toPx()
-                    },
-                )
+                    .align(Alignment.TopCenter),
+                label = "hammer onto nail",
+            ) { hammer ->
+                if (hammer) {
+                    LottieAnimation(
+                        composition = lottieComposition,
+                        modifier = Modifier
+                            .size(100.dp)
+                            .graphicsLayer {
+                                translationY = -24.dp.toPx()
+                                translationX = -45.dp.toPx()
+                            },
+                    )
+                } else {
+                    Image(
+                        painterResource(R.drawable.nail), contentDescription = "nail",
+                        modifier = Modifier
+                            .graphicsLayer {
+                                translationY = -4.dp.toPx()
+                            }
+                            .size(10.dp, 24.dp)
+                            .drawWithContent {
+                                clipRect(bottom = size.height / 3) {
+                                    this@drawWithContent.drawContent()
+                                }
+                            },
+                        contentScale = ContentScale.Fit,
+                    )
+                }
             }
         }
 
@@ -277,10 +284,14 @@ private fun WallFrameWithString(modifier: Modifier = Modifier, onRemove: () -> U
             .fillMaxHeight()
             .drawBehind {
                 val frameStringSupportPath = Path().apply {
-                    val frameHeight = size.height / 4f
-                    moveTo(size.width / 3, frameHeight)
-                    lineTo(size.width / 2, 0f)
-                    lineTo(size.width.times(.66f), frameHeight)
+                    val frameHeight = size.height.times(.3f)
+                    moveTo(size.width.times(.2f), frameHeight)
+                    val curbPx = 4.dp.toPx()
+                    lineTo(size.width / 2 - curbPx, curbPx)
+
+                    relativeQuadraticTo(curbPx, -curbPx, curbPx * 2, 0f)
+
+                    lineTo(size.width.times(.8f), frameHeight)
                 }
 
                 //string
@@ -307,8 +318,7 @@ private fun WoodenFrame(modifier: Modifier = Modifier, onClick: () -> Unit) {
     Image(
         painter = painterResource(R.drawable.picture_frame),
         contentDescription = "wooden frame",
-        modifier = modifier
-            .clickable(null, null, onClick = onClick),
+        modifier = modifier.clickable(null, null, onClick = onClick),
         contentScale = ContentScale.FillBounds
     )
 }
