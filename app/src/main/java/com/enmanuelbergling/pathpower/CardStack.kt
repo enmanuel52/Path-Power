@@ -48,7 +48,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -84,7 +83,7 @@ fun SharedTransitionScope.CardStack(
     list: List<Wallpaper>,
     modifier: Modifier = Modifier,
 ) {
-    val state = rememberLazyListState()
+    val state = rememberLazyListState(initialFirstVisibleItemIndex = list.size/2)
 
     var listSize by remember {
         mutableStateOf(IntSize.Zero)
@@ -96,12 +95,12 @@ fun SharedTransitionScope.CardStack(
 
     var hammerVisible by rememberSaveable { mutableStateOf(true) }
 
-    val lottieComposition by rememberLottieComposition(
+    val lottieCompositionHammer by rememberLottieComposition(
         LottieCompositionSpec.RawRes(R.raw.hammer)
     )
 
     LaunchedEffect(Unit) {
-        val timeMillis = lottieComposition?.duration?.times(.75)?.roundToLong()
+        val timeMillis = lottieCompositionHammer?.duration?.times(.75)?.roundToLong()
         if (timeMillis != null) {
             delay(timeMillis)
         }
@@ -120,14 +119,13 @@ fun SharedTransitionScope.CardStack(
                 .padding(top = 12.dp),
             contentAlignment = Alignment.BottomCenter,
         ) {
-
             androidx.compose.animation.AnimatedVisibility(
                 visible = !hammerVisible,
                 enter = slideInVertically(tween(delayMillis = 100)) { it },
             ) {
                 val frameAngle = remember { Animatable(25f) }
                 LaunchedEffect(Unit) {
-                    delay(500)
+                    delay(300)
                     frameAngle.animateTo(0f, spring(Spring.DampingRatioHighBouncy, Spring.StiffnessLow))
                 }
                 Box(
@@ -138,35 +136,9 @@ fun SharedTransitionScope.CardStack(
                             transformOrigin = TransformOrigin(.5f, 0f)
                             rotationZ = frameAngle.value
                         }) {
-                    AnimatedContent(
-                        selectedWallpaper != null,
-                        label = "frame content animation"
-                    ) { pictureOn ->
-                        if (pictureOn) {
-                            selectedWallpaper?.let { model ->
-                                WallCard(
-                                    model = model,
-                                    modifier = Modifier
-                                        .width(240.dp)
-                                        .padding(horizontal = 12.dp)
-                                        .padding(top = 8.dp, bottom = 8.dp),
-                                    animatedVisibilityScope = this,
-                                ) { }
-                            }
-                        } else {
-                            Image(
-                                painter = painterResource(R.drawable.light_blue_paper),
-                                contentDescription = "wooden frame paper",
-                                modifier = Modifier
-                                    .width(240.dp)
-                                    .aspectRatio(7f / 5)
-                                    .padding(12.dp),
-                                contentScale = ContentScale.FillBounds
-                            )
-                        }
-                    }
+                    CurrentPicture(selectedWallpaper)
 
-                    WallFrameWithString { selectedWallpaper = null }
+                    WallFrameHanging { selectedWallpaper = null }
                 }
             }
 
@@ -178,7 +150,7 @@ fun SharedTransitionScope.CardStack(
             ) { hammer ->
                 if (hammer) {
                     LottieAnimation(
-                        composition = lottieComposition,
+                        composition = lottieCompositionHammer,
                         modifier = Modifier
                             .size(100.dp)
                             .graphicsLayer {
@@ -187,27 +159,21 @@ fun SharedTransitionScope.CardStack(
                             },
                     )
                 } else {
-                    Image(
-                        painterResource(R.drawable.nail), contentDescription = "nail",
-                        modifier = Modifier
-                            .graphicsLayer {
-                                translationY = -4.dp.toPx()
-                            }
-                            .size(10.dp, 24.dp)
-                            .drawWithContent {
-                                clipRect(bottom = size.height / 3) {
-                                    this@drawWithContent.drawContent()
-                                }
-                            },
-                        contentScale = ContentScale.Fit,
-                    )
+                    NailPicture()
                 }
             }
         }
 
+        Text(
+            text = "Memories",
+            style = MaterialTheme.typography.displayLarge,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        )
+
         LazyColumn(
             state = state,
-            contentPadding = PaddingValues(start = 12.dp, end = 12.dp, bottom = 24.dp),
+            contentPadding = PaddingValues(start = 12.dp, end = 12.dp, bottom = 24.dp, top = 154.dp),
             verticalArrangement = Arrangement.spacedBy(-ItemHeight),
             modifier = Modifier
                 .weight(.7f)
@@ -217,13 +183,6 @@ fun SharedTransitionScope.CardStack(
                 },
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            stickyHeader {
-                Text(
-                    text = "Memories",
-                    style = MaterialTheme.typography.displayLarge,
-                    fontWeight = FontWeight.SemiBold
-                )
-            }
 
             items(list, key = { it.key }) { wallpaper ->
                 androidx.compose.animation.AnimatedVisibility(
@@ -278,9 +237,7 @@ fun SharedTransitionScope.CardStack(
                                 },
                             animatedVisibilityScope = this@AnimatedVisibility,
                         ) {
-                            if (selectedWallpaper == null) {
-                                selectedWallpaper = wallpaper
-                            }
+                            selectedWallpaper = wallpaper
                         }
                     }
                 }
@@ -290,20 +247,70 @@ fun SharedTransitionScope.CardStack(
 }
 
 @Composable
-private fun WallFrameWithString(modifier: Modifier = Modifier, onRemove: () -> Unit) {
+private fun NailPicture() {
+    Image(
+        painterResource(R.drawable.nail), contentDescription = "nail",
+        modifier = Modifier
+            .graphicsLayer {
+                translationY = -4.dp.toPx()
+            }
+            .size(10.dp, 24.dp)
+            .drawWithContent {
+                clipRect(bottom = size.height / 3) {
+                    this@drawWithContent.drawContent()
+                }
+            },
+        contentScale = ContentScale.Fit,
+    )
+}
+
+@OptIn(ExperimentalSharedTransitionApi::class)
+@Composable
+private fun SharedTransitionScope.CurrentPicture(selectedWallpaper: Wallpaper?) {
+    AnimatedContent(
+        selectedWallpaper,
+        label = "frame content animation"
+    ) { wallpaper ->
+        if (wallpaper != null) {
+            selectedWallpaper?.let { model ->
+                WallCard(
+                    model = model,
+                    modifier = Modifier
+                        .width(240.dp)
+                        .padding(horizontal = 12.dp, vertical = 8.dp),
+                    animatedVisibilityScope = this,
+                ) { }
+            }
+        } else {
+            Image(
+                painter = painterResource(R.drawable.light_blue_paper),
+                contentDescription = "wooden frame paper",
+                modifier = Modifier
+                    .width(240.dp)
+                    .aspectRatio(7f / 5)
+                    .padding(12.dp),
+                contentScale = ContentScale.FillBounds
+            )
+        }
+    }
+}
+
+@Composable
+private fun WallFrameHanging(modifier: Modifier = Modifier, onRemove: () -> Unit) {
     Box(
         modifier = modifier
             .fillMaxHeight()
             .drawBehind {
                 val frameStringSupportPath = Path().apply {
-                    val frameHeight = size.height.times(.3f)
-                    moveTo(size.width.times(.2f), frameHeight)
+                    val frameHeight = 240.dp.toPx() * 5 / 7
+                    val frameTop = size.height - frameHeight + 10f
+                    moveTo(size.width.times(.2f), frameTop)
                     val curbPx = 4.dp.toPx()
                     lineTo(size.width / 2 - curbPx, curbPx)
 
                     relativeQuadraticTo(curbPx, -curbPx, curbPx * 2, 0f)
 
-                    lineTo(size.width.times(.8f), frameHeight)
+                    lineTo(size.width.times(.8f), frameTop)
                 }
 
                 //string
@@ -318,11 +325,9 @@ private fun WallFrameWithString(modifier: Modifier = Modifier, onRemove: () -> U
         WoodenFrame(
             Modifier
                 .width(240.dp)
-                .aspectRatio(7f / 5f)
-                .shadow(4.dp),
+                .aspectRatio(7f / 5f),
             onClick = onRemove
         )
-
     }
 }
 
