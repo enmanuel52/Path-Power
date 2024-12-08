@@ -5,6 +5,7 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.animateFloat
@@ -55,6 +56,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.times
 import androidx.compose.ui.util.lerp
 import coil.compose.AsyncImage
 import com.airbnb.lottie.compose.LottieAnimation
@@ -66,6 +68,7 @@ import com.enmanuelbergling.pathpower.ui.wallpaper.Wallpaper
 import kotlinx.coroutines.delay
 import kotlin.math.roundToLong
 import androidx.compose.ui.unit.lerp as dpInterpolation
+import androidx.compose.animation.AnimatedVisibility as Visibility
 
 val ItemHeight = 180.dp
 val MaxPaddingItem = 80.dp
@@ -97,7 +100,7 @@ fun SharedTransitionScope.CardStack(
     )
 
     LaunchedEffect(Unit) {
-        val timeMillis = lottieComposition?.duration?.roundToLong()
+        val timeMillis = lottieComposition?.duration?.times(.75)?.roundToLong()
         if (timeMillis != null) {
             delay(timeMillis)
         }
@@ -126,9 +129,21 @@ fun SharedTransitionScope.CardStack(
 
             androidx.compose.animation.AnimatedVisibility(
                 visible = !hammerVisible,
-                enter = slideInVertically(tween(delayMillis = 100)) { -it },
+                enter = slideInVertically(tween(delayMillis = 100)) { it },
             ) {
-                Box(contentAlignment = Alignment.BottomCenter){
+                val frameAngle = remember { Animatable(25f) }
+                LaunchedEffect(Unit) {
+                    delay(500)
+                    frameAngle.animateTo(0f, spring(Spring.DampingRatioHighBouncy, Spring.StiffnessLow))
+                }
+                Box(
+                    contentAlignment = Alignment.BottomCenter,
+                    modifier = Modifier
+                    .fillMaxWidth()
+                    .graphicsLayer {
+                        transformOrigin = TransformOrigin(.5f, 0f)
+                        rotationZ = frameAngle.value
+                    }) {
                     AnimatedContent(
                         selectedWallpaper != null,
                         label = "frame content animation"
@@ -167,11 +182,13 @@ fun SharedTransitionScope.CardStack(
                 exit = fadeOut(),
                 modifier = Modifier
                     .align(Alignment.TopCenter)
-                    .padding(end = 75.dp),
+                    .padding(end = 85.dp),
             ) {
                 LottieAnimation(
                     composition = lottieComposition,
-                    modifier = Modifier.size(100.dp),
+                    modifier = Modifier.size(100.dp).graphicsLayer{
+                        translationY = -24.dp.toPx()
+                    },
                 )
             }
         }
@@ -254,9 +271,9 @@ fun SharedTransitionScope.CardStack(
 }
 
 @Composable
-private fun WallFrameWithString(onRemove: () -> Unit) {
+private fun WallFrameWithString(modifier: Modifier = Modifier, onRemove: () -> Unit) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxHeight()
             .drawBehind {
                 val frameStringSupportPath = Path().apply {
