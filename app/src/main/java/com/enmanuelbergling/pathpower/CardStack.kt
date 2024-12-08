@@ -14,6 +14,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInVertically
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -33,6 +34,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -45,6 +48,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -53,6 +57,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
@@ -73,7 +78,7 @@ const val MediumSection = .25f
 const val CloseSection = .7f
 const val LowerFraction = -.3f
 
-@OptIn(ExperimentalSharedTransitionApi::class)
+@OptIn(ExperimentalSharedTransitionApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun SharedTransitionScope.CardStack(
     list: List<Wallpaper>,
@@ -128,11 +133,11 @@ fun SharedTransitionScope.CardStack(
                 Box(
                     contentAlignment = Alignment.BottomCenter,
                     modifier = Modifier
-                    .fillMaxWidth()
-                    .graphicsLayer {
-                        transformOrigin = TransformOrigin(.5f, 0f)
-                        rotationZ = frameAngle.value
-                    }) {
+                        .fillMaxWidth()
+                        .graphicsLayer {
+                            transformOrigin = TransformOrigin(.5f, 0f)
+                            rotationZ = frameAngle.value
+                        }) {
                     AnimatedContent(
                         selectedWallpaper != null,
                         label = "frame content animation"
@@ -202,7 +207,7 @@ fun SharedTransitionScope.CardStack(
 
         LazyColumn(
             state = state,
-            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 24.dp),
+            contentPadding = PaddingValues(start = 12.dp, end = 12.dp, bottom = 24.dp),
             verticalArrangement = Arrangement.spacedBy(-ItemHeight),
             modifier = Modifier
                 .weight(.7f)
@@ -212,6 +217,13 @@ fun SharedTransitionScope.CardStack(
                 },
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
+            stickyHeader {
+                Text(
+                    text = "Memories",
+                    style = MaterialTheme.typography.displayLarge,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
 
             items(list, key = { it.key }) { wallpaper ->
                 androidx.compose.animation.AnimatedVisibility(
@@ -306,7 +318,8 @@ private fun WallFrameWithString(modifier: Modifier = Modifier, onRemove: () -> U
         WoodenFrame(
             Modifier
                 .width(240.dp)
-                .aspectRatio(7f / 5f),
+                .aspectRatio(7f / 5f)
+                .shadow(4.dp),
             onClick = onRemove
         )
 
