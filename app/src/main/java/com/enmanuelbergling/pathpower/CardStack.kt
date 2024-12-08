@@ -57,6 +57,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
@@ -164,86 +165,94 @@ fun SharedTransitionScope.CardStack(
             }
         }
 
-        Text(
-            text = "Memories",
-            style = MaterialTheme.typography.displayLarge,
-            fontWeight = FontWeight.SemiBold,
-            modifier = Modifier.align(Alignment.CenterHorizontally)
-        )
+        Box(Modifier.weight(.7f)) {
+            LazyColumn(
+                state = state,
+                contentPadding = PaddingValues(start = 12.dp, end = 12.dp, bottom = 24.dp, top = 154.dp),
+                verticalArrangement = Arrangement.spacedBy(-ItemHeight),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .onSizeChanged {
+                        listSize = it
+                    },
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
 
-        LazyColumn(
-            state = state,
-            contentPadding = PaddingValues(start = 12.dp, end = 12.dp, bottom = 24.dp, top = 154.dp),
-            verticalArrangement = Arrangement.spacedBy(-ItemHeight),
-            modifier = Modifier
-                .weight(.7f)
-                .fillMaxWidth()
-                .onSizeChanged {
-                    listSize = it
-                },
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-
-            items(list, key = { it.key }) { wallpaper ->
-                androidx.compose.animation.AnimatedVisibility(
-                    selectedWallpaper != wallpaper,
-                    modifier = Modifier.animateItem(),
-                    enter = fadeIn(),
-                ) {
-                    val fraction by remember {
-                        derivedStateOf {
-                            val itemInfo = state.layoutInfo.visibleItemsInfo.find { it.key == wallpaper.key }
-                            val result = itemInfo?.let {
-                                val offset = it.offset + state.layoutInfo.beforeContentPadding
-                                offset.toFloat() / listSize.height
-                            } ?: (LowerFraction - 0.5f)
-
-                            result.coerceAtMost(1f)
-                        }
-                    }
-
-                    val transition = updateTransition(fraction, "fraction transition")
-
-                    val topPadding by transition.animateDp(label = "padding animation") {
-                        computeTopPadding(it)
-                    }
-                    val animatedRotation by transition.animateFloat(label = "rotation animation") {
-                        computeRotation(it)
-                    }
-                    val animatedScale by transition.animateFloat(label = "scale animation") {
-                        computeScale(it)
-                    }
-
-                    Column(
-                        modifier = Modifier
-                            .height(MaxPaddingItem + ItemHeight)
-                            .fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                items(list, key = { it.key }) { wallpaper ->
+                    androidx.compose.animation.AnimatedVisibility(
+                        selectedWallpaper != wallpaper,
+                        modifier = Modifier.animateItem(),
+                        enter = fadeIn(),
                     ) {
-                        WallCard(
-                            model = wallpaper,
-                            modifier = Modifier
-                                .height(ItemHeight)
-                                .graphicsLayer {
-                                    alpha = if (fraction < LowerFraction) 0f else 1f
-                                    translationY = topPadding.toPx()
-                                }
-                                .graphicsLayer {
-                                    transformOrigin = TransformOrigin(.5f, .12f)
-                                    rotationX = -animatedRotation
+                        val fraction by remember {
+                            derivedStateOf {
+                                val itemInfo = state.layoutInfo.visibleItemsInfo.find { it.key == wallpaper.key }
+                                val result = itemInfo?.let {
+                                    val offset = it.offset + state.layoutInfo.beforeContentPadding
+                                    offset.toFloat() / listSize.height
+                                } ?: (LowerFraction - 0.5f)
 
-                                    scaleX = animatedScale
-                                    scaleY = animatedScale
-                                },
-                            animatedVisibilityScope = this@AnimatedVisibility,
+                                result.coerceAtMost(1f)
+                            }
+                        }
+
+                        val transition = updateTransition(fraction, "fraction transition")
+
+                        val topPadding by transition.animateDp(label = "padding animation") {
+                            computeTopPadding(it)
+                        }
+                        val animatedRotation by transition.animateFloat(label = "rotation animation") {
+                            computeRotation(it)
+                        }
+                        val animatedScale by transition.animateFloat(label = "scale animation") {
+                            computeScale(it)
+                        }
+
+                        Column(
+                            modifier = Modifier
+                                .height(MaxPaddingItem + ItemHeight)
+                                .fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            selectedWallpaper = wallpaper
+                            WallCard(
+                                model = wallpaper,
+                                modifier = Modifier
+                                    .height(ItemHeight)
+                                    .graphicsLayer {
+                                        alpha = if (fraction < LowerFraction) 0f else 1f
+                                        translationY = topPadding.toPx()
+                                    }
+                                    .graphicsLayer {
+                                        transformOrigin = TransformOrigin(.5f, .12f)
+                                        rotationX = -animatedRotation
+
+                                        scaleX = animatedScale
+                                        scaleY = animatedScale
+                                    },
+                                animatedVisibilityScope = this@AnimatedVisibility,
+                            ) {
+                                selectedWallpaper = wallpaper
+                            }
                         }
                     }
                 }
             }
+
+
+            Title()
         }
     }
+}
+
+@Composable
+private fun Title() {
+    Text(
+        text = "Memories",
+        style = MaterialTheme.typography.displayLarge,
+        fontWeight = FontWeight.SemiBold,
+        modifier = Modifier.fillMaxWidth(),
+        textAlign = TextAlign.Center
+    )
 }
 
 @Composable
@@ -361,10 +370,10 @@ private fun computeRotation(fraction: Float) =
 private fun computeScale(fraction: Float) =
     if (fraction < 0f) {
         val newFraction = 1f - (fraction.coerceAtLeast(LowerFraction) / LowerFraction)
-        lerp(.5f, .6f, newFraction)
+        lerp(.58f, .64f, newFraction)
     } else if (fraction <= MediumSection) {
         val newFraction = fraction / MediumSection
-        lerp(.6f, .85f, newFraction)
+        lerp(.64f, .85f, newFraction)
     } else if (fraction <= CloseSection) {
         val newFraction = (fraction - MediumSection) / (CloseSection - MediumSection)
         lerp(.85f, 1.4f, newFraction)
@@ -377,7 +386,7 @@ private fun computeScale(fraction: Float) =
 private fun computeTopPadding(fraction: Float) = if (fraction <= MediumSection) {
     val newFraction = fraction / MediumSection
     dpInterpolation(
-        start = MaxPaddingItem.times(2.7f),
+        start = MaxPaddingItem.times(2.65f),
         stop = MaxPaddingItem,
         fraction = newFraction
     )
