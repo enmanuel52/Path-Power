@@ -157,6 +157,7 @@ fun SharedTransitionScope.CardStack(
                             Modifier
                                 .width(FrameWidth)
                                 .aspectRatio(7f / 5f)
+                                .renderInSharedTransitionScopeOverlay()
                         ) { selectedWallpaper = null }
                     }
                 }
@@ -249,7 +250,6 @@ fun SharedTransitionScope.CardStack(
                                         scaleY = animatedScale
                                     },
                                 animatedVisibilityScope = this@AnimatedVisibility,
-                                renderInOverlayDuringTransition = false,
                             ) {
                                 selectedWallpaper = wallpaper
                             }
@@ -311,7 +311,6 @@ private fun SharedTransitionScope.CurrentPicture(
                         .width(FrameWidth)
                         .padding(horizontal = 12.dp, vertical = 8.dp),
                     animatedVisibilityScope = this,
-                    renderInOverlayDuringTransition = true,
                 ) { }
             }
         } else {
@@ -420,7 +419,6 @@ fun SharedTransitionScope.WallCard(
     model: Wallpaper,
     modifier: Modifier = Modifier,
     animatedVisibilityScope: AnimatedVisibilityScope,
-    renderInOverlayDuringTransition: Boolean = true,
     onClick: () -> Unit,
 ) {
     ElevatedCard(
@@ -433,7 +431,6 @@ fun SharedTransitionScope.WallCard(
                 boundsTransform = { _, _ ->
                     spring(Spring.DampingRatioLowBouncy, Spring.StiffnessLow)
                 },
-                renderInOverlayDuringTransition = renderInOverlayDuringTransition,
             )
             .then(modifier)
             .aspectRatio(7f / 5f),
