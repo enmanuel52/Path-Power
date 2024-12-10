@@ -19,7 +19,7 @@ val WALLPAPERS = listOf(
     Wallpaper(R.drawable.couple, "couple"),
     Wallpaper(R.drawable.family,"family"),
     Wallpaper(R.drawable.guys,"guys"),
-    Wallpaper(R.drawable.having_beer,"having beer"),
+//    Wallpaper(R.drawable.having_beer,"having beer"),
     Wallpaper(R.drawable.having_pizza,"having pizza"),
     Wallpaper(R.drawable.kids,"kids"),
     Wallpaper(R.drawable.lunch_at_work,"lunch at work"),

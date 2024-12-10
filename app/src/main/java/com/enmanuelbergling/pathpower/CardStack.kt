@@ -10,11 +10,9 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInVertically
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -22,7 +20,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -48,8 +45,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.graphicsLayer
@@ -73,18 +73,20 @@ import androidx.compose.ui.unit.lerp as dpInterpolation
 
 val ItemHeight = 180.dp
 val MaxPaddingItem = 80.dp
-const val FarSection = 0f
+val FrameWidth = 240.dp
+
+//const val FarSection = 0f
 const val MediumSection = .25f
 const val CloseSection = .7f
 const val LowerFraction = -.3f
 
-@OptIn(ExperimentalSharedTransitionApi::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun SharedTransitionScope.CardStack(
     list: List<Wallpaper>,
     modifier: Modifier = Modifier,
 ) {
-    val state = rememberLazyListState(initialFirstVisibleItemIndex = list.size/2)
+    val state = rememberLazyListState(initialFirstVisibleItemIndex = list.size / 3)
 
     var listSize by remember {
         mutableStateOf(IntSize.Zero)
@@ -112,6 +114,15 @@ fun SharedTransitionScope.CardStack(
         selectedWallpaper = null
     }
 
+    val frameAngle = remember { Animatable(25f) }
+    LaunchedEffect(hammerVisible) {
+        if (!hammerVisible) {
+            delay(300)
+
+            frameAngle.animateTo(0f, spring(Spring.DampingRatioHighBouncy, Spring.StiffnessLow))
+        }
+    }
+
     Column(modifier) {
         Box(
             Modifier
@@ -122,24 +133,33 @@ fun SharedTransitionScope.CardStack(
         ) {
             androidx.compose.animation.AnimatedVisibility(
                 visible = !hammerVisible,
-                enter = slideInVertically(tween(delayMillis = 100)) { it },
+                enter = slideInVertically(spring(Spring.DampingRatioLowBouncy, Spring.StiffnessLow)) { it },
             ) {
-                val frameAngle = remember { Animatable(25f) }
-                LaunchedEffect(Unit) {
-                    delay(300)
-                    frameAngle.animateTo(0f, spring(Spring.DampingRatioHighBouncy, Spring.StiffnessLow))
-                }
                 Box(
-                    contentAlignment = Alignment.BottomCenter,
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .fillMaxSize()
                         .graphicsLayer {
                             transformOrigin = TransformOrigin(.5f, 0f)
                             rotationZ = frameAngle.value
-                        }) {
-                    CurrentPicture(selectedWallpaper)
+                        }
+                        .drawStringFrameBehind(),
+                    contentAlignment = Alignment.BottomCenter,
+                ) {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .padding(12.dp)
+                            .shadow(8.dp),
+                    ) {
+                        CurrentPicture(selectedWallpaper)
 
-                    WallFrameHanging { selectedWallpaper = null }
+                        WoodenFrame(
+                            Modifier
+                                .width(FrameWidth)
+                                .aspectRatio(7f / 5f)
+                                .renderInSharedTransitionScopeOverlay()
+                        ) { selectedWallpaper = null }
+                    }
                 }
             }
 
@@ -251,7 +271,8 @@ private fun Title() {
         style = MaterialTheme.typography.displayLarge,
         fontWeight = FontWeight.SemiBold,
         modifier = Modifier.fillMaxWidth(),
-        textAlign = TextAlign.Center
+        textAlign = TextAlign.Center,
+        color = Color.Black,
     )
 }
 
@@ -275,7 +296,9 @@ private fun NailPicture() {
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-private fun SharedTransitionScope.CurrentPicture(selectedWallpaper: Wallpaper?) {
+private fun SharedTransitionScope.CurrentPicture(
+    selectedWallpaper: Wallpaper?,
+) {
     AnimatedContent(
         selectedWallpaper,
         label = "frame content animation"
@@ -285,7 +308,7 @@ private fun SharedTransitionScope.CurrentPicture(selectedWallpaper: Wallpaper?) 
                 WallCard(
                     model = model,
                     modifier = Modifier
-                        .width(240.dp)
+                        .width(FrameWidth)
                         .padding(horizontal = 12.dp, vertical = 8.dp),
                     animatedVisibilityScope = this,
                 ) { }
@@ -295,7 +318,7 @@ private fun SharedTransitionScope.CurrentPicture(selectedWallpaper: Wallpaper?) 
                 painter = painterResource(R.drawable.light_blue_paper),
                 contentDescription = "wooden frame paper",
                 modifier = Modifier
-                    .width(240.dp)
+                    .width(FrameWidth)
                     .aspectRatio(7f / 5)
                     .padding(12.dp),
                 contentScale = ContentScale.FillBounds
@@ -304,41 +327,29 @@ private fun SharedTransitionScope.CurrentPicture(selectedWallpaper: Wallpaper?) 
     }
 }
 
-@Composable
-private fun WallFrameHanging(modifier: Modifier = Modifier, onRemove: () -> Unit) {
-    Box(
-        modifier = modifier
-            .fillMaxHeight()
-            .drawBehind {
-                val frameStringSupportPath = Path().apply {
-                    val frameHeight = 240.dp.toPx() * 5 / 7
-                    val frameTop = size.height - frameHeight + 10f
-                    moveTo(size.width.times(.2f), frameTop)
-                    val curbPx = 4.dp.toPx()
-                    lineTo(size.width / 2 - curbPx, curbPx)
+private fun Modifier.drawStringFrameBehind(): Modifier = drawBehind {
+    val frameStringSupportPath = getFrameStringSupportPath()
 
-                    relativeQuadraticTo(curbPx, -curbPx, curbPx * 2, 0f)
-
-                    lineTo(size.width.times(.8f), frameTop)
-                }
-
-                //string
-                drawPath(
-                    path = frameStringSupportPath,
-                    color = NeutralYellow,
-                    style = Stroke(width = 2.dp.toPx())
-                )
-            },
-        contentAlignment = Alignment.BottomCenter
-    ) {
-        WoodenFrame(
-            Modifier
-                .width(240.dp)
-                .aspectRatio(7f / 5f),
-            onClick = onRemove
-        )
-    }
+    //string
+    drawPath(
+        path = frameStringSupportPath,
+        color = NeutralYellow,
+        style = Stroke(width = 2.dp.toPx())
+    )
 }
+
+private fun DrawScope.getFrameStringSupportPath() = Path().apply {
+    val frameHeight = FrameWidth.toPx() * 5 / 7
+    val frameTop = size.height - frameHeight
+    moveTo(size.width.times(.2f), frameTop)
+    val curbPx = 4.dp.toPx()
+    lineTo(size.width / 2 - curbPx, curbPx)
+
+    relativeQuadraticTo(curbPx, -curbPx, curbPx * 2, 0f)
+
+    lineTo(size.width.times(.8f), frameTop)
+}
+
 
 @Composable
 private fun WoodenFrame(modifier: Modifier = Modifier, onClick: () -> Unit) {
