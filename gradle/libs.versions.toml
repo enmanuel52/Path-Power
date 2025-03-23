@@ -1,16 +1,16 @@
 [versions]
-androidx-activity = "1.9.3"
-androidx-core = "1.13.1"
+androidx-activity = "1.10.1"
+androidx-core = "1.15.0"
 androidx-lifecycle = "2.8.6"
-coilCompose = "2.6.0"
-kotlinxSerializationJson = "1.6.0"
-navigationCompose = "2.8.3"
+coilCompose = "2.7.0"
+kotlinxSerializationJson = "1.6.3"
+navigationCompose = "2.8.9"
 org-jetbrains-kotlin-android = "2.0.0"
-agp = "8.7.1"
-airbnb-lottie-compose = "6.4.1"
-androidComposeBom = "2024.10.00"
+agp = "8.8.0"
+airbnb-lottie-compose = "6.6.2"
+androidComposeBom = "2025.01.00"
 pathPower = "0.0.3"
-material-icons-extended = "1.6.7"
+material-icons-extended = "1.7.6"
 
 [libraries]
 androidx-activity-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activity" }
