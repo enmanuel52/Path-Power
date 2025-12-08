@@ -62,6 +62,11 @@ AnimatedWavesIndicator(
 
 https://github.com/enmanuel52/Path-Power/assets/102194318/1511ad6a-9234-4339-8bab-b8399b1d08b1
 
+# Shader waves animation:
+_Not exposed yet_
+
+https://github.com/user-attachments/assets/21dda1ea-db91-48a8-b957-fe21c25ea691
+
 
 ## Beehive Grid
 ```
