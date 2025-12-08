@@ -75,7 +75,7 @@ internal fun Modifier.wavesShader(
     speed: Float = 1.0f,
     backWaveShader: RuntimeShader,
     frontWaveShader: RuntimeShader,
-) = this then shader(shader) {
+) = shader(shader) {
     uniform("progress", progress)
     uniform("time", time)
     uniform("height", height)

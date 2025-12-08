@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -56,6 +57,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.enmanuelbergling.path_power.ui.model.Glass
@@ -128,7 +130,7 @@ sealed interface WaveForce {
         val durationMillis: Int
 
         data class Custom(
-            @FloatRange(.0, .6) override val upPercent: Float,
+            @param:FloatRange(.0, .6) override val upPercent: Float,
             override val durationMillis: Int,
         ) : CanvasBased {
             init {
@@ -323,8 +325,10 @@ private fun AGSLBasedWaveIndicator(
             }
         }
     }
-    val backWaveShader = remember(waveForce.backWaveColor) { waveForce.backWaveColor.toRuntimeShader() }
-    val frontWaveShader = remember(waveForce.frontWaveColor) { waveForce.frontWaveColor.toRuntimeShader() }
+    val backWaveShader =
+        remember(waveForce.backWaveColor) { waveForce.backWaveColor.toRuntimeShader() }
+    val frontWaveShader =
+        remember(waveForce.frontWaveColor) { waveForce.frontWaveColor.toRuntimeShader() }
     (waveForce.backWaveColor as? WaveColor.Shader.Animated)?.apply {
         updateTime(time)
     }
@@ -487,25 +491,48 @@ fun AnimatedWavesWithAGSLPreview(modifier: Modifier = Modifier) {
             )
         }
 
-        Slider(
+        LabeledSlider(
+            label = "Progress",
             value = progress,
             onValueChange = { newValue -> progress = newValue },
             valueRange = 0f..1f
         )
-        Slider(
+        LabeledSlider(
+            label = "Height",
             value = height,
             onValueChange = { newValue -> height = newValue },
             valueRange = 0.1f..4.0f
         )
-        Slider(
+        LabeledSlider(
+            label = "Frequency",
             value = frequency,
             onValueChange = { newValue -> frequency = newValue },
             valueRange = 0.1f..4.0f
         )
-        Slider(
+        LabeledSlider(
+            label = "Speed",
             value = speed,
             onValueChange = { newValue -> speed = newValue },
             valueRange = 0.1f..4.0f
+        )
+    }
+}
+
+@Composable
+fun LabeledSlider(
+    label: String,
+    value: Float,
+    onValueChange: (Float) -> Unit,
+    valueRange: ClosedFloatingPointRange<Float>,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier, horizontalAlignment = CenterHorizontally) {
+        Text(label, style = MaterialTheme.typography.titleMedium)
+        Spacer(modifier = Modifier.height(2.dp))
+        Slider(
+            value = value,
+            onValueChange = onValueChange,
+            valueRange = valueRange,
         )
     }
 }
