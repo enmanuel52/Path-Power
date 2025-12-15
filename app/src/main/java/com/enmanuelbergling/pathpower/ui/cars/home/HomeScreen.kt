@@ -8,7 +8,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -79,7 +78,7 @@ private fun AnimatedContentScope.CarsBeeGrid(
                 .fillMaxSize()
                     then with(sharedTransitionScope) {
                 Modifier.sharedElement(
-                    state = rememberSharedContentState(key = carModel.key),
+                     rememberSharedContentState(key = carModel.key),
                     animatedVisibilityScope = this@CarsBeeGrid,
                     boundsTransform = { _, _ ->
                         spring(

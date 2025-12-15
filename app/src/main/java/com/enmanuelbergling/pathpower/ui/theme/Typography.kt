@@ -8,7 +8,7 @@ import com.enmanuelbergling.pathpower.R
 val LatoFontFamily = FontFamily(Font(R.raw.lato_regular))
 private val YellowTailFontFamily = FontFamily(Font(R.raw.yellowtail_regular))
 private val MadiFontFamily = FontFamily(Font(R.raw.ms_madi_regular))
-private val fontFamily = MadiFontFamily
+private val fontFamily = LatoFontFamily
 
 val DefaultTypography = Typography()
 

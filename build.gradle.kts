@@ -7,5 +7,5 @@ plugins {
     alias(libs.plugins.nl.littlerobots.version.catalog.update)
     kotlin("plugin.serialization") version "1.9.22" apply false
     id("com.android.test") version "8.2.1" apply false
-    id("androidx.baselineprofile") version "1.2.2" apply false
+    id("androidx.baselineprofile") version "1.2.4" apply false
 }
