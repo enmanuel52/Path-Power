@@ -40,6 +40,12 @@ android {
     lint {
         checkReleaseBuilds = false
     }
+
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+        }
+    }
 }
 
 dependencies {
@@ -67,7 +73,7 @@ dependencies {
 
 publishing {
     publications {
-        register<MavenPublication>("maven") {
+        register<MavenPublication>("release") {
             groupId = "com.github.enmanuel52"
             artifactId = "path_power"
             version = "0.0.4"
