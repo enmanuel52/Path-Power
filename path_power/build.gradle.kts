@@ -2,7 +2,7 @@ plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
     alias(libs.plugins.kotlin.compose.compiler)
-    `maven-publish`
+    id("maven-publish")
 //    id("androidx.baselineprofile")
 }
 
