@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -40,7 +39,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import coil.compose.AsyncImage
 import com.enmanuelbergling.path_power.ui.canvas.AnimatedWavesIndicator
-import com.enmanuelbergling.path_power.ui.canvas.WaveForce
+import com.enmanuelbergling.path_power.ui.canvas.WaveStyle
 import com.enmanuelbergling.path_power.ui.list.BeehiveGridCells
 import com.enmanuelbergling.path_power.ui.list.LazyBeehiveVerticalGrid
 import com.enmanuelbergling.path_power.ui.shape.Hexagon
@@ -142,8 +141,7 @@ fun HexLabelUi(
         modifier = modifier
             .border(2.dp, color, Hexagon)
             .clip(Hexagon),
-        waveForce = WaveForce.CanvasBased.Quiet,
-        color = color
+        waveStyle = WaveStyle.CanvasBased.quiet(color),
     ) {
         Text(
             text = "$label \n $value",

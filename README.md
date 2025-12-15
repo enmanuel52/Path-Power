@@ -54,8 +54,10 @@ AnimatedWavesIndicator(
     .size(300.dp, 270.dp)
     .clip(Heart)
     .border(4.dp, MaterialTheme.colorScheme.surfaceVariant, Heart),
-    color = MaterialTheme.colorScheme.primary,
-    waveForce = WaveForce.Custom(waveHeightPercent, 1100)
+  waveStyle = WaveStyle.CanvasBased.Custom(
+      animatedHeight,
+      1_500,
+  )
 )
 ```
 
@@ -63,7 +65,22 @@ AnimatedWavesIndicator(
 https://github.com/enmanuel52/Path-Power/assets/102194318/1511ad6a-9234-4339-8bab-b8399b1d08b1
 
 # Shader waves animation:
-_Not exposed yet_
+```
+AnimatedWavesIndicator(
+  progress = animatedProgress,
+  modifier = Modifier
+    .size(300.dp, 270.dp)
+    .clip(Heart)
+    .border(4.dp, MaterialTheme.colorScheme.surfaceVariant, Heart),
+  waveStyle = WaveStyle.AGSLBased.Custom(
+    frequency = 1f,
+    speed = 1f,
+    height = 1f,
+    backWaveColor = WaveColor.Shader.Animated(plasmaShader(0.45f),
+    frontWaveColor = WaveColor.Shader.Animated(plasmaShader()),
+  )
+
+```
 
 https://github.com/user-attachments/assets/21dda1ea-db91-48a8-b957-fe21c25ea691
 

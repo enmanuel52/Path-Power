@@ -16,7 +16,6 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.withInfiniteAnimationFrameMillis
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -31,14 +30,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -57,7 +53,6 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.enmanuelbergling.path_power.ui.model.Glass
@@ -122,30 +117,35 @@ internal fun DrawScope.wavesIndicator(
 }
 
 /**
- * To determine how angry or higher the waves are
+ * Defines where the waves are built
  * */
-sealed interface WaveForce {
-    sealed interface CanvasBased : WaveForce {
+sealed interface WaveStyle {
+    /**
+     * @property upPercent how high the wave gets, 1+ percent. Between 0 & 0.3
+     * */
+    sealed interface CanvasBased : WaveStyle {
         val upPercent: Float
         val durationMillis: Int
+        val color: Color
 
         data class Custom(
-            @param:FloatRange(.0, .6) override val upPercent: Float,
+            @param:FloatRange(.0, .3) override val upPercent: Float,
             override val durationMillis: Int,
+            override val color: Color = DarkBlue40,
         ) : CanvasBased {
             init {
-                require(upPercent in 0.0..0.6) { "Provided percent $upPercent should be between 0 and 0.6." }
+                require(upPercent in 0.0..0.31) { "Provided percent $upPercent should be between 0 and 0.6." }
             }
         }
 
-        companion object {
-            val Quiet = Custom(upPercent = .03f, durationMillis = 2000)
-            val Normal = Custom(upPercent = .06f, durationMillis = 1500)
-            val Angry = Custom(upPercent = .12f, durationMillis = 1000)
+        companion object Companion {
+            fun quiet(color: Color) = Custom(upPercent = .03f, durationMillis = 2000, color = color)
+            fun normal(color: Color) = Custom(upPercent = .06f, durationMillis = 1500, color)
+            fun angry(color: Color) = Custom(upPercent = .12f, durationMillis = 1000, color)
         }
     }
 
-    sealed interface AGSLBased : WaveForce {
+    sealed interface AGSLBased : WaveStyle {
         val height: Float
         val frequency: Float
         val speed: Float
@@ -209,7 +209,7 @@ private fun WavesPreview() {
 /**
  *  Indicate progress by animating drawing waves in Canvas
  * @param progress the progress of this indicator in the 0.0 to 1.0 range
- * @param waveForce says how angry waves are
+ * @param waveStyle defines whether are path based or done with AG
  * @param goForward to move in one direction
  * @param content will be placed on the center
  * */
@@ -217,28 +217,25 @@ private fun WavesPreview() {
 fun AnimatedWavesIndicator(
     progress: Float,
     modifier: Modifier = Modifier,
-    waveForce: WaveForce = WaveForce.CanvasBased.Normal,
-    color: Color = DarkBlue40,
+    waveStyle: WaveStyle = WaveStyle.CanvasBased.normal(DarkBlue40),
     goForward: Boolean = true,
     content: @Composable () -> Unit = {},
 ) {
-    when (waveForce) {
-        is WaveForce.CanvasBased ->
+    when (waveStyle) {
+        is WaveStyle.CanvasBased ->
             CanvasBasedWaveIndicator(
                 progress = progress,
                 modifier = modifier,
-                waveForce = waveForce,
-                color = color,
+                waveStyle = waveStyle,
                 goForward = goForward,
                 content = content,
             )
 
-        is WaveForce.AGSLBased ->
+        is WaveStyle.AGSLBased ->
             AGSLBasedWaveIndicator(
                 progress = progress,
                 modifier = modifier,
-                waveForce = waveForce,
-                color = color,
+                waveStyle = waveStyle,
                 goForward = goForward,
                 content = content,
             )
@@ -248,20 +245,19 @@ fun AnimatedWavesIndicator(
 @Composable
 private fun CanvasBasedWaveIndicator(
     progress: Float,
-    waveForce: WaveForce.CanvasBased,
+    waveStyle: WaveStyle.CanvasBased,
     modifier: Modifier = Modifier,
-    color: Color = DarkBlue40,
     goForward: Boolean = true,
     content: @Composable () -> Unit = {},
 ) {
     val animatedWaveHeightPercent by animateFloatAsState(
-        targetValue = waveForce.upPercent,
+        targetValue = waveStyle.upPercent,
         label = "wave height percent",
         animationSpec = spring(stiffness = Spring.StiffnessLow)
     )
 
     val animatedWaveDuration by animateIntAsState(
-        targetValue = waveForce.durationMillis,
+        targetValue = waveStyle.durationMillis,
         label = "wave duration",
         animationSpec = spring(stiffness = Spring.StiffnessLow)
     )
@@ -289,32 +285,27 @@ private fun CanvasBasedWaveIndicator(
 
     Box(
         contentAlignment = Alignment.Center,
-        modifier = modifier,
+        modifier = modifier
+            .fillMaxSize()
+            .onSizeChanged { pxWidth = it.width }
+            .drawBehind {
+                wavesIndicator(
+                    progress = progress,
+                    offsetX = offsetXAnimation,
+                    waveHeightPercent = animatedWaveHeightPercent,
+                    color = waveStyle.color
+                )
+            },
     ) {
-        Canvas(
-            modifier = Modifier
-                .fillMaxSize()
-                .onSizeChanged { pxWidth = it.width }
-        ) {
-            wavesIndicator(
-                progress = progress,
-                offsetX = offsetXAnimation,
-                waveHeightPercent = animatedWaveHeightPercent,
-                color = color
-            )
-        }
-        CompositionLocalProvider(value = LocalContentColor provides contentColorFor(color)) {
-            content()
-        }
+        content()
     }
 }
 
 @Composable
 private fun AGSLBasedWaveIndicator(
     progress: Float,
-    waveForce: WaveForce.AGSLBased,
+    waveStyle: WaveStyle.AGSLBased,
     modifier: Modifier = Modifier,
-    color: Color = DarkBlue40,
     goForward: Boolean = true,
     content: @Composable () -> Unit = {},
 ) {
@@ -326,26 +317,26 @@ private fun AGSLBasedWaveIndicator(
         }
     }
     val backWaveShader =
-        remember(waveForce.backWaveColor) { waveForce.backWaveColor.toRuntimeShader() }
+        remember(waveStyle.backWaveColor) { waveStyle.backWaveColor.toRuntimeShader() }
     val frontWaveShader =
-        remember(waveForce.frontWaveColor) { waveForce.frontWaveColor.toRuntimeShader() }
-    (waveForce.backWaveColor as? WaveColor.Shader.Animated)?.apply {
+        remember(waveStyle.frontWaveColor) { waveStyle.frontWaveColor.toRuntimeShader() }
+    (waveStyle.backWaveColor as? WaveColor.Shader.Animated)?.apply {
         updateTime(time)
     }
-    (waveForce.frontWaveColor as? WaveColor.Shader.Animated)?.apply {
+    (waveStyle.frontWaveColor as? WaveColor.Shader.Animated)?.apply {
         updateTime(time)
     }
     Surface(
         modifier = modifier
             .fillMaxSize()
             .onSizeChanged {
-                (waveForce.backWaveColor as? WaveColor.Shader)?.apply {
+                (waveStyle.backWaveColor as? WaveColor.Shader)?.apply {
                     updateResolution(
                         it.width.toFloat(),
                         it.height.toFloat()
                     )
                 }
-                (waveForce.frontWaveColor as? WaveColor.Shader)?.apply {
+                (waveStyle.frontWaveColor as? WaveColor.Shader)?.apply {
                     updateResolution(
                         it.width.toFloat(),
                         it.height.toFloat()
@@ -355,16 +346,14 @@ private fun AGSLBasedWaveIndicator(
             .wavesShader(
                 progress = progress,
                 time = time,
-                height = waveForce.height,
-                frequency = waveForce.frequency,
-                speed = waveForce.speed,
+                height = waveStyle.height,
+                frequency = waveStyle.frequency,
+                speed = waveStyle.speed,
                 backWaveShader = backWaveShader,
                 frontWaveShader = frontWaveShader,
             ),
     ) {
-        CompositionLocalProvider(value = LocalContentColor provides contentColorFor(color)) {
-            content()
-        }
+        content()
     }
 }
 
@@ -409,8 +398,7 @@ internal fun AnimatedWavesPreview() {
                 .size(300.dp, 270.dp)
                 .clip(Heart)
                 .border(4.dp, MaterialTheme.colorScheme.surfaceVariant, Heart),
-            color = MaterialTheme.colorScheme.primary,
-            waveForce = WaveForce.CanvasBased.Custom(waveHeightPercent, 1100)
+            waveStyle = WaveStyle.CanvasBased.Custom(waveHeightPercent, 1100)
         )
 
         Row(verticalAlignment = CenterVertically) {
@@ -438,15 +426,57 @@ internal fun AnimatedWavesPreview() {
 }
 
 @Composable
+fun AnimatedWavesCanvasBasedPreview(modifier: Modifier = Modifier) {
+    var progress by remember { mutableFloatStateOf(0f) }
+    val animatedProgress by animateFloatAsState(progress, label = "progress animation")
+    var height by remember { mutableFloatStateOf(0.1f) }
+    val animatedHeight by animateFloatAsState(height, label = "scale animation")
+
+    Column(
+        modifier = modifier
+            .padding(16.dp)
+            .fillMaxWidth()
+            .padding(16.dp),
+        horizontalAlignment = CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        AnimatedWavesIndicator(
+            progress = animatedProgress,
+            modifier = Modifier
+                .size(300.dp, 270.dp)
+                .clip(Heart)
+                .border(1.dp, MaterialTheme.colorScheme.surfaceVariant, Heart),
+            waveStyle = WaveStyle.CanvasBased.Custom(
+                animatedHeight,
+                1_500,
+            )
+        )
+
+        LabeledSlider(
+            label = "Progress",
+            value = progress,
+            onValueChange = { newValue -> progress = newValue },
+            valueRange = 0f..1f
+        )
+        LabeledSlider(
+            label = "Height",
+            value = height,
+            onValueChange = { newValue -> height = newValue },
+            valueRange = 0.0f..0.3f
+        )
+    }
+}
+
+@Composable
 @Preview
 fun AnimatedWavesWithAGSLPreview(modifier: Modifier = Modifier) {
     var progress by remember { mutableFloatStateOf(0f) }
     val animatedProgress by animateFloatAsState(progress, label = "progress animation")
-    var height by remember { mutableFloatStateOf(0.6f) }
+    var height by remember { mutableFloatStateOf(1f) }
     val animatedHeight by animateFloatAsState(height, label = "scale animation")
-    var frequency by remember { mutableFloatStateOf(0.6f) }
+    var frequency by remember { mutableFloatStateOf(1f) }
     val animatedFrequency by animateFloatAsState(frequency, label = "frequency animation")
-    var speed by remember { mutableFloatStateOf(0.6f) }
+    var speed by remember { mutableFloatStateOf(1f) }
     val animatedSpeed by animateFloatAsState(speed, label = "speed animation")
     var selectedGlass by remember { mutableStateOf(Glass.SimpleWaterDrop) }
 
@@ -480,8 +510,7 @@ fun AnimatedWavesWithAGSLPreview(modifier: Modifier = Modifier) {
 
                         selectedGlass = newGlass
                     },
-                color = MaterialTheme.colorScheme.primary,
-                waveForce = WaveForce.AGSLBased.Custom(
+                waveStyle = WaveStyle.AGSLBased.Custom(
                     frequency = animatedFrequency,
                     speed = animatedSpeed,
                     height = animatedHeight,
